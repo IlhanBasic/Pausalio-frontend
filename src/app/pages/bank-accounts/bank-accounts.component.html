@@ -1,0 +1,135 @@
+<div class="bank-accounts-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Bankovni računi</h1>
+            <p class="subtitle">Upravljajte vašim poslovnim računima</p>
+        </div>
+        <button class="btn-primary" (click)="openAddModal()">
+            <span class="btn-icon">➕</span>
+            Dodaj račun
+        </button>
+    </div>
+
+    <!-- Alerts -->
+    <div *ngIf="errorMessage()" class="alert alert-error">
+        <span class="alert-icon">⚠️</span>
+        {{ errorMessage() }}
+    </div>
+
+    <div *ngIf="successMessage()" class="alert alert-success">
+        <span class="alert-icon">✅</span>
+        {{ successMessage() }}
+    </div>
+
+    <!-- Data Table -->
+    <app-data-table [columns]="columns" [data]="accounts()" [actions]="actions" searchPlaceholder="Pretraži račune..."
+        emptyMessage="Nema bankovnih računa za prikaz. Dodajte prvi račun!" (onEdit)="openEditModal($event)"
+        (onDelete)="openDeleteConfirm($event)">
+    </app-data-table>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>{{ editingAccount() ? 'Izmeni račun' : 'Dodaj novi račun' }}</h2>
+                <button class="close-btn" (click)="closeModal()">✕</button>
+            </div>
+
+            <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Naziv banke *</label>
+                        <input type="text" formControlName="bankName" placeholder="Npr. Raiffeisen Bank">
+                        <div *ngIf="accountForm.get('bankName')?.touched && accountForm.get('bankName')?.invalid"
+                            class="error">
+                            Naziv banke je obavezan
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Broj računa *</label>
+                            <input type="text" formControlName="accountNumber" placeholder="xxx-xxxxxxxxxxxx-xx">
+                            <div *ngIf="accountForm.get('accountNumber')?.touched && accountForm.get('accountNumber')?.invalid"
+                                class="error">
+                                Broj računa je obavezan
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Valuta *</label>
+                            <select formControlName="currency">
+                                <option *ngFor="let opt of currencyOptions" [value]="opt.value">{{ opt.label }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fields only for foreign currencies -->
+                    <div class="form-row" *ngIf="!isRsdSelected()">
+                        <div class="form-group">
+                            <label>IBAN *</label>
+                            <input type="text" formControlName="IBAN" placeholder="RS35...">
+                            <div *ngIf="accountForm.get('IBAN')?.touched && accountForm.get('IBAN')?.invalid"
+                                class="error">
+                                IBAN je obavezan za devizne račune
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>SWIFT *</label>
+                            <input type="text" formControlName="SWIFT" placeholder="XXXXRS...">
+                            <div *ngIf="accountForm.get('SWIFT')?.touched && accountForm.get('SWIFT')?.invalid"
+                                class="error">
+                                SWIFT je obavezan za devizne račune
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group checkbox-group" *ngIf="editingAccount()">
+                        <label class="checkbox-label">
+                            <input type="checkbox" formControlName="isActive">
+                            Aktivan račun
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" (click)="closeModal()">
+                        Otkaži
+                    </button>
+                    <button type="submit" class="btn-primary" [disabled]="accountForm.invalid">
+                        {{ editingAccount() ? 'Sačuvaj izmene' : 'Dodaj račun' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Potvrda brisanja</h2>
+                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="confirm-message">
+                    Da li ste sigurni da želite da obrišete račun
+                    <strong>{{ deletingAccount()?.accountNumber }}</strong>?
+                </p>
+                <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
+                    Otkaži
+                </button>
+                <button type="button" class="btn-danger" (click)="confirmDelete()">
+                    Obriši
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

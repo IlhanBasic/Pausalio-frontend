@@ -1,6 +1,9 @@
 <header class="navbar">
     <div class="company-info">
-        <span *ngIf="store.isOwner()">Moja Firma</span>
+        <span *ngIf="store.isOwner()" class="business-name">
+            {{ businessName() || 'Učitavanje...' }}
+        </span>
+
         <div *ngIf="store.isAssistant() && (store.user()?.availableBusinesses ?? []).length > 1"
             class="business-switcher">
             <select [value]="store.currentBusinessId()" (change)="onBusinessChange($event)">
@@ -9,15 +12,41 @@
                 </option>
             </select>
         </div>
+
         <span *ngIf="store.isAssistant() && (store.user()?.availableBusinesses ?? []).length <= 1">
             Firma: {{ store.currentBusinessId() }}
         </span>
     </div>
 
     <div class="user-menu">
-        <span class="user-name">{{ store.user()?.firstName }} {{ store.user()?.lastName }}</span>
-        <div class="dropdown">
-            <button (click)="logout()">Logout</button>
+        <div class="user-info" (click)="toggleUserDropdown()">
+            <div class="user-avatar">
+                {{ store.user()?.firstName?.charAt(0) }}{{ store.user()?.lastName?.charAt(0) }}
+            </div>
+            <div class="user-details">
+                <span class="user-name">{{ store.user()?.firstName }} {{ store.user()?.lastName }}</span>
+                <span class="user-role">{{ store.isOwner() ? 'Vlasnik' : 'Asistent' }}</span>
+            </div>
+            <span class="dropdown-arrow">{{ showUserDropdown() ? '▲' : '▼' }}</span>
+        </div>
+
+        <div class="user-dropdown" [class.show]="showUserDropdown()">
+            <button class="dropdown-item" (click)="navigateToProfile()">
+                <span class="item-icon">👤</span>
+                Profil
+            </button>
+            <button class="dropdown-item" (click)="navigateToSettings()">
+                <span class="item-icon">⚙️</span>
+                Podešavanja
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item logout" (click)="logout()">
+                <span class="item-icon">🚪</span>
+                Odjavi se
+            </button>
         </div>
     </div>
 </header>
+
+<!-- Overlay to close dropdown when clicking outside -->
+<div class="dropdown-overlay" *ngIf="showUserDropdown()" (click)="toggleUserDropdown()"></div>

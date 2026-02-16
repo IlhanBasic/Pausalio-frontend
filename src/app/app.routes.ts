@@ -22,6 +22,22 @@ export const routes: Routes = [
             {
                 path: 'home',
                 loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
+            },
+            {
+                path: 'services',
+                loadComponent: () => import('./pages/services/services.component').then(m => m.ServicesComponent)
+            },
+            {
+                path: 'clients',
+                loadComponent: () => import('./pages/clients/clients.component').then(m => m.ClientsComponent)
+            },
+            {
+                path: 'tax-obligations',
+                loadComponent: () => import('./pages/tax-obligations/tax-obligations.component').then(m => m.TaxObligationsComponent)
+            },
+            {
+                path: 'bank-accounts',
+                loadComponent: () => import('./pages/bank-accounts/bank-accounts.component').then(m => m.BankAccountsComponent)
             }
         ]
     },

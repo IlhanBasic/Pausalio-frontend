@@ -14,12 +14,19 @@
 }
 
 .company-info {
-    font-weight: 600;
-    color: #2d3748;
-    font-size: 16px;
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.business-name {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 18px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .business-switcher {
@@ -50,32 +57,129 @@
 }
 
 .user-menu {
+    position: relative;
+}
+
+.user-info {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f7fafc;
+}
+
+.user-info:hover {
+    background: #edf2f7;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .user-name {
-    color: #4a5568;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.dropdown button {
-    padding: 8px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
+    color: #2d3748;
     font-size: 14px;
     font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
-.dropdown button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+.user-role {
+    color: #718096;
+    font-size: 12px;
+}
+
+.dropdown-arrow {
+    color: #718096;
+    font-size: 10px;
+    transition: transform 0.3s ease;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.user-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4a5568;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: #f7fafc;
+    color: #2d3748;
+}
+
+.dropdown-item.logout {
+    color: #e53e3e;
+}
+
+.dropdown-item.logout:hover {
+    background: #fed7d7;
+}
+
+.item-icon {
+    font-size: 16px;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 4px 0;
+}
+
+.dropdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    background: transparent;
 }
 
 /* Responsive Design */
@@ -85,7 +189,11 @@
         padding: 0 15px;
     }
 
-    .user-name {
+    .user-details {
         display: none;
+    }
+
+    .business-name {
+        font-size: 16px;
     }
 }

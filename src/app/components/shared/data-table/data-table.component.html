@@ -1,0 +1,59 @@
+<div class="table-container">
+    <div class="table-header">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" [placeholder]="searchPlaceholder" [value]="searchTerm()"
+                (input)="onSearchChange($any($event.target).value)">
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th *ngFor="let column of columns" [class.sortable]="column.sortable" (click)="toggleSort(column)">
+                        <div class="th-content">
+                            <span>{{ column.label }}</span>
+                            <span class="sort-icon" *ngIf="column.sortable">
+                                {{ getSortIcon(column) }}
+                            </span>
+                        </div>
+                    </th>
+                    <th *ngIf="actions.length > 0" class="actions-column">Akcije</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of filteredData()" class="table-row">
+                    <td *ngFor="let column of columns">
+                        {{ formatValue(item[column.key], column.type) }}
+                    </td>
+                    <td *ngIf="actions.length > 0" class="actions-cell">
+                        <div class="action-buttons">
+                            <button *ngFor="let action of actions" class="action-btn"
+                                [class.edit-btn]="action.type === 'edit'" [class.delete-btn]="action.type === 'delete'"
+                                [style.color]="action.color"
+                                (click)="action.type === 'edit' ? handleEdit(item) : action.type === 'delete' ? handleDelete(item) : handleCustomAction(action, item)"
+                                [title]="action.label" [hidden]="action.showCondition && !action.showCondition(item)">
+                                <span class="action-icon">{{ action.icon }}</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="filteredData().length === 0" class="empty-row">
+                    <td [attr.colspan]="columns.length + (actions.length > 0 ? 1 : 0)" class="empty-cell">
+                        <div class="empty-state">
+                            <span class="empty-icon">📭</span>
+                            <p>{{ emptyMessage }}</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-footer" *ngIf="filteredData().length > 0">
+        <span class="result-count">
+            Prikazano: <strong>{{ filteredData().length }}</strong> od <strong>{{ dataSignal().length }}</strong>
+        </span>
+    </div>
+</div>
