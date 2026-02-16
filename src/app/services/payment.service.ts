@@ -10,7 +10,7 @@ import { PaymentType } from "../enums/payment-type";
 })
 export class PaymentService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/Payment';
+  private baseUrl = 'https://localhost:7272/api/Payment';
 
   getAll(): Observable<ApiResponse<PaymentToReturnDto[]>> {
     return this.http.get<ApiResponse<PaymentToReturnDto[]>>(`${this.baseUrl}`);

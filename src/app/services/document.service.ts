@@ -9,7 +9,7 @@ import { AddDocumentDto, DocumentToReturnDto, UpdateDocumentDto } from "../model
 })
 export class DocumentService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/Document';
+  private baseUrl = 'https://localhost:7272/api/Document';
 
   getAll(): Observable<DocumentToReturnDto[]> {
     return this.http.get<DocumentToReturnDto[]>(`${this.baseUrl}`);

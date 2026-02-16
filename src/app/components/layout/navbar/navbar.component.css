@@ -1,0 +1,91 @@
+.navbar {
+    height: 70px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    margin-left: 260px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.company-info {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.business-switcher {
+    display: flex;
+    align-items: center;
+}
+
+.business-switcher select {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.business-switcher select:hover {
+    border-color: #667eea;
+}
+
+.business-switcher select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-name {
+    color: #4a5568;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.dropdown button {
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dropdown button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        margin-left: 0;
+        padding: 0 15px;
+    }
+
+    .user-name {
+        display: none;
+    }
+}

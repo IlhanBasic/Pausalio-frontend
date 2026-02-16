@@ -1,0 +1,48 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Dobrodošli nazad!</h2>
+            <p class="subtitle">Prijavite se na svoj nalog</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" type="email" formControlName="email" placeholder="primer@email.com">
+                <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid" class="error">
+                    Validan email je obavezan
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Lozinka</label>
+                <div class="password-input-wrapper">
+                    <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password"
+                        placeholder="Unesite lozinku">
+                    <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
+                        <span *ngIf="!showPassword()">👁️</span>
+                        <span *ngIf="showPassword()">🙈</span>
+                    </button>
+                </div>
+                <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid" class="error">
+                    Lozinka je obavezna
+                </div>
+            </div>
+
+            <div *ngIf="errorMessage()" class="alert alert-error">
+                <span class="alert-icon">⚠️</span>
+                {{ errorMessage() }}
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || isLoading()">
+                <span *ngIf="isLoading()" class="spinner"></span>
+                <span *ngIf="!isLoading()">Prijavi se</span>
+                <span *ngIf="isLoading()">Učitavanje...</span>
+            </button>
+        </form>
+
+        <p class="auth-footer">
+            Nemaš nalog? <a routerLink="/register">Registruj se</a>
+        </p>
+    </div>
+</div>

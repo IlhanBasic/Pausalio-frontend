@@ -11,7 +11,7 @@ export class CityService {
 
   private http = inject(HttpClient);
 
-  private baseUrl = '/api/City';
+  private baseUrl = 'https://localhost:7272/api/City';
 
   getAll(): Observable<CityToReturnDto[]> {
     return this.http.get<CityToReturnDto[]>(this.baseUrl);

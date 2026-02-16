@@ -1,0 +1,250 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../services/auth.service';
+import { ActivityCodeService } from '../../../services/activity-code.service';
+import { FileService } from '../../../services/file.service';
+import { ActivityCodeToReturnDto } from '../../../models/activity-code';
+import { AddUserProfileDto, RegisterOwnerDto, RegisterAssistantDto } from '../../../models/user-profile';
+import { AddBusinessProfileDto } from '../../../models/business-profile';
+import { forkJoin } from 'rxjs';
+
+@Component({
+    selector: 'app-register',
+    standalone: true,
+    imports: [ReactiveFormsModule, CommonModule, RouterLink],
+    templateUrl: './register.component.html',
+    styleUrl: './register.component.css'
+})
+export class RegisterComponent implements OnInit {
+    fb = inject(FormBuilder);
+    authService = inject(AuthService);
+    activityService = inject(ActivityCodeService);
+    fileService = inject(FileService);
+    router = inject(Router);
+
+    isOwner = signal(true);
+    isLoading = signal(false);
+    errorMessage = signal<string | null>(null);
+    successMessage = signal<string | null>(null);
+    activityCodes = signal<ActivityCodeToReturnDto[]>([]);
+    showPassword = signal(false);
+
+    profilePictureFile = signal<File | null>(null);
+    companyLogoFile = signal<File | null>(null);
+    profilePicturePreview = signal<string | null>(null);
+    companyLogoPreview = signal<string | null>(null);
+
+    passwordValidators = [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+    ];
+
+    ownerForm = this.fb.group({
+        // User fields
+        firstName: ['', Validators.required],
+        lastName: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', this.passwordValidators],
+        phone: [''],
+        city: ['', Validators.required],
+        address: ['', Validators.required],
+        // Business fields
+        businessName: ['', Validators.required],
+        PIB: ['', Validators.required],
+        MB: [''],
+        activityCodeId: ['', Validators.required],
+        businessCity: ['', Validators.required],
+        businessAddress: ['', Validators.required],
+        businessEmail: ['', [Validators.required, Validators.email]],
+        businessPhone: [''],
+        website: ['']
+    });
+
+    assistantForm = this.fb.group({
+        firstName: ['', Validators.required],
+        lastName: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', this.passwordValidators],
+        inviteToken: ['', Validators.required]
+    });
+
+    get activeForm(): FormGroup {
+        return this.isOwner() ? this.ownerForm : this.assistantForm;
+    }
+
+    getControl(controlName: string): AbstractControl | null {
+        return this.activeForm.get(controlName);
+    }
+
+    ngOnInit() {
+        this.loadActivityCodes();
+    }
+
+    loadActivityCodes() {
+        this.activityService.getAll().subscribe({
+            next: (res) => {
+                this.activityCodes.set(res || []);
+            },
+            error: (err) => {
+                console.error('Error loading activity codes:', err);
+            }
+        });
+    }
+
+    setRole(isOwner: boolean) {
+        this.isOwner.set(isOwner);
+        this.errorMessage.set(null);
+        this.successMessage.set(null);
+    }
+
+    togglePasswordVisibility() {
+        this.showPassword.set(!this.showPassword());
+    }
+
+    onProfilePictureSelect(event: any) {
+        const file = event.target.files[0];
+        if (file) {
+            this.profilePictureFile.set(file);
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.profilePicturePreview.set(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    onCompanyLogoSelect(event: any) {
+        const file = event.target.files[0];
+        if (file) {
+            this.companyLogoFile.set(file);
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.companyLogoPreview.set(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    onSubmit() {
+        if (this.activeForm.invalid) {
+            this.activeForm.markAllAsTouched();
+            return;
+        }
+
+        this.isLoading.set(true);
+        this.errorMessage.set(null);
+
+        if (this.isOwner()) {
+            this.registerOwner();
+        } else {
+            this.registerAssistant();
+        }
+    }
+
+    private registerOwner() {
+        const val = this.ownerForm.value;
+
+        // Prepare upload observables
+        const uploads: any[] = [];
+
+        if (this.profilePictureFile()) {
+            uploads.push(this.fileService.uploadFile(this.profilePictureFile()!));
+        }
+
+        if (this.companyLogoFile()) {
+            uploads.push(this.fileService.uploadFile(this.companyLogoFile()!));
+        }
+
+        // If there are files to upload, upload them first
+        if (uploads.length > 0) {
+            forkJoin(uploads).subscribe({
+                next: (responses: any[]) => {
+                    let profilePictureUrl = null;
+                    let companyLogoUrl = null;
+
+                    if (this.profilePictureFile() && this.companyLogoFile()) {
+                        profilePictureUrl = responses[0].url;
+                        companyLogoUrl = responses[1].url;
+                    } else if (this.profilePictureFile()) {
+                        profilePictureUrl = responses[0].url;
+                    } else if (this.companyLogoFile()) {
+                        companyLogoUrl = responses[0].url;
+                    }
+
+                    this.submitOwnerRegistration(val, profilePictureUrl, companyLogoUrl);
+                },
+                error: (err) => {
+                    this.errorMessage.set('Greška pri upload-u slika: ' + (err.error?.message || 'Nepoznata greška'));
+                    this.isLoading.set(false);
+                }
+            });
+        } else {
+            this.submitOwnerRegistration(val, null, null);
+        }
+    }
+
+    private submitOwnerRegistration(val: any, profilePictureUrl: string | null, companyLogoUrl: string | null) {
+        const dto: RegisterOwnerDto = {
+            user: {
+                firstName: val.firstName!,
+                lastName: val.lastName!,
+                email: val.email!,
+                password: val.password!,
+                city: val.city!,
+                address: val.address!,
+                phone: val.phone || null,
+                profilePicture: profilePictureUrl
+            },
+            business: {
+                businessName: val.businessName!,
+                PIB: val.PIB!,
+                MB: val.MB || undefined,
+                activityCodeId: val.activityCodeId!,
+                city: val.businessCity!,
+                address: val.businessAddress!,
+                email: val.businessEmail!,
+                phone: val.businessPhone || undefined,
+                website: val.website || undefined,
+                companyLogo: companyLogoUrl || undefined
+            }
+        };
+
+        this.authService.registerOwner(dto).subscribe({
+            next: () => {
+                this.successMessage.set('Registracija uspešna! Preusmeravanje...');
+                setTimeout(() => this.router.navigate(['/login']), 1500);
+            },
+            error: (err) => {
+                this.errorMessage.set(err.error?.message || 'Greška pri registraciji.');
+                this.isLoading.set(false);
+            }
+        });
+    }
+
+    private registerAssistant() {
+        const val = this.assistantForm.value;
+        const dto: RegisterAssistantDto = {
+            inviteToken: val.inviteToken!,
+            user: {
+                firstName: val.firstName!,
+                lastName: val.lastName!,
+                email: val.email!,
+                password: val.password!
+            }
+        };
+
+        this.authService.registerAssistant(dto).subscribe({
+            next: () => {
+                this.successMessage.set('Registracija uspešna! Preusmeravanje...');
+                setTimeout(() => this.router.navigate(['/login']), 1500);
+            },
+            error: (err) => {
+                this.errorMessage.set(err.error?.message || 'Greška pri registraciji.');
+                this.isLoading.set(false);
+            }
+        });
+    }
+}

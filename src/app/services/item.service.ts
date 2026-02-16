@@ -9,7 +9,7 @@ import { AddItemDto, ItemToReturnDto, UpdateItemDto } from "../models/item";
 })
 export class ItemService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/Item';
+  private baseUrl = 'https://localhost:7272/api/Item';
 
   getAll(): Observable<ItemToReturnDto[]> {
     return this.http.get<ItemToReturnDto[]>(`${this.baseUrl}`);

@@ -1,0 +1,250 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Registracija</h2>
+            <p class="subtitle">Kreirajte svoj nalog</p>
+        </div>
+
+        <div class="role-selector">
+            <button type="button" [class.active]="isOwner()" (click)="setRole(true)">
+                <span class="icon">🏢</span>
+                Vlasnik firme
+            </button>
+            <button type="button" [class.active]="!isOwner()" (click)="setRole(false)">
+                <span class="icon">👤</span>
+                Asistent
+            </button>
+        </div>
+
+        <form [formGroup]="activeForm" (ngSubmit)="onSubmit()">
+
+            <!-- Shared User Fields -->
+            <div class="form-section">
+                <h3><span class="section-icon">👤</span> Lični podaci</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ime *</label>
+                        <input type="text" formControlName="firstName" placeholder="Unesite ime">
+                        <div *ngIf="getControl('firstName')?.touched && getControl('firstName')?.invalid" class="error">
+                            Obavezno polje
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Prezime *</label>
+                        <input type="text" formControlName="lastName" placeholder="Unesite prezime">
+                        <div *ngIf="getControl('lastName')?.touched && getControl('lastName')?.invalid" class="error">
+                            Obavezno polje
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" formControlName="email" placeholder="primer@email.com">
+                    <div *ngIf="getControl('email')?.touched && getControl('email')?.invalid" class="error">
+                        Neispravan email format
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Lozinka *</label>
+                    <div class="password-input-wrapper">
+                        <input [type]="showPassword() ? 'text' : 'password'" formControlName="password"
+                            placeholder="Unesite lozinku">
+                        <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
+                            <span *ngIf="!showPassword()">👁️</span>
+                            <span *ngIf="showPassword()">🙈</span>
+                        </button>
+                    </div>
+                    <div *ngIf="getControl('password')?.touched && getControl('password')?.errors?.['required']"
+                        class="error">
+                        Obavezno polje
+                    </div>
+                    <div *ngIf="getControl('password')?.touched && getControl('password')?.errors?.['pattern']"
+                        class="error">
+                        Min 8 karaktera, 1 veliko, 1 malo slovo, 1 broj, 1 spec. znak
+                    </div>
+                </div>
+
+                <!-- Owner-specific user fields -->
+                <ng-container *ngIf="isOwner()">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Telefon</label>
+                            <input type="tel" formControlName="phone" placeholder="+381...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Grad *</label>
+                            <input type="text" formControlName="city" placeholder="Beograd">
+                            <div *ngIf="getControl('city')?.touched && getControl('city')?.invalid" class="error">
+                                Obavezno polje
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Adresa *</label>
+                        <input type="text" formControlName="address" placeholder="Ulica i broj">
+                        <div *ngIf="getControl('address')?.touched && getControl('address')?.invalid" class="error">
+                            Obavezno polje
+                        </div>
+                    </div>
+
+                    <div class="form-group file-upload">
+                        <label>Profilna slika</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="profilePicture" accept="image/*"
+                                (change)="onProfilePictureSelect($event)" #profileInput>
+                            <label for="profilePicture" class="file-label">
+                                <span class="icon">📷</span>
+                                {{ profilePictureFile() ? profilePictureFile()!.name : 'Izaberite sliku' }}
+                            </label>
+                        </div>
+                        <div *ngIf="profilePicturePreview()" class="image-preview">
+                            <img [src]="profilePicturePreview()" alt="Preview">
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+
+            <!-- Owner Business Fields -->
+            <ng-container *ngIf="isOwner()">
+                <div class="form-section">
+                    <h3><span class="section-icon">🏢</span> Podaci o firmi</h3>
+
+                    <div class="form-group">
+                        <label>Naziv firme *</label>
+                        <input type="text" formControlName="businessName" placeholder="Naziv preduzeća">
+                        <div *ngIf="getControl('businessName')?.touched && getControl('businessName')?.invalid"
+                            class="error">
+                            Obavezno polje
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>PIB *</label>
+                            <input type="text" formControlName="PIB" placeholder="123456789">
+                            <div *ngIf="getControl('PIB')?.touched && getControl('PIB')?.invalid" class="error">
+                                Obavezno polje
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Matični broj (MB)</label>
+                            <input type="text" formControlName="MB" placeholder="12345678">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Šifra delatnosti *</label>
+                        <select formControlName="activityCodeId">
+                            <option value="">Izaberite šifru delatnosti</option>
+                            <option *ngFor="let code of activityCodes()" [value]="code.id">
+                                {{ code.code }} - {{ code.description }}
+                            </option>
+                        </select>
+                        <div *ngIf="getControl('activityCodeId')?.touched && getControl('activityCodeId')?.invalid"
+                            class="error">
+                            Obavezno polje
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Grad *</label>
+                            <input type="text" formControlName="businessCity" placeholder="Beograd">
+                            <div *ngIf="getControl('businessCity')?.touched && getControl('businessCity')?.invalid"
+                                class="error">
+                                Obavezno polje
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Adresa *</label>
+                            <input type="text" formControlName="businessAddress" placeholder="Ulica i broj">
+                            <div *ngIf="getControl('businessAddress')?.touched && getControl('businessAddress')?.invalid"
+                                class="error">
+                                Obavezno polje
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email firme *</label>
+                            <input type="email" formControlName="businessEmail" placeholder="firma@email.com">
+                            <div *ngIf="getControl('businessEmail')?.touched && getControl('businessEmail')?.invalid"
+                                class="error">
+                                Neispravan email
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Telefon firme</label>
+                            <input type="tel" formControlName="businessPhone" placeholder="+381...">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Website</label>
+                        <input type="url" formControlName="website" placeholder="https://www.primer.com">
+                    </div>
+
+                    <div class="form-group file-upload">
+                        <label>Logo kompanije</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="companyLogo" accept="image/*" (change)="onCompanyLogoSelect($event)"
+                                #logoInput>
+                            <label for="companyLogo" class="file-label">
+                                <span class="icon">🖼️</span>
+                                {{ companyLogoFile() ? companyLogoFile()!.name : 'Izaberite logo' }}
+                            </label>
+                        </div>
+                        <div *ngIf="companyLogoPreview()" class="image-preview">
+                            <img [src]="companyLogoPreview()" alt="Logo Preview">
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Assistant Specific Fields -->
+            <ng-container *ngIf="!isOwner()">
+                <div class="form-section">
+                    <h3><span class="section-icon">🎫</span> Invite Token</h3>
+                    <div class="form-group">
+                        <label>Invite Token *</label>
+                        <input type="text" formControlName="inviteToken" placeholder="Unesite invite token">
+                        <div *ngIf="getControl('inviteToken')?.touched && getControl('inviteToken')?.invalid"
+                            class="error">
+                            Obavezno polje
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <div *ngIf="errorMessage()" class="alert alert-error">
+                <span class="alert-icon">⚠️</span>
+                {{ errorMessage() }}
+            </div>
+
+            <div *ngIf="successMessage()" class="alert alert-success">
+                <span class="alert-icon">✅</span>
+                {{ successMessage() }}
+            </div>
+
+            <button type="submit" class="btn-primary" [disabled]="activeForm.invalid || isLoading()">
+                <span *ngIf="isLoading()" class="spinner"></span>
+                <span *ngIf="!isLoading()">Registruj se</span>
+                <span *ngIf="isLoading()">Učitavanje...</span>
+            </button>
+        </form>
+
+        <p class="auth-footer">
+            Već imaš nalog? <a routerLink="/login">Prijavi se</a>
+        </p>
+    </div>
+</div>

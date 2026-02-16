@@ -16,7 +16,7 @@ import { TaxObligationStatus } from "../enums/tax-obligation-status";
 })
 export class TaxObligationService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/TaxObligation';
+  private baseUrl = 'https://localhost:7272/api/TaxObligation';
 
   getAll(): Observable<ApiResponse<TaxObligationToReturnDto[]>> {
     return this.http.get<ApiResponse<TaxObligationToReturnDto[]>>(`${this.baseUrl}`);

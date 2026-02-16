@@ -10,7 +10,7 @@ import { ClientType } from "../enums/client-type";
 })
 export class ClientService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/Client';
+  private baseUrl = 'https://localhost:7272/api/Client';
 
   getAll(): Observable<ApiResponse<ClientToReturnDto[]>> {
     return this.http.get<ApiResponse<ClientToReturnDto[]>>(`${this.baseUrl}`);

@@ -11,7 +11,7 @@ import { AcceptInviteDto } from "../models/business-invite";
 export class AuthService {
 
   private http = inject(HttpClient);
-  private baseUrl = '/api/Auth';
+  private baseUrl = 'https://localhost:7272/api/Auth';
 
   login(dto: LoginDto): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(

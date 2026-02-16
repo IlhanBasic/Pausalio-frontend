@@ -11,7 +11,7 @@ export class ActivityCodeService {
 
   private http = inject(HttpClient);
 
-  private baseUrl = '/api/ActivityCode';
+  private baseUrl = 'https://localhost:7272/api/ActivityCode';
 
   getAll(): Observable<ActivityCodeToReturnDto[]> {
     return this.http.get<ActivityCodeToReturnDto[]>(this.baseUrl);

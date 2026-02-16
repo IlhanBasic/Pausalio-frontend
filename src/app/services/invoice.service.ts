@@ -11,7 +11,7 @@ import { PaymentStatus } from "../enums/payment-status";
 })
 export class InvoiceService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/Invoice';
+  private baseUrl = 'https://localhost:7272/api/Invoice';
 
   getAll(): Observable<ApiResponse<InvoiceToReturnDto[]>> {
     return this.http.get<ApiResponse<InvoiceToReturnDto[]>>(`${this.baseUrl}`);

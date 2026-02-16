@@ -8,7 +8,7 @@ import { ApiResponse, FileUploadResponse } from "../models/api-response";
 })
 export class FileService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/File';
+  private baseUrl = 'https://localhost:7272/api/File';
 
   uploadFile(file: File): Observable<FileUploadResponse> {
     const formData = new FormData();

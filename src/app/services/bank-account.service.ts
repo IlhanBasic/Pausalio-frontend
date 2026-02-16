@@ -9,7 +9,7 @@ import { ApiResponse } from "../models/api-response";
 })
 export class BankAccountService {
     private http = inject(HttpClient);
-    private baseUrl = '/api/BankAccount';
+    private baseUrl = 'https://localhost:7272/api/BankAccount';
     getAll() : Observable<BankAccountToReturnDto[]>{
         return this.http.get<BankAccountToReturnDto[]>(`${this.baseUrl}`);
     }

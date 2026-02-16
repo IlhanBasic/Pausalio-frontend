@@ -9,7 +9,7 @@ import { AddBusinessInviteDto } from "../models/business-invite";
 })
 export class BusinessInviteService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/BusinessInvite';
+  private baseUrl = 'https://localhost:7272/api/BusinessInvite';
 
   sendInvite(dto: AddBusinessInviteDto): Observable<SendInviteResponse> {
     return this.http.post<SendInviteResponse>(`${this.baseUrl}`, dto);

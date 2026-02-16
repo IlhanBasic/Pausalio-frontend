@@ -9,7 +9,7 @@ import { AddReminderDto, ReminderToReturnDto, UpdateReminderDto } from "../model
 })
 export class ReminderService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/Reminder';
+  private baseUrl = 'https://localhost:7272/api/Reminder';
 
   getAll(): Observable<ReminderToReturnDto[]> {
     return this.http.get<ReminderToReturnDto[]>(`${this.baseUrl}`);

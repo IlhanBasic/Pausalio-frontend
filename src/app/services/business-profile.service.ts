@@ -9,7 +9,7 @@ import { BusinessProfileToReturnDto, UpdateBusinessProfileDto } from "../models/
 })
 export class BusinessProfileService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/BusinessProfile';
+  private baseUrl = 'https://localhost:7272/api/BusinessProfile';
 
   getUserCompany(): Observable<ApiResponse<BusinessProfileToReturnDto>> {
     return this.http.get<ApiResponse<BusinessProfileToReturnDto>>(`${this.baseUrl}`);

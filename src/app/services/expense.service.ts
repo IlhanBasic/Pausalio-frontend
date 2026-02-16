@@ -10,7 +10,7 @@ import { ExpenseStatus } from "../enums/expense-status";
 })
 export class ExpenseService {
   private http = inject(HttpClient);
-  private baseUrl = '/api/Expense';
+  private baseUrl = 'https://localhost:7272/api/Expense';
 
   getAll(): Observable<ApiResponse<ExpenseToReturnDto[]>> {
     return this.http.get<ApiResponse<ExpenseToReturnDto[]>>(`${this.baseUrl}`);
