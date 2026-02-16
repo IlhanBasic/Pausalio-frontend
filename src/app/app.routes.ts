@@ -36,6 +36,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/invoices/invoices.component').then(m => m.InvoicesComponent)
             },
             {
+                path: 'expenses',
+                loadComponent: () => import('./pages/expenses/expenses.component').then(m => m.ExpensesComponent)
+            },
+            {
                 path: 'tax-obligations',
                 loadComponent: () => import('./pages/tax-obligations/tax-obligations.component').then(m => m.TaxObligationsComponent)
             },
@@ -50,6 +54,29 @@ export const routes: Routes = [
             {
                 path: 'reminders',
                 loadComponent: () => import('./pages/reminders/reminders.component').then(m => m.RemindersComponent)
+            },
+            {
+                path: 'statistics',
+                loadComponent: () => import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent)
+            },
+            {
+                path: 'admin',
+                loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
+                children: [
+                    { path: '', redirectTo: 'activity-codes', pathMatch: 'full' },
+                    {
+                        path: 'activity-codes',
+                        loadComponent: () => import('./pages/admin/activity-codes/activity-codes.component').then(m => m.ActivityCodesComponent)
+                    },
+                    {
+                        path: 'countries',
+                        loadComponent: () => import('./pages/admin/countries/countries.component').then(m => m.CountriesComponent)
+                    },
+                    {
+                        path: 'cities',
+                        loadComponent: () => import('./pages/admin/cities/cities.component').then(m => m.CitiesComponent)
+                    }
+                ]
             }
         ]
     },

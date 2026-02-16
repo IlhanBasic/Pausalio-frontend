@@ -11,7 +11,7 @@ export class CountryService {
 
   private http = inject(HttpClient);
 
-  private baseUrl = 'https://localhost:7272/api/City';
+  private baseUrl = 'https://localhost:7272/api/Country';
 
   getAll(): Observable<CountryToReturnDto[]> {
     return this.http.get<CountryToReturnDto[]>(this.baseUrl);
