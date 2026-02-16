@@ -42,6 +42,14 @@ export const routes: Routes = [
             {
                 path: 'bank-accounts',
                 loadComponent: () => import('./pages/bank-accounts/bank-accounts.component').then(m => m.BankAccountsComponent)
+            },
+            {
+                path: 'payments',
+                loadComponent: () => import('./pages/payments/payments.component').then(m => m.PaymentsComponent)
+            },
+            {
+                path: 'reminders',
+                loadComponent: () => import('./pages/reminders/reminders.component').then(m => m.RemindersComponent)
             }
         ]
     },

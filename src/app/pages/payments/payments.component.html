@@ -1,0 +1,135 @@
+<div class="payments-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Plaćanja</h1>
+            <p class="subtitle">Upravljajte plaćanjima faktura, poreza i troškova</p>
+        </div>
+        <button class="btn-primary" (click)="openAddModal()">
+            <span class="btn-icon">➕</span>
+            Dodaj plaćanje
+        </button>
+    </div>
+
+    <!-- Alerts -->
+    <div *ngIf="errorMessage()" class="alert alert-error">
+        <span class="alert-icon">⚠️</span>
+        {{ errorMessage() }}
+    </div>
+
+    <div *ngIf="successMessage()" class="alert alert-success">
+        <span class="alert-icon">✅</span>
+        {{ successMessage() }}
+    </div>
+
+    <!-- Data Table -->
+    <app-data-table [columns]="columns" [data]="payments()" [actions]="actions" searchPlaceholder="Pretraži plaćanja..."
+        emptyMessage="Nema plaćanja za prikaz. Dodajte prvo plaćanje!" (onEdit)="openEditModal($event)"
+        (onDelete)="openDeleteConfirm($event)">
+    </app-data-table>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>{{ editingPayment() ? 'Izmeni plaćanje' : 'Dodaj novo plaćanje' }}</h2>
+                <button class="close-btn" (click)="closeModal()">✕</button>
+            </div>
+
+            <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+                <div class="modal-body">
+                    <div class="form-group" *ngIf="!editingPayment()">
+                        <label>Tip plaćanja *</label>
+                        <select formControlName="paymentType">
+                            <option [ngValue]="PaymentType.InvoicePayment">Plaćanje fakture</option>
+                            <option [ngValue]="PaymentType.TaxPayment">Plaćanje poreza</option>
+                            <option [ngValue]="PaymentType.ExpensePayment">Plaćanje troška</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" *ngIf="!editingPayment()">
+                        <label>Izaberite entitet *</label>
+                        <select formControlName="entityId">
+                            <option value="">-- Izaberite --</option>
+                            <option *ngFor="let entity of getAvailableEntities()" [value]="entity.id">
+                                {{ getEntityLabel(entity) }}
+                            </option>
+                        </select>
+                        <div *ngIf="paymentForm.get('entityId')?.touched && paymentForm.get('entityId')?.invalid"
+                            class="error">
+                            Entitet je obavezan
+                        </div>
+                    </div>
+
+                    <div class="form-row" *ngIf="!editingPayment()">
+                        <div class="form-group">
+                            <label>Iznos *</label>
+                            <input type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0">
+                            <div *ngIf="paymentForm.get('amount')?.touched && paymentForm.get('amount')?.invalid"
+                                class="error">
+                                Iznos je obavezan i mora biti veći od 0
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Valuta *</label>
+                            <select formControlName="currency">
+                                <option [ngValue]="Currency.RSD">RSD</option>
+                                <option [ngValue]="Currency.USD">USD</option>
+                                <option [ngValue]="Currency.EUR">EUR</option>
+                                <option [ngValue]="Currency.GBP">GBP</option>
+                                <option [ngValue]="Currency.CHF">CHF</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Poziv na broj</label>
+                        <input type="text" formControlName="referenceNumber" placeholder="123-456-789">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Opis</label>
+                        <textarea formControlName="description" rows="3"
+                            placeholder="Dodatne napomene o plaćanju..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" (click)="closeModal()">
+                        Otkaži
+                    </button>
+                    <button type="submit" class="btn-primary" [disabled]="paymentForm.invalid">
+                        {{ editingPayment() ? 'Sačuvaj izmene' : 'Dodaj plaćanje' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Potvrda brisanja</h2>
+                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="confirm-message">
+                    Da li ste sigurni da želite da obrišete ovo plaćanje?
+                </p>
+                <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
+                    Otkaži
+                </button>
+                <button type="button" class="btn-danger" (click)="confirmDelete()">
+                    Obriši
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
