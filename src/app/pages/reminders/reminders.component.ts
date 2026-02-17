@@ -11,6 +11,7 @@ import { ReminderService } from '../../services/reminder.service';
 import { ReminderToReturnDto, AddReminderDto, UpdateReminderDto } from '../../models/reminder';
 import { ReminderType } from '../../enums/reminder-type';
 
+
 @Component({
     selector: 'app-reminders',
     standalone: true,
@@ -48,6 +49,12 @@ export class RemindersComponent implements OnInit {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        buttonText: {
+            today: 'Danas',
+            month: 'Mesec',
+            week: 'Nedelja',
+            day: 'Dan'
         },
         editable: false,
         selectable: true,
@@ -270,7 +277,7 @@ export class RemindersComponent implements OnInit {
     }
 
     formatDate(date: Date): string {
-        return new Date(date).toLocaleString('sr-RS', {
+        return new Date(date).toLocaleString('sr-Latn-RS', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',

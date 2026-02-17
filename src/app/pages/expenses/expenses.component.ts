@@ -209,7 +209,7 @@ export class ExpensesComponent implements OnInit {
     }
 
     formatDate(date: Date): string {
-        return new Date(date).toLocaleDateString('sr-RS', {
+        return new Date(date).toLocaleDateString('sr-Latn-RS', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
@@ -217,7 +217,7 @@ export class ExpensesComponent implements OnInit {
     }
 
     formatCurrency(amount: number): string {
-        return new Intl.NumberFormat('sr-RS', {
+        return new Intl.NumberFormat('sr-Latn-RS', {
             style: 'currency',
             currency: 'RSD',
             minimumFractionDigits: 0,

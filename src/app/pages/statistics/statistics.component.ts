@@ -61,7 +61,7 @@ export class StatisticsComponent implements OnInit {
                 beginAtZero: true,
                 ticks: {
                     callback: function (value) {
-                        return value.toLocaleString('sr-RS') + ' RSD';
+                        return value.toLocaleString('sr-Latn-RS') + ' RSD';
                     }
                 }
             }
@@ -238,7 +238,7 @@ export class StatisticsComponent implements OnInit {
     }
 
     formatCurrency(amount: number): string {
-        return new Intl.NumberFormat('sr-RS', {
+        return new Intl.NumberFormat('sr-Latn-RS', {
             style: 'currency',
             currency: 'RSD',
             minimumFractionDigits: 0,
@@ -247,7 +247,7 @@ export class StatisticsComponent implements OnInit {
     }
 
     formatDate(date: Date): string {
-        return new Date(date).toLocaleDateString('sr-RS', {
+        return new Date(date).toLocaleDateString('sr-Latn-RS', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'

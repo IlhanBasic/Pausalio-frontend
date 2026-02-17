@@ -93,14 +93,14 @@ export class DataTableComponent {
 
         switch (type) {
             case 'currency':
-                return new Intl.NumberFormat('sr-RS', {
+                return new Intl.NumberFormat('sr-Latn-RS', {
                     style: 'currency',
                     currency: 'RSD'
                 }).format(value);
             case 'number':
-                return new Intl.NumberFormat('sr-RS').format(value);
+                return new Intl.NumberFormat('sr-Latn-RS').format(value);
             case 'date':
-                return new Date(value).toLocaleDateString('sr-RS');
+                return new Date(value).toLocaleDateString('sr-Latn-RS');
             default:
                 return value.toString();
         }

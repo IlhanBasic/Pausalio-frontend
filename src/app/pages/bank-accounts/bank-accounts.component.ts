@@ -164,7 +164,7 @@ export class BankAccountsComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating account:', err);
-                    this.toastr.error('Greška pri ažuriranju računa', 'Greška');
+                    this.toastr.error(err.error.message || 'Greška pri ažuriranju računa', 'Greška');
                 }
             });
         } else {
