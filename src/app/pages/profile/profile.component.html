@@ -104,7 +104,7 @@
         </div>
 
         <!-- Join Company Card (Assistant Only) -->
-        <div class="action-card" *ngIf="!isOwner()">
+        <div class="action-card" *ngIf="!isOwner() && !isAdmin()">
             <div class="card-icon join">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2">
@@ -503,7 +503,7 @@
             </button>
         </div>
         <div class="modal-body">
-            <p class="invite-description">Unesite invite token koji ste dobili na email da biste se pridružili kompaniji.</p>
+            <p class="invite-description">Unesite invite token koji ste dobili na email da biste se pridruï¿½ili kompaniji.</p>
             <form [formGroup]="acceptInviteForm" (ngSubmit)="onSubmitAcceptInvite()">
                 <div class="form-group">
                     <label>Invite Token *</label>
@@ -514,10 +514,10 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn-secondary" (click)="closeAcceptInviteModal()">Otkaži</button>
+                    <button type="button" class="btn-secondary" (click)="closeAcceptInviteModal()">Otkaï¿½i</button>
                     <button type="submit" class="btn-primary" [disabled]="acceptInviteForm.invalid || isLoading()">
                         <span *ngIf="isLoading()" class="spinner"></span>
-                        <span>{{ isLoading() ? 'Pridruživanje...' : 'Pridruži Se' }}</span>
+                        <span>{{ isLoading() ? 'Pridruï¿½ivanje...' : 'Pridruï¿½i Se' }}</span>
                     </button>
                 </div>
             </form>

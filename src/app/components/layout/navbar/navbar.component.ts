@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../stores/auth.store';
 import { AuthService } from '../../../services/auth.service';
 import { BusinessProfileService } from '../../../services/business-profile.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { BusinessProfileToReturnDto } from '../../../models/business-profile';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })

@@ -98,6 +98,10 @@ export const routes: Routes = [
                     {
                         path: 'cities',
                         loadComponent: () => import('./pages/admin/cities/cities.component').then(m => m.CitiesComponent)
+                    },
+                    {
+                        path: 'users',
+                        loadComponent: () => import('./pages/admin/users/users.component').then(m => m.UsersComponent)
                     }
                 ]
             },

@@ -4,8 +4,8 @@ import { InvoiceToReturnDto } from "./invoice";
 export interface AddClientDto {
   clientType?: ClientType;
   name: string;
-  PIB?: string | null;
-  MB?: string;
+  pib?: string | null;
+  mb?: string;
   address?: string;
   city?: string;
   email?: string;
@@ -17,13 +17,14 @@ export interface ClientToReturnDto {
   id: string;
   clientType: ClientType;
   name: string;
-  PIB?: string | null;
-  MB?: string;
+  pib?: string | null;
+  mb?: string;
   address?: string;
   city?: string;
   email?: string;
   phone?: string;
   country?: string;
+  countryId?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt?: Date;
@@ -32,8 +33,8 @@ export interface ClientToReturnDto {
 export interface UpdateClientDto {
   clientType?: ClientType;
   name: string;
-  PIB?: string | null;
-  MB?: string;
+  pib?: string | null;
+  mb?: string;
   address?: string;
   city?: string;
   email?: string;

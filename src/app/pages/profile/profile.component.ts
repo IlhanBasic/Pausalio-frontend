@@ -470,11 +470,15 @@ export class ProfileComponent implements OnInit {
     }
 
     getUserRole(): string {
-        return this.store.isOwner() ? 'Vlasnik' : 'Asistent';
+        return this.store.isOwner() ? 'Vlasnik' : this.store.isAdmin() ? 'Administrator' : 'Asistent';
     }
 
     isOwner(): boolean {
         return this.store.isOwner();
+    }
+
+    isAdmin(): boolean {
+        return this.store.isAdmin();
     }
 
     getProfilePictureUrl(): string {

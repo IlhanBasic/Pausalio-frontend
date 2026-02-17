@@ -53,19 +53,47 @@
                         </select>
                     </div>
 
+                    <!-- Country field - only for foreign clients -->
+                    <div class="form-group" *ngIf="isForeignClient()">
+                        <label>Država *</label>
+                        <div class="autocomplete-wrapper">
+                            <input 
+                                type="text" 
+                                formControlName="countrySearch" 
+                                placeholder="Pretražite državu..."
+                                (focus)="onCountrySearchFocus()"
+                                (blur)="onCountrySearchBlur()"
+                                autocomplete="off">
+                            <div class="autocomplete-dropdown" *ngIf="showCountryDropdown() && filteredCountries().length > 0">
+                                <div 
+                                    class="autocomplete-item" 
+                                    *ngFor="let country of filteredCountries()"
+                                    (mousedown)="selectCountry(country)">
+                                    {{ country.name }} ({{ country.code }})
+                                </div>
+                            </div>
+                            <div *ngIf="showCountryDropdown() && filteredCountries().length === 0 && countrySearchText()" class="autocomplete-dropdown">
+                                <div class="autocomplete-item no-results">Nema rezultata</div>
+                            </div>
+                        </div>
+                        <div *ngIf="clientForm.get('countryId')?.touched && clientForm.get('countryId')?.invalid" class="error">
+                            Država je obavezna za strane klijente
+                        </div>
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label>PIB <span
                                     *ngIf="clientForm.get('clientType')?.value === 2 || clientForm.get('clientType')?.value === 3">*</span></label>
-                            <input type="text" formControlName="PIB" placeholder="123456789">
-                            <div *ngIf="clientForm.get('PIB')?.touched && clientForm.get('PIB')?.invalid" class="error">
+                            <input type="text" formControlName="pib" placeholder="123456789">
+                            <div *ngIf="clientForm.get('pib')?.touched && clientForm.get('pib')?.invalid" class="error">
                                 PIB je obavezan za pravna lica
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Matični broj (MB)</label>
-                            <input type="text" formControlName="MB" placeholder="12345678">
+                            <input type="text" formControlName="mb" placeholder="12345678">
                         </div>
                     </div>
 

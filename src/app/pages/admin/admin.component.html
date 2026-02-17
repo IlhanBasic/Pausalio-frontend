@@ -1,12 +1,28 @@
-<div class="admin-layout">
-    <div class="admin-sidebar">
-        <h3>Administracija</h3>
-        <nav>
-            <a routerLink="activity-codes" routerLinkActive="active">Šifre delatnosti</a>
-            <a routerLink="countries" routerLinkActive="active">Države</a>
-            <a routerLink="cities" routerLinkActive="active">Gradovi</a>
-        </nav>
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Administracija</h1>
+        <p>Upravljanje šifarnicima i korisnicima sistema</p>
     </div>
+
+    <div class="admin-tabs">
+        <a routerLink="activity-codes" routerLinkActive="active" class="admin-tab">
+            <span class="tab-icon">📋</span>
+            Šifre delatnosti
+        </a>
+        <a routerLink="countries" routerLinkActive="active" class="admin-tab">
+            <span class="tab-icon">🌍</span>
+            Države
+        </a>
+        <a routerLink="cities" routerLinkActive="active" class="admin-tab">
+            <span class="tab-icon">🏙️</span>
+            Gradovi
+        </a>
+        <a routerLink="users" routerLinkActive="active" class="admin-tab">
+            <span class="tab-icon">👥</span>
+            Korisnici
+        </a>
+    </div>
+
     <div class="admin-content">
         <router-outlet></router-outlet>
     </div>

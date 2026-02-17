@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,6 +6,8 @@ import { ClientService } from '../../services/client.service';
 import { ClientToReturnDto, AddClientDto, UpdateClientDto } from '../../models/client';
 import { ClientType } from '../../enums/client-type';
 import { DataTableComponent, TableColumn, TableAction } from '../../components/shared/data-table/data-table.component';
+import { CountryService } from '../../services/country.service';
+import { CountryToReturnDto } from '../../models/country';
 
 @Component({
     selector: 'app-clients',
@@ -16,31 +18,49 @@ import { DataTableComponent, TableColumn, TableAction } from '../../components/s
 })
 export class ClientsComponent implements OnInit {
     clientService = inject(ClientService);
+    countryService = inject(CountryService);
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
 
     clients = signal<ClientToReturnDto[]>([]);
+    countries = signal<CountryToReturnDto[]>([]);
+    countrySearchText = signal('');
+    showCountryDropdown = signal(false);
     isLoading = signal(false);
     showModal = signal(false);
     showDeleteConfirm = signal(false);
     editingClient = signal<ClientToReturnDto | null>(null);
     deletingClient = signal<ClientToReturnDto | null>(null);
 
+    // Filtered countries based on search text
+    filteredCountries = computed(() => {
+        const searchText = this.countrySearchText().toLowerCase();
+        if (!searchText) {
+            return this.countries();
+        }
+        return this.countries().filter(country =>
+            country.name.toLowerCase().includes(searchText) ||
+            country.code.toLowerCase().includes(searchText)
+        );
+    });
+
     clientForm = this.fb.group({
         name: ['', Validators.required],
         clientType: [1, Validators.required], // Default to Individual
-        PIB: [''],
-        MB: [''],
+        pib: [''],
+        mb: [''],
         address: [''],
         city: [''],
         email: ['', Validators.email],
-        phone: ['']
+        phone: [''],
+        countryId: [''],
+        countrySearch: ['']
     });
 
     columns: TableColumn[] = [
         { key: 'name', label: 'Naziv', sortable: true },
         { key: 'clientTypeDisplay', label: 'Tip', sortable: true },
-        { key: 'PIB', label: 'PIB', sortable: false },
+        { key: 'pib', label: 'Pib', sortable: false },
         { key: 'city', label: 'Grad', sortable: true },
         { key: 'email', label: 'Email', sortable: false },
         { key: 'phone', label: 'Telefon', sortable: false }
@@ -53,10 +73,12 @@ export class ClientsComponent implements OnInit {
 
     ngOnInit() {
         this.loadClients();
+        this.loadCountries();
 
-        // Add conditional validation for PIB based on client type
+        // Add conditional validation for PIB and Country based on client type
         this.clientForm.get('clientType')?.valueChanges.subscribe(clientType => {
-            const pibControl = this.clientForm.get('PIB');
+            const pibControl = this.clientForm.get('pib');
+            const countryIdControl = this.clientForm.get('countryId');
 
             // PIB is required for legal entities (domestic=2 or foreign=3)
             if (clientType === 2 || clientType === 3) {
@@ -65,6 +87,21 @@ export class ClientsComponent implements OnInit {
                 pibControl?.clearValidators();
             }
             pibControl?.updateValueAndValidity();
+
+            // Country is required for foreign clients (foreign=3)
+            if (clientType === 3) {
+                countryIdControl?.setValidators([Validators.required]);
+            } else {
+                countryIdControl?.clearValidators();
+                countryIdControl?.setValue('');
+                this.clientForm.get('countrySearch')?.setValue('');
+            }
+            countryIdControl?.updateValueAndValidity();
+        });
+
+        // Handle country search input
+        this.clientForm.get('countrySearch')?.valueChanges.subscribe(value => {
+            this.countrySearchText.set(value || '');
         });
     }
 
@@ -87,40 +124,101 @@ export class ClientsComponent implements OnInit {
         });
     }
 
+    loadCountries() {
+        this.countryService.getAll().subscribe({
+            next: (countries) => {
+                this.countries.set(countries);
+            },
+            error: (err) => {
+                console.error('Error loading countries:', err);
+                this.toastr.error('Greška pri učitavanju država', 'Greška');
+            }
+        });
+    }
+
     openAddModal() {
         this.editingClient.set(null);
         this.clientForm.reset({
             name: '',
             clientType: 1, // Individual
-            PIB: '',
-            MB: '',
+            pib: '',
+            mb: '',
             address: '',
             city: '',
             email: '',
-            phone: ''
+            phone: '',
+            countryId: '',
+            countrySearch: ''
         });
+        this.countrySearchText.set('');
+        this.showCountryDropdown.set(false);
         this.showModal.set(true);
     }
 
     openEditModal(client: ClientToReturnDto) {
         this.editingClient.set(client);
+
+        // Find country name and ID if client has a country
+        const countryName = client.country || '';
+        const countryId = client.countryId || '';
+
         this.clientForm.patchValue({
             name: client.name,
             clientType: client.clientType,
-            PIB: client.PIB || '',
-            MB: client.MB || '',
+            pib: client.pib || '',
+            mb: client.mb || '',
             address: client.address || '',
             city: client.city || '',
             email: client.email || '',
-            phone: client.phone || ''
+            phone: client.phone || '',
+            countrySearch: countryName,
+            countryId: countryId // Set directly if backend provides it
         });
+
+        // If we don't have countryId but have country name, try to find it
+        if (!countryId && countryName) {
+            if (this.countries().length > 0) {
+                this.setCountryIdFromName(countryName);
+            } else {
+                // Countries not loaded yet, wait for them
+                const subscription = this.countryService.getAll().subscribe({
+                    next: (countries) => {
+                        this.countries.set(countries);
+                        this.setCountryIdFromName(countryName);
+                        subscription.unsubscribe();
+                    },
+                    error: (err) => {
+                        console.error('Error loading countries for edit:', err);
+                        subscription.unsubscribe();
+                    }
+                });
+            }
+        }
+
+        this.showCountryDropdown.set(false);
         this.showModal.set(true);
+    }
+
+    private setCountryIdFromName(countryName: string) {
+        const country = this.countries().find(c => c.name.toLowerCase() === countryName.toLowerCase());
+        if (country) {
+            this.clientForm.patchValue({ countryId: country.id });
+            console.log('Country found and set:', country.name, country.id);
+        } else {
+            console.warn('Country not found:', countryName, 'Available countries:', this.countries().length);
+            // Log first few countries for debugging
+            if (this.countries().length > 0) {
+                console.log('Sample countries:', this.countries().slice(0, 5).map(c => c.name));
+            }
+        }
     }
 
     closeModal() {
         this.showModal.set(false);
         this.clientForm.reset();
         this.editingClient.set(null);
+        this.countrySearchText.set('');
+        this.showCountryDropdown.set(false);
     }
 
     onSubmit() {
@@ -137,12 +235,14 @@ export class ClientsComponent implements OnInit {
             const dto: UpdateClientDto = {
                 name: formValue.name!,
                 clientType: Number(formValue.clientType!),
-                PIB: formValue.PIB || null,
-                MB: formValue.MB || undefined,
+                pib: formValue.pib || null,
+                mb: formValue.mb || undefined,
                 address: formValue.address || undefined,
                 city: formValue.city || undefined,
                 email: formValue.email || undefined,
-                phone: formValue.phone || undefined
+                phone: formValue.phone || undefined,
+                // Only send countryId for foreign clients
+                countryId: formValue.clientType === 3 ? formValue.countryId || undefined : undefined
             };
 
             this.clientService.update(editing.id, dto).subscribe({
@@ -161,12 +261,14 @@ export class ClientsComponent implements OnInit {
             const dto: AddClientDto = {
                 name: formValue.name!,
                 clientType: Number(formValue.clientType!),
-                PIB: formValue.PIB || null,
-                MB: formValue.MB || undefined,
+                pib: formValue.pib || null,
+                mb: formValue.mb || undefined,
                 address: formValue.address || undefined,
                 city: formValue.city || undefined,
                 email: formValue.email || undefined,
-                phone: formValue.phone || undefined
+                phone: formValue.phone || undefined,
+                // Only send countryId for foreign clients
+                countryId: formValue.clientType === 3 ? formValue.countryId || undefined : undefined
             };
 
             this.clientService.create(dto).subscribe({
@@ -224,5 +326,27 @@ export class ClientsComponent implements OnInit {
         }
     }
 
+    selectCountry(country: CountryToReturnDto) {
+        this.clientForm.patchValue({
+            countryId: country.id,
+            countrySearch: country.name
+        });
+        this.showCountryDropdown.set(false);
+    }
+
+    onCountrySearchFocus() {
+        this.showCountryDropdown.set(true);
+    }
+
+    onCountrySearchBlur() {
+        // Delay to allow click on dropdown item
+        setTimeout(() => {
+            this.showCountryDropdown.set(false);
+        }, 200);
+    }
+
+    isForeignClient(): boolean {
+        return this.clientForm.get('clientType')?.value === 3;
+    }
 
 }
