@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@500&display=swap');
+
+:host {
+  --blue-deep: #1a3a6b;
+  --blue-mid: #2557c7;
+  --blue-light: #ddeaff;
+  --green: #0f9659;
+  --green-light: #d1fae5;
+  --red: #c0392b;
+  --red-light: #fee2e2;
+  --text-dark: #0d1f3c;
+  --text-mid: #4a5a72;
+  --text-light: #8899b0;
+  --bg: #f0f4fb;
+  --white: #ffffff;
+  --radius: 28px;
+  --shadow: 0 24px 60px rgba(20, 40, 90, 0.10), 0 2px 8px rgba(20, 40, 90, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(37, 87, 199, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(15, 150, 89, 0.06) 0%, transparent 70%);
+  padding: 24px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ─── Card ─────────────────────────────────────── */
+.card {
+  max-width: 460px;
+  width: 100%;
+  background: var(--white);
+  padding: 52px 44px 48px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  border: 1.5px solid rgba(37, 87, 199, 0.08);
+  pointer-events: none;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─── States ────────────────────────────────────── */
+.state {
+  animation: fadeSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Icon wrapper ──────────────────────────────── */
+.icon-wrap {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 30px;
+  transition: transform 0.3s;
+}
+
+.icon-wrap:hover {
+  transform: scale(1.05);
+}
+
+.success .icon-wrap {
+  background: var(--green-light);
+  color: var(--green);
+  animation: popIn 0.5s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.error .icon-wrap {
+  background: var(--red-light);
+  color: var(--red);
+  animation: popIn 0.5s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.6) rotate(-10deg);
+  }
+  60% {
+    transform: scale(1.12) rotate(2deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* ─── Typography ─────────────────────────────────── */
+.state h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--text-dark);
+  letter-spacing: -0.3px;
+  line-height: 1.25;
+}
+
+.state p {
+  margin-top: 10px;
+  font-size: 15px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ─── Spinner ────────────────────────────────────── */
+.spinner-wrap {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 24px;
+  position: relative;
+}
+
+.spinner-ring {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 3px solid var(--blue-light);
+  border-top-color: var(--blue-mid);
+  animation: spin 0.9s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+  position: absolute;
+}
+
+.spinner-ring:nth-child(2) {
+  width: 56px;
+  height: 56px;
+  top: 10px;
+  left: 10px;
+  border: 3px solid transparent;
+  border-bottom-color: rgba(37, 87, 199, 0.3);
+  animation-duration: 1.3s;
+  animation-direction: reverse;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Progress bar (success redirect) ───────────── */
+.progress-bar {
+  margin-top: 28px;
+  height: 3px;
+  background: var(--green-light);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 999px;
+  width: 0%;
+  animation: progressFill 3s linear forwards;
+}
+
+@keyframes progressFill {
+  to { width: 100%; }
+}
+
+.redirect-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-light);
+  letter-spacing: 0.3px;
+}
+
+/* ─── Button ─────────────────────────────────────── */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+  padding: 13px 32px;
+  background: var(--blue-deep);
+  color: white;
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(26, 58, 107, 0.18);
+}
+
+.button:hover {
+  background: var(--blue-mid);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(26, 58, 107, 0.22);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+}
+
+/* ─── Brand mark ─────────────────────────────────── */
+.brand {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 28px;
+  height: 28px;
+  background: var(--blue-deep);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--white);
+  border-radius: 50%;
+}
+
+/* ─── Divider ─────────────────────────────────────── */
+.divider {
+  margin: 28px 0 0;
+  border: none;
+  border-top: 1px solid #eef2f8;
+}

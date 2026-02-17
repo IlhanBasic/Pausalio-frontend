@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { guestGuard, authGuard } from './guards/auth.guard';
+import { guestGuard, authGuard, adminGuard, nonAdminGuard } from './guards/auth.guard';
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
@@ -19,6 +19,13 @@ export const routes: Routes = [
         canActivate: [guestGuard]
     },
     {
+        path: 'verify-email',
+        loadComponent: () =>
+            import('./components/auth/verify-email/verify-email.component')
+                .then(m => m.VerifyEmailComponent),
+        canActivate: [guestGuard]
+    },
+    {
         path: '',
         component: MainLayoutComponent,
         canActivate: [authGuard],
@@ -26,47 +33,58 @@ export const routes: Routes = [
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             {
                 path: 'home',
-                loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent)
+                loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'services',
-                loadComponent: () => import('./pages/services/services.component').then(m => m.ServicesComponent)
+                loadComponent: () => import('./pages/services/services.component').then(m => m.ServicesComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'clients',
-                loadComponent: () => import('./pages/clients/clients.component').then(m => m.ClientsComponent)
+                loadComponent: () => import('./pages/clients/clients.component').then(m => m.ClientsComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'invoices',
-                loadComponent: () => import('./pages/invoices/invoices.component').then(m => m.InvoicesComponent)
+                loadComponent: () => import('./pages/invoices/invoices.component').then(m => m.InvoicesComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'expenses',
-                loadComponent: () => import('./pages/expenses/expenses.component').then(m => m.ExpensesComponent)
+                loadComponent: () => import('./pages/expenses/expenses.component').then(m => m.ExpensesComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'tax-obligations',
-                loadComponent: () => import('./pages/tax-obligations/tax-obligations.component').then(m => m.TaxObligationsComponent)
+                loadComponent: () => import('./pages/tax-obligations/tax-obligations.component').then(m => m.TaxObligationsComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'bank-accounts',
-                loadComponent: () => import('./pages/bank-accounts/bank-accounts.component').then(m => m.BankAccountsComponent)
+                loadComponent: () => import('./pages/bank-accounts/bank-accounts.component').then(m => m.BankAccountsComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'payments',
-                loadComponent: () => import('./pages/payments/payments.component').then(m => m.PaymentsComponent)
+                loadComponent: () => import('./pages/payments/payments.component').then(m => m.PaymentsComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'reminders',
-                loadComponent: () => import('./pages/reminders/reminders.component').then(m => m.RemindersComponent)
+                loadComponent: () => import('./pages/reminders/reminders.component').then(m => m.RemindersComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'statistics',
-                loadComponent: () => import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent)
+                loadComponent: () => import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent),
+                canActivate: [nonAdminGuard]
             },
             {
                 path: 'admin',
                 loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent),
+                canActivate: [adminGuard],
                 children: [
                     { path: '', redirectTo: 'activity-codes', pathMatch: 'full' },
                     {

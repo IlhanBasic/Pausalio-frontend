@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../stores/auth.store';
 import { AuthService } from '../../../services/auth.service';
 import { BusinessProfileService } from '../../../services/business-profile.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { BusinessProfileToReturnDto } from '../../../models/business-profile';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -54,6 +54,9 @@ export class NavbarComponent implements OnInit {
           console.error('Error loading businesses:', err);
         }
       });
+    } else if (this.store.isAdmin()) {
+      this.currentBusiness.set(null);
+      this.availableBusinesses.set([]);
     }
   }
 

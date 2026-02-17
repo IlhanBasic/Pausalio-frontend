@@ -85,4 +85,11 @@ export class AuthService {
       dto
     );
   }
+
+  verifyEmail(token: string, email: string): Observable<any> {
+    return this.http.get(
+      `${this.baseUrl}/verify-email?token=${token}&email=${email}`,
+      { responseType: 'text' }
+    );
+  }
 }

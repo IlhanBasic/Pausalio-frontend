@@ -123,4 +123,7 @@ export class AuthStore {
       this._currentBusinessId.set(businessId);
     }
   }
+  readonly isAdmin = computed(() =>
+    this.user()?.roles.includes(UserRole.Admin.toString()) ?? false
+  );
 }

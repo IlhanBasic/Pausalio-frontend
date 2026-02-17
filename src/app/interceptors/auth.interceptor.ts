@@ -7,9 +7,15 @@ import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const authStore = inject(AuthStore);
+    const router = inject(Router);
+    const authService = inject(AuthService);
+
+    if (req.url.includes('/logout')) {
+        return next(req);
+    }
+
     const token = authStore.token();
     const currentBusinessId = authStore.currentBusinessId();
-
     let headers = req.headers;
 
     if (token) {
@@ -20,19 +26,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         headers = headers.set('X-Business-Context', currentBusinessId);
     }
 
-    const authReq = req.clone({
-        headers: headers,
-        withCredentials: true
-    });
-
-    const router = inject(Router);
-    const authService = inject(AuthService);
+    const authReq = req.clone({ headers, withCredentials: true });
 
     return next(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
-            if (error.status === 401) {
-                // Token expired or invalid
-                authService.logout().subscribe(); // diverse backend logout if needed
+            if (error.status === 401 && authStore.isAuthenticated()) {
+                authService.logout().subscribe();
                 authStore.logout();
                 router.navigate(['/login']);
             }
