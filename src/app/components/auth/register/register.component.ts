@@ -8,6 +8,8 @@ import { FileService } from '../../../services/file.service';
 import { ActivityCodeToReturnDto } from '../../../models/activity-code';
 import { AddUserProfileDto, RegisterOwnerDto, RegisterAssistantDto } from '../../../models/user-profile';
 import { AddBusinessProfileDto } from '../../../models/business-profile';
+import { CityService } from '../../../services/city.service';
+import { CityToReturnDto } from '../../../models/city';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -21,6 +23,7 @@ export class RegisterComponent implements OnInit {
     fb = inject(FormBuilder);
     authService = inject(AuthService);
     activityService = inject(ActivityCodeService);
+    cityService = inject(CityService);
     fileService = inject(FileService);
     router = inject(Router);
 
@@ -29,6 +32,11 @@ export class RegisterComponent implements OnInit {
     errorMessage = signal<string | null>(null);
     successMessage = signal<string | null>(null);
     activityCodes = signal<ActivityCodeToReturnDto[]>([]);
+    cities = signal<CityToReturnDto[]>([]);
+    filteredCities = signal<CityToReturnDto[]>([]);
+    filteredBusinessCities = signal<CityToReturnDto[]>([]);
+    showCityDropdown = signal(false);
+    showBusinessCityDropdown = signal(false);
     showPassword = signal(false);
 
     profilePictureFile = signal<File | null>(null);
@@ -68,6 +76,9 @@ export class RegisterComponent implements OnInit {
         lastName: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
         password: ['', this.passwordValidators],
+        phone: [''],
+        city: ['', Validators.required],
+        address: ['', Validators.required],
         inviteToken: ['', Validators.required]
     });
 
@@ -81,6 +92,7 @@ export class RegisterComponent implements OnInit {
 
     ngOnInit() {
         this.loadActivityCodes();
+        this.loadCities();
     }
 
     loadActivityCodes() {
@@ -92,6 +104,55 @@ export class RegisterComponent implements OnInit {
                 console.error('Error loading activity codes:', err);
             }
         });
+    }
+
+    loadCities() {
+        this.cityService.getAll().subscribe({
+            next: (res) => {
+                this.cities.set(res || []);
+                this.filteredCities.set(res || []);
+                this.filteredBusinessCities.set(res || []);
+            },
+            error: (err) => {
+                console.error('Error loading cities:', err);
+            }
+        });
+    }
+
+    onCityInput(event: Event, type: 'user' | 'business') {
+        const input = event.target as HTMLInputElement;
+        const value = input.value.toLowerCase();
+
+        if (type === 'user') {
+            this.showCityDropdown.set(true);
+            const filtered = this.cities().filter(c => c.name.toLowerCase().includes(value));
+            this.filteredCities.set(filtered);
+        } else {
+            this.showBusinessCityDropdown.set(true);
+            const filtered = this.cities().filter(c => c.name.toLowerCase().includes(value));
+            this.filteredBusinessCities.set(filtered);
+        }
+    }
+
+    selectCity(city: CityToReturnDto, type: 'user' | 'business') {
+        if (type === 'user') {
+            this.activeForm.get('city')?.setValue(city.name);
+            this.showCityDropdown.set(false);
+        } else {
+            this.ownerForm.get('businessCity')?.setValue(city.name);
+            this.showBusinessCityDropdown.set(false);
+        }
+    }
+
+    // Close dropdowns when clicking outside (handled via blur with delay or overlay click)
+    closeDropdown(type: 'user' | 'business') {
+        setTimeout(() => {
+            if (type === 'user') {
+                this.showCityDropdown.set(false);
+            } else {
+                this.showBusinessCityDropdown.set(false);
+            }
+        }, 200);
     }
 
     setRole(isOwner: boolean) {
@@ -232,7 +293,10 @@ export class RegisterComponent implements OnInit {
                 firstName: val.firstName!,
                 lastName: val.lastName!,
                 email: val.email!,
-                password: val.password!
+                password: val.password!,
+                phone: val.phone || null,
+                city: val.city!,
+                address: val.address!
             }
         };
 

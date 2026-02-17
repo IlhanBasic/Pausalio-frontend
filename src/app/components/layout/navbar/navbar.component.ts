@@ -30,7 +30,6 @@ export class NavbarComponent implements OnInit {
 
   loadBusinessData() {
     if (this.store.isOwner()) {
-      // Owner has only one company
       this.businessService.getUserCompany().subscribe({
         next: (response) => {
           if (response.data) {
@@ -42,12 +41,10 @@ export class NavbarComponent implements OnInit {
         }
       });
     } else if (this.store.isAssistant()) {
-      // Assistant can have multiple companies
       this.businessService.getUserCompanies().subscribe({
         next: (response) => {
           if (response.data && response.data.length > 0) {
             this.availableBusinesses.set(response.data);
-            // Set current business from store or default to first
             const currentId = this.store.currentBusinessId();
             const current = response.data.find(b => b.id === currentId) || response.data[0];
             this.currentBusiness.set(current);
@@ -66,7 +63,7 @@ export class NavbarComponent implements OnInit {
       this.currentBusiness.set(business);
       this.store.setBusinessContext(businessId);
       this.showBusinessDropdown.set(false);
-      window.location.reload(); // Reload to apply new business context
+      window.location.reload();
     }
   }
 
@@ -102,7 +99,6 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  // Helper methods
   getUserFullName(): string {
     const user = this.store.user();
     return user ? `${user.firstName} ${user.lastName}` : '';
@@ -125,5 +121,9 @@ export class NavbarComponent implements OnInit {
       return `${words[0].charAt(0)}${words[1].charAt(0)}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
+  }
+
+  getUserProfilePicture(): string | null {
+    return this.store.user()?.profilePicture ?? null;
   }
 }

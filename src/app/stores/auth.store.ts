@@ -9,6 +9,7 @@ export interface DecodedToken {
   LastName: string;
   role: string | string[];
   AvailableBusinesses?: string;
+  ProfilePicture?: string;
   exp: number;
   iat: number;
 }
@@ -19,7 +20,7 @@ export interface UserState {
   firstName: string | null;
   lastName: string | null;
   roles: string[];
-  profilePicture?: string | null; 
+  profilePicture?: string | null;
   availableBusinesses: string[];
 }
 
@@ -35,14 +36,14 @@ export class AuthStore {
   readonly token = computed(() => this._token());
   readonly isAuthenticated = computed(() => !!this._token());
   readonly currentBusinessId = computed(() => this._currentBusinessId());
-  
-  readonly user = computed<UserState | null>(() => {
+
+  readonly user = computed(() => {
     const token = this._token();
     if (!token) return null;
 
     try {
       const decoded = jwtDecode<DecodedToken>(token);
-      
+
       // Handle Role (string or array)
       let roles: string[] = [];
       if (Array.isArray(decoded.role)) {
@@ -62,17 +63,23 @@ export class AuthStore {
         email: decoded.email,
         firstName: decoded.FirstName,
         lastName: decoded.LastName,
-        roles: roles,
-        availableBusinesses: availableBusinesses
-      };
+        roles,
+        profilePicture: decoded.ProfilePicture ?? null,
+        availableBusinesses
+      } satisfies UserState;
     } catch (error) {
       console.error('Error decoding token', error);
       return null;
     }
   });
 
-  readonly isAssistant = computed(() => this.user()?.roles.includes(UserRole.Assistant.toString()) ?? false);
-  readonly isOwner = computed(() => this.user()?.roles.includes(UserRole.Owner.toString()) ?? false);
+  readonly isAssistant = computed(() =>
+    this.user()?.roles.includes(UserRole.Assistant.toString()) ?? false
+  );
+
+  readonly isOwner = computed(() =>
+    this.user()?.roles.includes(UserRole.Owner.toString()) ?? false
+  );
 
   constructor() {
     // Effect to sync token with local storage
@@ -98,6 +105,7 @@ export class AuthStore {
 
   login(token: string) {
     this._token.set(token);
+
     // Auto-select first business if available and none selected
     const user = this.user();
     if (user && user.availableBusinesses.length > 0 && !this._currentBusinessId()) {

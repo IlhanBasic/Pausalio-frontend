@@ -9,7 +9,7 @@
             <div class="company-logo-placeholder" *ngIf="!currentBusiness()?.companyLogo">
                 {{ getInitials(currentBusiness()?.businessName || '') }}
             </div>
-            
+
             <div class="company-details">
                 <span class="business-name">{{ currentBusiness()?.businessName || 'Učitavanje...' }}</span>
                 <span class="business-meta" *ngIf="currentBusiness()?.PIB">PIB: {{ currentBusiness()?.PIB }}</span>
@@ -26,12 +26,12 @@
                     <div class="company-logo-placeholder" *ngIf="!currentBusiness()?.companyLogo">
                         {{ getInitials(currentBusiness()?.businessName || '') }}
                     </div>
-                    
+
                     <div class="company-details">
                         <span class="business-name">{{ currentBusiness()?.businessName || 'Izaberite firmu' }}</span>
                         <span class="business-meta" *ngIf="currentBusiness()?.PIB">PIB: {{ currentBusiness()?.PIB }}</span>
                     </div>
-                    
+
                     <span class="selector-arrow" [class.open]="showBusinessDropdown()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="6 9 12 15 18 9"></polyline>
@@ -40,19 +40,19 @@
                 </div>
 
                 <div class="business-dropdown" [class.show]="showBusinessDropdown()">
-                    <button 
-                        *ngFor="let business of availableBusinesses()" 
+                    <button
+                        *ngFor="let business of availableBusinesses()"
                         class="business-option"
                         [class.active]="business.id === currentBusiness()?.id"
                         (click)="selectBusiness(business.id)">
-                        
+
                         <div class="business-option-logo" *ngIf="business.companyLogo">
                             <img [src]="business.companyLogo" [alt]="business.businessName">
                         </div>
                         <div class="business-option-placeholder" *ngIf="!business.companyLogo">
                             {{ getInitials(business.businessName) }}
                         </div>
-                        
+
                         <div class="business-option-details">
                             <span class="business-option-name">{{ business.businessName }}</span>
                             <span class="business-option-meta">PIB: {{ business.PIB }}</span>
@@ -66,18 +66,18 @@
     <!-- User Menu (Right Side) -->
     <div class="user-menu">
         <div class="user-info" (click)="toggleUserDropdown()">
-            <div class="user-avatar-wrapper" *ngIf="store.user()?.profilePicture">
-                <img [src]="store.user()?.profilePicture" [alt]="getUserFullName()" class="user-avatar-image">
+            <div class="user-avatar-wrapper" *ngIf="getUserProfilePicture()">
+                <img [src]="getUserProfilePicture()" [alt]="getUserFullName()" class="user-avatar-image">
             </div>
-            <div class="user-avatar-placeholder" *ngIf="!store.user()?.profilePicture">
+            <div class="user-avatar-placeholder" *ngIf="!getUserProfilePicture()">
                 {{ getUserInitials() }}
             </div>
-            
+
             <div class="user-details">
                 <span class="user-name">{{ getUserFullName() }}</span>
                 <span class="user-role">{{ getUserRole() }}</span>
             </div>
-            
+
             <span class="dropdown-arrow" [class.open]="showUserDropdown()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 12 15 18 9"></polyline>
