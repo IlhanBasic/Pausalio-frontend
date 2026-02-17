@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { AddUserProfileDto, LoginDto, RegisterAssistantDto, RegisterOwnerDto } from "../models/user-profile";
+import { AddUserProfileDto, ChangePasswordDto, ForgotPasswordDto, LoginDto, RegisterAssistantDto, RegisterOwnerDto, ResetPasswordDto } from "../models/user-profile";
 import { Observable } from "rxjs";
 import { AcceptInviteResponse, ApiResponse, LoginResponse } from "../models/api-response";
 import { AcceptInviteDto } from "../models/business-invite";
@@ -61,6 +61,28 @@ export class AuthService {
       `${this.baseUrl}/logout`,
       {},
       { withCredentials: true }
+    );
+  }
+
+  changePassword(dto: ChangePasswordDto): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/change-password`,
+      dto,
+      { withCredentials: true }
+    );
+  }
+
+  forgotPassword(dto: ForgotPasswordDto): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/forgot-password`,
+      dto
+    );
+  }
+
+  resetPassword(dto: ResetPasswordDto): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/reset-password`,
+      dto
     );
   }
 }

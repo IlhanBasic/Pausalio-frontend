@@ -1,0 +1,140 @@
+<div class="page-header">
+    <div class="header-content">
+        <h1>Moj Profil</h1>
+        <p>Upravljanje vašim nalogom i bezbednošću</p>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="profile-container">
+        <!-- User Info Card -->
+        <section class="profile-card user-info-card">
+            <div class="card-header">
+                <h2>Osnovne informacije</h2>
+            </div>
+            <div class="card-body">
+                <div class="info-row">
+                    <span class="label">Ime i prezime:</span>
+                    <span class="value">{{ getUserFullName() }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Email adresa:</span>
+                    <span class="value">{{ getUserEmail() }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Uloga:</span>
+                    <span class="value badge">{{ getUserRole() }}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Change Password Card -->
+        <section class="profile-card password-card">
+            <div class="card-header">
+                <h2>Promena lozinke</h2>
+                <p class="card-subtitle">Za veću bezbednost, koristite jaku lozinku.</p>
+            </div>
+            <div class="card-body">
+                <form [formGroup]="changePasswordForm" (ngSubmit)="onSubmit()">
+
+                    <div class="form-group">
+                        <label>Trenutna lozinka</label>
+                        <div class="password-input-wrapper">
+                            <input [type]="showOldPassword() ? 'text' : 'password'" formControlName="oldPassword"
+                                placeholder="Unesite trenutnu lozinku">
+                            <button type="button" class="password-toggle" (click)="toggleVisibility('old')">
+                                <svg *ngIf="!showOldPassword()" xmlns="http://www.w3.org/2000/svg" width="20"
+                                    height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg *ngIf="showOldPassword()" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                    </path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div *ngIf="changePasswordForm.get('oldPassword')?.touched && changePasswordForm.get('oldPassword')?.invalid"
+                            class="error">
+                            Obavezno polje
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nova lozinka</label>
+                        <div class="password-input-wrapper">
+                            <input [type]="showNewPassword() ? 'text' : 'password'" formControlName="newPassword"
+                                placeholder="Unesite novu lozinku">
+                            <button type="button" class="password-toggle" (click)="toggleVisibility('new')">
+                                <svg *ngIf="!showNewPassword()" xmlns="http://www.w3.org/2000/svg" width="20"
+                                    height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg *ngIf="showNewPassword()" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                    </path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div *ngIf="changePasswordForm.get('newPassword')?.touched && changePasswordForm.get('newPassword')?.errors?.['pattern']"
+                            class="error">
+                            Min 8 karaktera, 1 veliko, 1 malo slovo, 1 broj, 1 spec. znak
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Potvrdi novu lozinku</label>
+                        <div class="password-input-wrapper">
+                            <input [type]="showConfirmPassword() ? 'text' : 'password'"
+                                formControlName="confirmPassword" placeholder="Potvrdite novu lozinku">
+                            <button type="button" class="password-toggle" (click)="toggleVisibility('confirm')">
+                                <svg *ngIf="!showConfirmPassword()" xmlns="http://www.w3.org/2000/svg" width="20"
+                                    height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg *ngIf="showConfirmPassword()" xmlns="http://www.w3.org/2000/svg" width="20"
+                                    height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                    </path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div *ngIf="changePasswordForm.hasError('mismatch') && changePasswordForm.get('confirmPassword')?.touched"
+                            class="error">
+                            Lozinke se ne poklapaju
+                        </div>
+                    </div>
+
+                    <div *ngIf="errorMessage()" class="alert alert-error">
+                        {{ errorMessage() }}
+                    </div>
+
+                    <div *ngIf="successMessage()" class="alert alert-success">
+                        {{ successMessage() }}
+                    </div>
+
+                    <button type="submit" class="btn-primary" [disabled]="changePasswordForm.invalid || isLoading()">
+                        <span *ngIf="isLoading()" class="spinner"></span>
+                        <span>{{ isLoading() ? 'Čuvanje...' : 'Sačuvaj lozinku' }}</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>

@@ -14,6 +14,11 @@ export const routes: Routes = [
         canActivate: [guestGuard]
     },
     {
+        path: 'forgot-password',
+        loadComponent: () => import('./components/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+        canActivate: [guestGuard]
+    },
+    {
         path: '',
         component: MainLayoutComponent,
         canActivate: [authGuard],
@@ -77,6 +82,10 @@ export const routes: Routes = [
                         loadComponent: () => import('./pages/admin/cities/cities.component').then(m => m.CitiesComponent)
                     }
                 ]
+            },
+            {
+                path: 'profile',
+                loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)
             }
         ]
     },

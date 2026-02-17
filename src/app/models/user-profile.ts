@@ -2,6 +2,21 @@ import { UserRole } from "../enums/user-role";
 import { AddBusinessProfileDto } from "./business-profile";
 import { UserBusinessProfileToReturnDto } from "./user-business-profile";
 
+export interface ChangePasswordDto {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface ForgotPasswordDto {
+  email: string;
+}
+
+export interface ResetPasswordDto {
+  email: string;
+  pin: string;
+  newPassword: string;
+}
+
 export interface AddUserProfileDto {
   firstName: string;
   lastName: string;
