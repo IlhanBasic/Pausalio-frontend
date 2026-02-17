@@ -12,7 +12,7 @@
 
             <div class="company-details">
                 <span class="business-name">{{ currentBusiness()?.businessName || 'Učitavanje...' }}</span>
-                <span class="business-meta" *ngIf="currentBusiness()?.PIB">PIB: {{ currentBusiness()?.PIB }}</span>
+                <span class="business-meta" *ngIf="currentBusiness()?.pib">PIB: {{ currentBusiness()?.pib }}</span>
             </div>
         </ng-container>
 
@@ -29,7 +29,7 @@
 
                     <div class="company-details">
                         <span class="business-name">{{ currentBusiness()?.businessName || 'Izaberite firmu' }}</span>
-                        <span class="business-meta" *ngIf="currentBusiness()?.PIB">PIB: {{ currentBusiness()?.PIB }}</span>
+                        <span class="business-meta" *ngIf="currentBusiness()?.pib">PIB: {{ currentBusiness()?.pib }}</span>
                     </div>
 
                     <span class="selector-arrow" [class.open]="showBusinessDropdown()">
@@ -55,7 +55,7 @@
 
                         <div class="business-option-details">
                             <span class="business-option-name">{{ business.businessName }}</span>
-                            <span class="business-option-meta">PIB: {{ business.PIB }}</span>
+                            <span class="business-option-meta">PIB: {{ business.pib}}</span>
                         </div>
                     </button>
                 </div>

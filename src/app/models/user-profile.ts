@@ -1,5 +1,5 @@
 import { UserRole } from "../enums/user-role";
-import { AddBusinessProfileDto } from "./business-profile";
+import { AddBusinessProfileDto, BusinessProfileToReturnDto } from "./business-profile";
 import { UserBusinessProfileToReturnDto } from "./user-business-profile";
 
 export interface ChangePasswordDto {
@@ -75,4 +75,10 @@ export interface UserProfileToReturnDto {
   passwordResetToken?: string | null;
   passwordResetTokenExpiration?: Date | null;
   role: UserRole;
+}
+
+
+export interface ProfileToReturnDto {
+  userProfile: UserProfileToReturnDto;
+  businessProfile: BusinessProfileToReturnDto;
 }

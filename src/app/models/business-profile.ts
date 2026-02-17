@@ -27,8 +27,8 @@ export interface UpdateBusinessProfileDto {
 export interface BusinessProfileToReturnDto {
   id: string;
   businessName: string;
-  PIB: string;
-  MB?: string;
+  pib: string;
+  mb?: string;
   activityCode?: string;
   city?: string;
   address: string;

@@ -1,0 +1,21 @@
+import { HttpClient } from "@angular/common/http";
+import { inject, Injectable } from "@angular/core";
+import { ProfileToReturnDto, UpdateUserProfileDto } from "../models/user-profile";
+import { ApiResponse } from "../models/api-response";
+import { Observable } from "rxjs";
+
+@Injectable({
+    providedIn: 'root'
+})
+export class UserProfileService {
+    private http = inject(HttpClient);
+    private baseUrl = 'https://localhost:7272/api/UserProfile';
+    updateProfile(id: string, user: UpdateUserProfileDto) : Observable<ApiResponse> {
+        return this.http.put<ApiResponse>(`${this.baseUrl}/${id}`, user);
+    }
+    getProfile(): Observable<ProfileToReturnDto>  {
+        return this.http.get<ProfileToReturnDto>(`${this.baseUrl}/me`,{
+            withCredentials: true
+        });
+    }
+}

@@ -100,7 +100,7 @@ export class NavbarComponent implements OnInit {
       this.store.logout();
       this.router.navigate(['/login']);
     });
-  }
+  } 
 
   getUserFullName(): string {
     const user = this.store.user();
@@ -114,7 +114,7 @@ export class NavbarComponent implements OnInit {
   }
 
   getUserRole(): string {
-    return this.store.isOwner() ? 'Vlasnik' : 'Asistent';
+    return this.store.isOwner() ? 'Vlasnik' : this.store.isAssistant() ? 'Asistent' : 'Administrator';
   }
 
   getInitials(name: string): string {

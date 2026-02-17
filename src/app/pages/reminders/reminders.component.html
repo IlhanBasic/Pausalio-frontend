@@ -56,7 +56,7 @@
 
                         <div class="form-group">
                             <label>Datum i vreme *</label>
-                            <input type="datetime-local" formControlName="dueDate">
+                            <input type="datetime-local" formControlName="dueDate" [min]="minDateTime">
                             <div *ngIf="reminderForm.get('dueDate')?.touched && reminderForm.get('dueDate')?.invalid"
                                 class="error">
                                 Datum je obavezan
