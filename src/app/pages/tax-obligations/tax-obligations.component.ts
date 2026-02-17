@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TaxObligationService } from '../../services/tax-obligation.service';
@@ -38,8 +39,8 @@ export class TaxObligationsComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingObligation = signal<TaxObligationToReturnDto | null>(null);
     deletingObligation = signal<TaxObligationToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
+
+    toastr = inject(ToastrService);
     selectedYear = signal<number>(new Date().getFullYear());
 
     generateForm = this.fb.group({
@@ -98,7 +99,7 @@ export class TaxObligationsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading obligations:', err);
-                this.showError('Greška pri učitavanju poreskih obaveza');
+                this.toastr.error('Greška pri učitavanju poreskih obaveza', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -153,14 +154,14 @@ export class TaxObligationsComponent implements OnInit {
 
         this.taxService.generateAnnualTaxObligations(dto).subscribe({
             next: () => {
-                this.showSuccess('Godišnje obaveze uspešno generisane');
+                this.toastr.success('Godišnje obaveze uspešno generisane', 'Uspeh');
                 this.loadObligations();
                 this.loadSummary();
                 this.closeGenerateModal();
             },
             error: (err) => {
                 console.error('Error generating obligations:', err);
-                this.showError('Greška pri generisanju obaveza');
+                this.toastr.error('Greška pri generisanju obaveza', 'Greška');
             }
         });
     }
@@ -210,14 +211,14 @@ export class TaxObligationsComponent implements OnInit {
 
             this.taxService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Obaveza uspešno ažurirana');
+                    this.toastr.success('Obaveza uspešno ažurirana', 'Uspeh');
                     this.loadObligations();
                     this.loadSummary();
                     this.closeAddModal();
                 },
                 error: (err) => {
                     console.error('Error updating obligation:', err);
-                    this.showError('Greška pri ažuriranju obaveze');
+                    this.toastr.error('Greška pri ažuriranju obaveze', 'Greška');
                 }
             });
         } else {
@@ -230,18 +231,19 @@ export class TaxObligationsComponent implements OnInit {
 
             this.taxService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Obaveza uspešno dodata');
+                    this.toastr.success('Obaveza uspešno dodata', 'Uspeh');
                     this.loadObligations();
                     this.loadSummary();
                     this.closeAddModal();
                 },
                 error: (err) => {
                     console.error('Error creating obligation:', err);
-                    this.showError('Greška pri dodavanju obaveze');
+                    this.toastr.error('Greška pri dodavanju obaveze', 'Greška');
                 }
             });
         }
     }
+
 
     openDeleteConfirm(obligation: TaxObligationToReturnDto) {
         this.deletingObligation.set(obligation);
@@ -259,14 +261,14 @@ export class TaxObligationsComponent implements OnInit {
 
         this.taxService.delete(obligation.id).subscribe({
             next: () => {
-                this.showSuccess('Obaveza uspešno obrisana');
+                this.toastr.success('Obaveza uspešno obrisana', 'Uspeh');
                 this.loadObligations();
                 this.loadSummary();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting obligation:', err);
-                this.showError('Greška pri brisanju obaveze');
+                this.toastr.error('Greška pri brisanju obaveze', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
@@ -277,13 +279,13 @@ export class TaxObligationsComponent implements OnInit {
 
         this.taxService.markAsPaid(obligation.id).subscribe({
             next: () => {
-                this.showSuccess('Obaveza označena kao plaćena');
+                this.toastr.success('Obaveza označena kao plaćena', 'Uspeh');
                 this.loadObligations();
                 this.loadSummary();
             },
             error: (err) => {
                 console.error('Error marking as paid:', err);
-                this.showError('Greška pri označavanju kao plaćeno');
+                this.toastr.error('Greška pri označavanju kao plaćeno', 'Greška');
             }
         });
     }
@@ -326,13 +328,5 @@ export class TaxObligationsComponent implements OnInit {
         return obligation.status === TaxObligationStatus.Pending;
     }
 
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
 
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }

@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -15,11 +16,10 @@ export class ForgotPasswordComponent {
     fb = inject(FormBuilder);
     authService = inject(AuthService);
     router = inject(Router);
+    toastr = inject(ToastrService);
 
     step = signal<1 | 2>(1);
     isLoading = signal(false);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
     showPassword = signal(false);
     showConfirmPassword = signal(false);
 
@@ -51,18 +51,17 @@ export class ForgotPasswordComponent {
         if (this.emailForm.invalid) return;
 
         this.isLoading.set(true);
-        this.errorMessage.set(null);
         const email = this.emailForm.get('email')?.value!;
 
         this.authService.forgotPassword({ email }).subscribe({
             next: () => {
                 this.step.set(2);
                 this.resetForm.patchValue({ email });
-                this.successMessage.set('PIN je poslat na vašu email adresu.');
+                this.toastr.success('PIN je poslat na vašu email adresu.', 'Uspeh');
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.errorMessage.set(err.error?.message || 'Došlo je do greške prilikom slanja PIN-a.');
+                this.toastr.error(err.error?.message || 'Došlo je do greške prilikom slanja PIN-a.', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -72,7 +71,6 @@ export class ForgotPasswordComponent {
         if (this.resetForm.invalid) return;
 
         this.isLoading.set(true);
-        this.errorMessage.set(null);
         const val = this.resetForm.value;
 
         this.authService.resetPassword({
@@ -81,11 +79,11 @@ export class ForgotPasswordComponent {
             newPassword: val.newPassword!
         }).subscribe({
             next: () => {
-                this.successMessage.set('Lozinka uspešno promenjena! Preusmeravanje na prijavu...');
+                this.toastr.success('Lozinka uspešno promenjena! Preusmeravanje na prijavu...', 'Uspeh');
                 setTimeout(() => this.router.navigate(['/login']), 2000);
             },
             error: (err) => {
-                this.errorMessage.set(err.error?.message || 'Došlo je do greške prilikom resetovanja lozinke.');
+                this.toastr.error(err.error?.message || 'Došlo je do greške prilikom resetovanja lozinke.', 'Greška');
                 this.isLoading.set(false);
             }
         });

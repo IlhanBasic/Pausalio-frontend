@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ExpenseService } from '../../services/expense.service';
@@ -16,6 +17,7 @@ import { DataTableComponent, TableColumn, TableAction } from '../../components/s
 export class ExpensesComponent implements OnInit {
     expenseService = inject(ExpenseService);
     fb = inject(FormBuilder);
+    toastr = inject(ToastrService);
 
     expenses = signal<ExpenseToReturnDto[]>([]);
     isLoading = signal(false);
@@ -23,8 +25,6 @@ export class ExpensesComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingExpense = signal<ExpenseToReturnDto | null>(null);
     deletingExpense = signal<ExpenseToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
 
     ExpenseStatus = ExpenseStatus;
 
@@ -65,7 +65,7 @@ export class ExpensesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading expenses:', err);
-                this.showError('Greška pri učitavanju troškova');
+                this.toastr.error('Greška pri učitavanju troškova', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -113,13 +113,13 @@ export class ExpensesComponent implements OnInit {
 
             this.expenseService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Trošak uspešno ažuriran');
+                    this.toastr.success('Trošak uspešno ažuriran', 'Uspeh');
                     this.loadExpenses();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating expense:', err);
-                    this.showError('Greška pri ažuriranju troška');
+                    this.toastr.error('Greška pri ažuriranju troška', 'Greška');
                 }
             });
         } else {
@@ -131,13 +131,13 @@ export class ExpensesComponent implements OnInit {
 
             this.expenseService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Trošak uspešno dodat');
+                    this.toastr.success('Trošak uspešno dodat', 'Uspeh');
                     this.loadExpenses();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating expense:', err);
-                    this.showError('Greška pri dodavanju troška');
+                    this.toastr.error('Greška pri dodavanju troška', 'Greška');
                 }
             });
         }
@@ -151,18 +151,18 @@ export class ExpensesComponent implements OnInit {
 
     archiveExpense(expense: ExpenseToReturnDto) {
         if (expense.status === ExpenseStatus.archived) {
-            this.showError('Trošak je već arhiviran');
+            this.toastr.warning('Trošak je već arhiviran', 'Upozorenje');
             return;
         }
 
         this.expenseService.archive(expense.id).subscribe({
             next: () => {
-                this.showSuccess('Trošak uspešno arhiviran');
+                this.toastr.success('Trošak uspešno arhiviran', 'Uspeh');
                 this.loadExpenses();
             },
             error: (err) => {
                 console.error('Error archiving expense:', err);
-                this.showError('Greška pri arhiviranju troška');
+                this.toastr.error('Greška pri arhiviranju troška', 'Greška');
             }
         });
     }
@@ -183,13 +183,13 @@ export class ExpensesComponent implements OnInit {
 
         this.expenseService.delete(expense.id).subscribe({
             next: () => {
-                this.showSuccess('Trošak uspešno obrisan');
+                this.toastr.success('Trošak uspešno obrisan', 'Uspeh');
                 this.loadExpenses();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting expense:', err);
-                this.showError('Greška pri brisanju troška');
+                this.toastr.error('Greška pri brisanju troška', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
@@ -225,13 +225,5 @@ export class ExpensesComponent implements OnInit {
         }).format(amount);
     }
 
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
 
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }

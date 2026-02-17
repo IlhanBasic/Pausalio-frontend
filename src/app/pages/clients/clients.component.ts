@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ClientService } from '../../services/client.service';
@@ -16,6 +17,7 @@ import { DataTableComponent, TableColumn, TableAction } from '../../components/s
 export class ClientsComponent implements OnInit {
     clientService = inject(ClientService);
     fb = inject(FormBuilder);
+    toastr = inject(ToastrService);
 
     clients = signal<ClientToReturnDto[]>([]);
     isLoading = signal(false);
@@ -23,8 +25,6 @@ export class ClientsComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingClient = signal<ClientToReturnDto | null>(null);
     deletingClient = signal<ClientToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
 
     clientForm = this.fb.group({
         name: ['', Validators.required],
@@ -81,7 +81,7 @@ export class ClientsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading clients:', err);
-                this.showError('Greška pri učitavanju klijenata');
+                this.toastr.error('Greška pri učitavanju klijenata', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -147,13 +147,13 @@ export class ClientsComponent implements OnInit {
 
             this.clientService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Klijent uspešno ažuriran');
+                    this.toastr.success('Klijent uspešno ažuriran', 'Uspeh');
                     this.loadClients();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating client:', err);
-                    this.showError('Greška pri ažuriranju klijenta');
+                    this.toastr.error('Greška pri ažuriranju klijenta', 'Greška');
                 }
             });
         } else {
@@ -171,13 +171,13 @@ export class ClientsComponent implements OnInit {
 
             this.clientService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Klijent uspešno dodat');
+                    this.toastr.success('Klijent uspešno dodat', 'Uspeh');
                     this.loadClients();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating client:', err);
-                    this.showError('Greška pri dodavanju klijenta');
+                    this.toastr.error('Greška pri dodavanju klijenta', 'Greška');
                 }
             });
         }
@@ -199,13 +199,13 @@ export class ClientsComponent implements OnInit {
 
         this.clientService.delete(client.id).subscribe({
             next: () => {
-                this.showSuccess('Klijent uspešno obrisan');
+                this.toastr.success('Klijent uspešno obrisan', 'Uspeh');
                 this.loadClients();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting client:', err);
-                this.showError('Greška pri brisanju klijenta');
+                this.toastr.error('Greška pri brisanju klijenta', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
@@ -224,13 +224,5 @@ export class ClientsComponent implements OnInit {
         }
     }
 
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
 
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }

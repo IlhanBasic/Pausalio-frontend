@@ -121,14 +121,6 @@
                         </div>
                     </div>
 
-                    <div *ngIf="errorMessage()" class="alert alert-error">
-                        {{ errorMessage() }}
-                    </div>
-
-                    <div *ngIf="successMessage()" class="alert alert-success">
-                        {{ successMessage() }}
-                    </div>
-
                     <button type="submit" class="btn-primary" [disabled]="changePasswordForm.invalid || isLoading()">
                         <span *ngIf="isLoading()" class="spinner"></span>
                         <span>{{ isLoading() ? 'Čuvanje...' : 'Sačuvaj lozinku' }}</span>

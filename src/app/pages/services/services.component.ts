@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ItemService } from '../../services/item.service';
@@ -23,8 +24,7 @@ export class ServicesComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingService = signal<ItemToReturnDto | null>(null);
     deletingService = signal<ItemToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
+    toastr = inject(ToastrService);
 
     serviceForm = this.fb.group({
         name: ['', Validators.required],
@@ -63,7 +63,7 @@ export class ServicesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading services:', err);
-                this.showError('Greška pri učitavanju usluga');
+                this.toastr.error('Greška pri učitavanju usluga', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -117,13 +117,13 @@ export class ServicesComponent implements OnInit {
 
             this.itemService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Usluga uspešno ažurirana');
+                    this.toastr.success('Usluga uspešno ažurirana', 'Uspeh');
                     this.loadServices();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating service:', err);
-                    this.showError('Greška pri ažuriranju usluge');
+                    this.toastr.error('Greška pri ažuriranju usluge', 'Greška');
                 }
             });
         } else {
@@ -137,13 +137,13 @@ export class ServicesComponent implements OnInit {
 
             this.itemService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Usluga uspešno dodata');
+                    this.toastr.success('Usluga uspešno dodata', 'Uspeh');
                     this.loadServices();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating service:', err);
-                    this.showError('Greška pri dodavanju usluge');
+                    this.toastr.error('Greška pri dodavanju usluge', 'Greška');
                 }
             });
         }
@@ -165,13 +165,13 @@ export class ServicesComponent implements OnInit {
 
         this.itemService.delete(service.id).subscribe({
             next: () => {
-                this.showSuccess('Usluga uspešno obrisana');
+                this.toastr.success('Usluga uspešno obrisana', 'Uspeh');
                 this.loadServices();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting service:', err);
-                this.showError('Greška pri brisanju usluge');
+                this.toastr.error('Greška pri brisanju usluge', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
@@ -181,13 +181,5 @@ export class ServicesComponent implements OnInit {
         return type === ItemType.product ? 'Proizvod' : 'Usluga';
     }
 
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
 
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }

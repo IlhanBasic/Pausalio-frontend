@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { InvoiceService } from '../../services/invoice.service';
 import { InvoiceToReturnDto } from '../../models/invoice';
@@ -28,6 +29,7 @@ interface BestSellingItem {
 })
 export class HomeComponent implements OnInit {
     invoiceService = inject(InvoiceService);
+    toastr = inject(ToastrService);
 
     isLoading = signal(true);
 
@@ -68,6 +70,7 @@ export class HomeComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading dashboard data', err);
+                this.toastr.error('Greška pri učitavanju podataka za kontrolnu tablu', 'Greška');
                 this.isLoading.set(false);
             }
         });

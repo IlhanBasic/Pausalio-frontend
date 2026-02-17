@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BankAccountService } from '../../services/bank-account.service';
@@ -16,6 +17,7 @@ import { DataTableComponent, TableColumn, TableAction } from '../../components/s
 export class BankAccountsComponent implements OnInit {
     bankService = inject(BankAccountService);
     fb = inject(FormBuilder);
+    toastr = inject(ToastrService);
 
     accounts = signal<BankAccountToReturnDto[]>([]);
     isLoading = signal(false);
@@ -23,8 +25,6 @@ export class BankAccountsComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingAccount = signal<BankAccountToReturnDto | null>(null);
     deletingAccount = signal<BankAccountToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
 
     accountForm = this.fb.group({
         bankName: ['', Validators.required],
@@ -98,7 +98,7 @@ export class BankAccountsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading accounts:', err);
-                this.showError('Greška pri učitavanju računa');
+                this.toastr.error('Greška pri učitavanju računa', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -158,13 +158,13 @@ export class BankAccountsComponent implements OnInit {
 
             this.bankService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Račun uspešno ažuriran');
+                    this.toastr.success('Račun uspešno ažuriran', 'Uspeh');
                     this.loadAccounts();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating account:', err);
-                    this.showError('Greška pri ažuriranju računa');
+                    this.toastr.error('Greška pri ažuriranju računa', 'Greška');
                 }
             });
         } else {
@@ -179,13 +179,13 @@ export class BankAccountsComponent implements OnInit {
 
             this.bankService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Račun uspešno dodat');
+                    this.toastr.success('Račun uspešno dodat', 'Uspeh');
                     this.loadAccounts();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating account:', err);
-                    this.showError('Greška pri dodavanju računa');
+                    this.toastr.error('Greška pri dodavanju računa', 'Greška');
                 }
             });
         }
@@ -207,13 +207,13 @@ export class BankAccountsComponent implements OnInit {
 
         this.bankService.delete(account.id).subscribe({
             next: () => {
-                this.showSuccess('Račun uspešno obrisan');
+                this.toastr.success('Račun uspešno obrisan', 'Uspeh');
                 this.loadAccounts();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting account:', err);
-                this.showError('Greška pri brisanju računa');
+                this.toastr.error('Greška pri brisanju računa', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
@@ -234,13 +234,5 @@ export class BankAccountsComponent implements OnInit {
         return `IBAN: ${account.IBAN || '-'} / SWIFT: ${account.SWIFT || '-'}`;
     }
 
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
 
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }

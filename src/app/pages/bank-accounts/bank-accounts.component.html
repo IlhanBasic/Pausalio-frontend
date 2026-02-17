@@ -7,7 +7,8 @@
         </div>
         <button class="btn-primary" (click)="openAddModal()">
             <span class="btn-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
@@ -17,35 +18,11 @@
     </div>
 
     <!-- Alerts -->
-    <div *ngIf="errorMessage()" class="alert alert-error">
-        <span class="alert-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-        </span>
-        {{ errorMessage() }}
-    </div>
 
-    <div *ngIf="successMessage()" class="alert alert-success">
-        <span class="alert-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        </span>
-        {{ successMessage() }}
-    </div>
 
     <!-- Data Table -->
-    <app-data-table 
-        [columns]="columns" 
-        [data]="accounts()" 
-        [actions]="actions" 
-        searchPlaceholder="Pretraži račune..."
-        emptyMessage="Nema bankovnih računa za prikaz. Dodajte prvi račun!" 
-        (onEdit)="openEditModal($event)"
+    <app-data-table [columns]="columns" [data]="accounts()" [actions]="actions" searchPlaceholder="Pretraži račune..."
+        emptyMessage="Nema bankovnih računa za prikaz. Dodajte prvi račun!" (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)">
     </app-data-table>
 
@@ -62,7 +39,8 @@
                     <div class="form-group">
                         <label>Naziv banke *</label>
                         <input type="text" formControlName="bankName" placeholder="Npr. Raiffeisen Bank">
-                        <div *ngIf="accountForm.get('bankName')?.touched && accountForm.get('bankName')?.invalid" class="error">
+                        <div *ngIf="accountForm.get('bankName')?.touched && accountForm.get('bankName')?.invalid"
+                            class="error">
                             Naziv banke je obavezan
                         </div>
                     </div>
@@ -71,7 +49,8 @@
                         <div class="form-group">
                             <label>Broj računa *</label>
                             <input type="text" formControlName="accountNumber" placeholder="xxx-xxxxxxxxxxxx-xx">
-                            <div *ngIf="accountForm.get('accountNumber')?.touched && accountForm.get('accountNumber')?.invalid" class="error">
+                            <div *ngIf="accountForm.get('accountNumber')?.touched && accountForm.get('accountNumber')?.invalid"
+                                class="error">
                                 Broj računa je obavezan
                             </div>
                         </div>
@@ -89,7 +68,8 @@
                         <div class="form-group">
                             <label>IBAN *</label>
                             <input type="text" formControlName="IBAN" placeholder="RS35...">
-                            <div *ngIf="accountForm.get('IBAN')?.touched && accountForm.get('IBAN')?.invalid" class="error">
+                            <div *ngIf="accountForm.get('IBAN')?.touched && accountForm.get('IBAN')?.invalid"
+                                class="error">
                                 IBAN je obavezan za devizne račune
                             </div>
                         </div>
@@ -97,7 +77,8 @@
                         <div class="form-group">
                             <label>SWIFT *</label>
                             <input type="text" formControlName="SWIFT" placeholder="XXXXRS...">
-                            <div *ngIf="accountForm.get('SWIFT')?.touched && accountForm.get('SWIFT')?.invalid" class="error">
+                            <div *ngIf="accountForm.get('SWIFT')?.touched && accountForm.get('SWIFT')?.invalid"
+                                class="error">
                                 SWIFT je obavezan za devizne račune
                             </div>
                         </div>

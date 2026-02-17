@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -26,11 +27,10 @@ export class RegisterComponent implements OnInit {
     cityService = inject(CityService);
     fileService = inject(FileService);
     router = inject(Router);
+    toastr = inject(ToastrService);
 
     isOwner = signal(true);
     isLoading = signal(false);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
     activityCodes = signal<ActivityCodeToReturnDto[]>([]);
     cities = signal<CityToReturnDto[]>([]);
     filteredCities = signal<CityToReturnDto[]>([]);
@@ -102,6 +102,7 @@ export class RegisterComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading activity codes:', err);
+                this.toastr.error('Greška pri učitavanju šifara delatnosti', 'Greška');
             }
         });
     }
@@ -115,6 +116,7 @@ export class RegisterComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading cities:', err);
+                this.toastr.error('Greška pri učitavanju gradova', 'Greška');
             }
         });
     }
@@ -157,8 +159,6 @@ export class RegisterComponent implements OnInit {
 
     setRole(isOwner: boolean) {
         this.isOwner.set(isOwner);
-        this.errorMessage.set(null);
-        this.successMessage.set(null);
     }
 
     togglePasswordVisibility() {
@@ -196,7 +196,6 @@ export class RegisterComponent implements OnInit {
         }
 
         this.isLoading.set(true);
-        this.errorMessage.set(null);
 
         if (this.isOwner()) {
             this.registerOwner();
@@ -238,7 +237,7 @@ export class RegisterComponent implements OnInit {
                     this.submitOwnerRegistration(val, profilePictureUrl, companyLogoUrl);
                 },
                 error: (err) => {
-                    this.errorMessage.set('Greška pri upload-u slika: ' + (err.error?.message || 'Nepoznata greška'));
+                    this.toastr.error('Greška pri upload-u slika: ' + (err.error?.message || 'Nepoznata greška'), 'Greška');
                     this.isLoading.set(false);
                 }
             });
@@ -275,11 +274,11 @@ export class RegisterComponent implements OnInit {
 
         this.authService.registerOwner(dto).subscribe({
             next: () => {
-                this.successMessage.set('Registracija uspešna! Preusmeravanje...');
+                this.toastr.success('Registracija uspešna! Preusmeravanje...', 'Uspeh');
                 setTimeout(() => this.router.navigate(['/login']), 1500);
             },
             error: (err) => {
-                this.errorMessage.set(err.error?.message || 'Greška pri registraciji.');
+                this.toastr.error(err.error?.message || 'Greška pri registraciji.', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -302,11 +301,11 @@ export class RegisterComponent implements OnInit {
 
         this.authService.registerAssistant(dto).subscribe({
             next: () => {
-                this.successMessage.set('Registracija uspešna! Preusmeravanje...');
+                this.toastr.success('Registracija uspešna! Preusmeravanje...', 'Uspeh');
                 setTimeout(() => this.router.navigate(['/login']), 1500);
             },
             error: (err) => {
-                this.errorMessage.set(err.error?.message || 'Greška pri registraciji.');
+                this.toastr.error(err.error?.message || 'Greška pri registraciji.', 'Greška');
                 this.isLoading.set(false);
             }
         });

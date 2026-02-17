@@ -7,12 +7,7 @@
         </button>
     </div>
 
-    <div *ngIf="errorMessage()" class="alert alert-error">
-        {{ errorMessage() }}
-    </div>
-    <div *ngIf="successMessage()" class="alert alert-success">
-        {{ successMessage() }}
-    </div>
+
 
     <app-data-table [data]="countries()" [columns]="columns" [actions]="actions" (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)">

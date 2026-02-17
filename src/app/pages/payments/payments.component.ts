@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PaymentService } from '../../services/payment.service';
@@ -37,8 +38,7 @@ export class PaymentsComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingPayment = signal<PaymentToReturnDto | null>(null);
     deletingPayment = signal<PaymentToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
+    toastr = inject(ToastrService);
 
     PaymentType = PaymentType;
     Currency = Currency;
@@ -95,7 +95,7 @@ export class PaymentsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading payments:', err);
-                this.showError('Greška pri učitavanju plaćanja');
+                this.toastr.error('Greška pri učitavanju plaćanja', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -201,13 +201,13 @@ export class PaymentsComponent implements OnInit {
 
             this.paymentService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Plaćanje uspešno ažurirano');
+                    this.toastr.success('Plaćanje uspešno ažurirano', 'Uspeh');
                     this.loadPayments();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating payment:', err);
-                    this.showError('Greška pri ažuriranju plaćanja');
+                    this.toastr.error('Greška pri ažuriranju plaćanja', 'Greška');
                 }
             });
         } else {
@@ -223,13 +223,13 @@ export class PaymentsComponent implements OnInit {
 
             this.paymentService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Plaćanje uspešno dodato');
+                    this.toastr.success('Plaćanje uspešno dodato', 'Uspeh');
                     this.loadPayments();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating payment:', err);
-                    this.showError('Greška pri dodavanju plaćanja');
+                    this.toastr.error('Greška pri dodavanju plaćanja', 'Greška');
                 }
             });
         }
@@ -251,13 +251,13 @@ export class PaymentsComponent implements OnInit {
 
         this.paymentService.delete(payment.id).subscribe({
             next: () => {
-                this.showSuccess('Plaćanje uspešno obrisano');
+                this.toastr.success('Plaćanje uspešno obrisano', 'Uspeh');
                 this.loadPayments();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting payment:', err);
-                this.showError('Greška pri brisanju plaćanja');
+                this.toastr.error('Greška pri brisanju plaćanja', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
@@ -332,13 +332,5 @@ export class PaymentsComponent implements OnInit {
         return 'N/A';
     }
 
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
 
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }

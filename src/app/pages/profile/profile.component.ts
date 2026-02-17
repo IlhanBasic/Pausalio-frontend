@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { AuthStore } from '../../stores/auth.store';
@@ -15,10 +16,9 @@ export class ProfileComponent {
     fb = inject(FormBuilder);
     authService = inject(AuthService);
     store = inject(AuthStore);
+    toastr = inject(ToastrService);
 
     isLoading = signal(false);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
 
     showOldPassword = signal(false);
     showNewPassword = signal(false);
@@ -45,8 +45,6 @@ export class ProfileComponent {
         if (this.changePasswordForm.invalid) return;
 
         this.isLoading.set(true);
-        this.errorMessage.set(null);
-        this.successMessage.set(null);
 
         const val = this.changePasswordForm.value;
 
@@ -55,12 +53,12 @@ export class ProfileComponent {
             newPassword: val.newPassword!
         }).subscribe({
             next: () => {
-                this.successMessage.set('Lozinka uspešno promenjena.');
+                this.toastr.success('Lozinka uspešno promenjena.', 'Uspeh');
                 this.changePasswordForm.reset();
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.errorMessage.set(err.error?.message || 'Došlo je do greške prilikom promene lozinke.');
+                this.toastr.error(err.error?.message || 'Došlo je do greške prilikom promene lozinke.', 'Greška');
                 this.isLoading.set(false);
             }
         });

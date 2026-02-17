@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CountryService } from '../../../services/country.service';
@@ -22,8 +23,7 @@ export class CountriesComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingCountry = signal<CountryToReturnDto | null>(null);
     deletingCountry = signal<CountryToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
+    toastr = inject(ToastrService);
 
     countryForm = this.fb.group({
         name: ['', Validators.required],
@@ -53,7 +53,7 @@ export class CountriesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading countries:', err);
-                this.showError('Greška pri učitavanju država');
+                this.toastr.error('Greška pri učitavanju država', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -97,13 +97,13 @@ export class CountriesComponent implements OnInit {
 
             this.countryService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Država uspešno ažurirana');
+                    this.toastr.success('Država uspešno ažurirana', 'Uspeh');
                     this.loadCountries();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating country:', err);
-                    this.showError('Greška pri ažuriranju države');
+                    this.toastr.error('Greška pri ažuriranju države', 'Greška');
                 }
             });
         } else {
@@ -114,13 +114,13 @@ export class CountriesComponent implements OnInit {
 
             this.countryService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Država uspešno dodata');
+                    this.toastr.success('Država uspešno dodata', 'Uspeh');
                     this.loadCountries();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating country:', err);
-                    this.showError('Greška pri dodavanju države');
+                    this.toastr.error('Greška pri dodavanju države', 'Greška');
                 }
             });
         }
@@ -142,25 +142,17 @@ export class CountriesComponent implements OnInit {
 
         this.countryService.delete(country.id).subscribe({
             next: () => {
-                this.showSuccess('Država uspešno obrisana');
+                this.toastr.success('Država uspešno obrisana', 'Uspeh');
                 this.loadCountries();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting country:', err);
-                this.showError('Greška pri brisanju države');
+                this.toastr.error('Greška pri brisanju države', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
     }
-
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
-
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }
+
+

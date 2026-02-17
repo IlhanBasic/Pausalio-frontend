@@ -11,17 +11,6 @@
         </button>
     </div>
 
-    <!-- Alerts -->
-    <div *ngIf="errorMessage()" class="alert alert-error">
-        <span class="alert-icon">⚠️</span>
-        {{ errorMessage() }}
-    </div>
-
-    <div *ngIf="successMessage()" class="alert alert-success">
-        <span class="alert-icon">✅</span>
-        {{ successMessage() }}
-    </div>
-
     <!-- Data Table -->
     <app-data-table [columns]="columns" [data]="services()" [actions]="actions" searchPlaceholder="Pretraži usluge..."
         emptyMessage="Nema usluga za prikaz. Dodajte prvu uslugu!" (onEdit)="openEditModal($event)"

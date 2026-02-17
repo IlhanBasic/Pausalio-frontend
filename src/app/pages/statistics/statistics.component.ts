@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, ChartData, ChartType, registerables } from 'chart.js';
@@ -23,9 +24,9 @@ export class StatisticsComponent implements OnInit {
     expenseService = inject(ExpenseService);
     paymentService = inject(PaymentService);
     taxObligationService = inject(TaxObligationService);
+    toastr = inject(ToastrService);
 
     isLoading = signal(true);
-    errorMessage = signal<string | null>(null);
 
     // KPI Metrics
     totalRevenue = signal(0);
@@ -133,7 +134,7 @@ export class StatisticsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading statistics:', err);
-                this.errorMessage.set('Greška pri učitavanju statistike');
+                this.toastr.error('Greška pri učitavanju statistike', 'Greška');
                 this.isLoading.set(false);
             }
         });

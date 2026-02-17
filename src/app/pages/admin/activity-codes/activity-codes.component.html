@@ -8,12 +8,7 @@
     </div>
 
     <!-- Alerts -->
-    <div *ngIf="errorMessage()" class="alert alert-error">
-        {{ errorMessage() }}
-    </div>
-    <div *ngIf="successMessage()" class="alert alert-success">
-        {{ successMessage() }}
-    </div>
+
 
     <!-- Data Table -->
     <app-data-table [data]="activityCodes()" [columns]="columns" [actions]="actions" (onEdit)="openEditModal($event)"

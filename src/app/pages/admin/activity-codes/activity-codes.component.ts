@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivityCodeService } from '../../../services/activity-code.service';
@@ -22,8 +23,7 @@ export class ActivityCodesComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingCode = signal<ActivityCodeToReturnDto | null>(null);
     deletingCode = signal<ActivityCodeToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
+    toastr = inject(ToastrService);
 
     codeForm = this.fb.group({
         code: ['', Validators.required],
@@ -53,7 +53,7 @@ export class ActivityCodesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading activity codes:', err);
-                this.showError('Greška pri učitavanju šifara delatnosti');
+                this.toastr.error('Greška pri učitavanju šifara delatnosti', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -97,13 +97,13 @@ export class ActivityCodesComponent implements OnInit {
 
             this.activityCodeService.update(editing.id.toString(), dto).subscribe({
                 next: () => {
-                    this.showSuccess('Šifra delatnosti uspešno ažurirana');
+                    this.toastr.success('Šifra delatnosti uspešno ažurirana', 'Uspeh');
                     this.loadCodes();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating activity code:', err);
-                    this.showError('Greška pri ažuriranju šifre delatnosti');
+                    this.toastr.error('Greška pri ažuriranju šifre delatnosti', 'Greška');
                 }
             });
         } else {
@@ -114,13 +114,13 @@ export class ActivityCodesComponent implements OnInit {
 
             this.activityCodeService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Šifra delatnosti uspešno dodata');
+                    this.toastr.success('Šifra delatnosti uspešno dodata', 'Uspeh');
                     this.loadCodes();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating activity code:', err);
-                    this.showError('Greška pri dodavanju šifre delatnosti');
+                    this.toastr.error('Greška pri dodavanju šifre delatnosti', 'Greška');
                 }
             });
         }
@@ -142,25 +142,17 @@ export class ActivityCodesComponent implements OnInit {
 
         this.activityCodeService.delete(code.id.toString()).subscribe({
             next: () => {
-                this.showSuccess('Šifra delatnosti uspešno obrisana');
+                this.toastr.success('Šifra delatnosti uspešno obrisana', 'Uspeh');
                 this.loadCodes();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting activity code:', err);
-                this.showError('Greška pri brisanju šifre delatnosti');
+                this.toastr.error('Greška pri brisanju šifre delatnosti', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
     }
-
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
-
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }
+
+

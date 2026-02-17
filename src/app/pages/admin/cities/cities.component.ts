@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CityService } from '../../../services/city.service';
@@ -22,8 +23,7 @@ export class CitiesComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingCity = signal<CityToReturnDto | null>(null);
     deletingCity = signal<CityToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
+    toastr = inject(ToastrService);
 
     cityForm = this.fb.group({
         name: ['', Validators.required],
@@ -53,7 +53,7 @@ export class CitiesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading cities:', err);
-                this.showError('Greška pri učitavanju gradova');
+                this.toastr.error('Greška pri učitavanju gradova', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -97,13 +97,13 @@ export class CitiesComponent implements OnInit {
 
             this.cityService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Grad uspešno ažuriran');
+                    this.toastr.success('Grad uspešno ažuriran', 'Uspeh');
                     this.loadCities();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating city:', err);
-                    this.showError('Greška pri ažuriranju grada');
+                    this.toastr.error('Greška pri ažuriranju grada', 'Greška');
                 }
             });
         } else {
@@ -114,13 +114,13 @@ export class CitiesComponent implements OnInit {
 
             this.cityService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Grad uspešno dodat');
+                    this.toastr.success('Grad uspešno dodat', 'Uspeh');
                     this.loadCities();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating city:', err);
-                    this.showError('Greška pri dodavanju grada');
+                    this.toastr.error('Greška pri dodavanju grada', 'Greška');
                 }
             });
         }
@@ -142,25 +142,17 @@ export class CitiesComponent implements OnInit {
 
         this.cityService.delete(city.id).subscribe({
             next: () => {
-                this.showSuccess('Grad uspešno obrisan');
+                this.toastr.success('Grad uspešno obrisan', 'Uspeh');
                 this.loadCities();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting city:', err);
-                this.showError('Greška pri brisanju grada');
+                this.toastr.error('Greška pri brisanju grada', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
     }
-
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
-
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }
+
+

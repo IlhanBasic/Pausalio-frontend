@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FullCalendarModule } from '@fullcalendar/angular';
@@ -29,8 +30,7 @@ export class RemindersComponent implements OnInit {
     editingReminder = signal<ReminderToReturnDto | null>(null);
     selectedReminder = signal<ReminderToReturnDto | null>(null);
     deletingReminder = signal<ReminderToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
+    toastr = inject(ToastrService);
 
     ReminderType = ReminderType;
 
@@ -73,7 +73,7 @@ export class RemindersComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading reminders:', err);
-                this.showError('Greška pri učitavanju podsetnika');
+                this.toastr.error('Greška pri učitavanju podsetnika', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -179,13 +179,13 @@ export class RemindersComponent implements OnInit {
 
             this.reminderService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Podsetnik uspešno ažuriran');
+                    this.toastr.success('Podsetnik uspešno ažuriran', 'Uspeh');
                     this.loadReminders();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating reminder:', err);
-                    this.showError('Greška pri ažuriranju podsetnika');
+                    this.toastr.error('Greška pri ažuriranju podsetnika', 'Greška');
                 }
             });
         } else {
@@ -199,13 +199,13 @@ export class RemindersComponent implements OnInit {
 
             this.reminderService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Podsetnik uspešno dodat');
+                    this.toastr.success('Podsetnik uspešno dodat', 'Uspeh');
                     this.loadReminders();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating reminder:', err);
-                    this.showError('Greška pri dodavanju podsetnika');
+                    this.toastr.error('Greška pri dodavanju podsetnika', 'Greška');
                 }
             });
         }
@@ -214,13 +214,13 @@ export class RemindersComponent implements OnInit {
     markAsCompleted(reminder: ReminderToReturnDto) {
         this.reminderService.markCompleted(reminder.id).subscribe({
             next: () => {
-                this.showSuccess('Podsetnik označen kao završen');
+                this.toastr.success('Podsetnik označen kao završen', 'Uspeh');
                 this.loadReminders();
                 this.closeDetailsModal();
             },
             error: (err) => {
                 console.error('Error marking reminder as completed:', err);
-                this.showError('Greška pri označavanju podsetnika');
+                this.toastr.error('Greška pri označavanju podsetnika', 'Greška');
             }
         });
     }
@@ -242,13 +242,13 @@ export class RemindersComponent implements OnInit {
 
         this.reminderService.delete(reminder.id).subscribe({
             next: () => {
-                this.showSuccess('Podsetnik uspešno obrisan');
+                this.toastr.success('Podsetnik uspešno obrisan', 'Uspeh');
                 this.loadReminders();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting reminder:', err);
-                this.showError('Greška pri brisanju podsetnika');
+                this.toastr.error('Greška pri brisanju podsetnika', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
@@ -279,13 +279,5 @@ export class RemindersComponent implements OnInit {
         });
     }
 
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
 
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }

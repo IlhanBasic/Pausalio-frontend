@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -17,6 +18,7 @@ export class LoginComponent {
   authService = inject(AuthService);
   authStore = inject(AuthStore);
   router = inject(Router);
+  toastr = inject(ToastrService);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -24,7 +26,6 @@ export class LoginComponent {
   });
 
   isLoading = signal(false);
-  errorMessage = signal<string | null>(null);
   showPassword = signal(false);
 
   togglePasswordVisibility() {
@@ -35,7 +36,6 @@ export class LoginComponent {
     if (this.loginForm.invalid) return;
 
     this.isLoading.set(true);
-    this.errorMessage.set(null);
 
     const { email, password } = this.loginForm.value;
 
@@ -43,15 +43,16 @@ export class LoginComponent {
       next: (response) => {
         if (response.token) {
           this.authStore.login(response.token);
+          this.toastr.success('Uspešna prijava!', 'Dobrodošli');
           this.router.navigate(['/home']);
         } else {
-          this.errorMessage.set('Neuspešna prijava: Token nije primljen.');
+          this.toastr.error('Neuspešna prijava: Token nije primljen.', 'Greška');
         }
         this.isLoading.set(false);
       },
       error: (err) => {
         console.error(err);
-        this.errorMessage.set(err.error?.message || 'Došlo je do greške prilikom prijave.');
+        this.toastr.error(err.error?.message || 'Došlo je do greške prilikom prijave.', 'Greška');
         this.isLoading.set(false);
       }
     });

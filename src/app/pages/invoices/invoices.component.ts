@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InvoiceService } from '../../services/invoice.service';
@@ -35,8 +36,7 @@ export class InvoicesComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingInvoice = signal<InvoiceToReturnDto | null>(null);
     deletingInvoice = signal<InvoiceToReturnDto | null>(null);
-    errorMessage = signal<string | null>(null);
-    successMessage = signal<string | null>(null);
+    toastr = inject(ToastrService);
 
     // Enums for template
     InvoiceStatus = InvoiceStatus;
@@ -92,7 +92,7 @@ export class InvoicesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading invoices:', err);
-                this.showError('Greška pri učitavanju faktura');
+                this.toastr.error('Greška pri učitavanju faktura', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -230,13 +230,13 @@ export class InvoicesComponent implements OnInit {
 
             this.invoiceService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.showSuccess('Faktura uspešno ažurirana');
+                    this.toastr.success('Faktura uspešno ažurirana', 'Uspeh');
                     this.loadInvoices();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating invoice:', err);
-                    this.showError('Greška pri ažuriranju fakture');
+                    this.toastr.error('Greška pri ažuriranju fakture', 'Greška');
                 }
             });
         } else {
@@ -250,13 +250,13 @@ export class InvoicesComponent implements OnInit {
 
             this.invoiceService.create(dto).subscribe({
                 next: () => {
-                    this.showSuccess('Faktura uspešno kreirana');
+                    this.toastr.success('Faktura uspešno kreirana', 'Uspeh');
                     this.loadInvoices();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating invoice:', err);
-                    this.showError('Greška pri kreiranju fakture');
+                    this.toastr.error('Greška pri kreiranju fakture', 'Greška');
                 }
             });
         }
@@ -278,25 +278,17 @@ export class InvoicesComponent implements OnInit {
 
         this.invoiceService.delete(invoice.id).subscribe({
             next: () => {
-                this.showSuccess('Faktura uspešno obrisana');
+                this.toastr.success('Faktura uspešno obrisana', 'Uspeh');
                 this.loadInvoices();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting invoice:', err);
-                this.showError('Greška pri brisanju fakture');
+                this.toastr.error('Greška pri brisanju fakture', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
     }
 
-    showError(message: string) {
-        this.errorMessage.set(message);
-        setTimeout(() => this.errorMessage.set(null), 5000);
-    }
 
-    showSuccess(message: string) {
-        this.successMessage.set(message);
-        setTimeout(() => this.successMessage.set(null), 3000);
-    }
 }
