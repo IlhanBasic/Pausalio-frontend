@@ -4,6 +4,7 @@ import { AuthStore } from '../../../stores/auth.store';
 import { AuthService } from '../../../services/auth.service';
 import { BusinessProfileService } from '../../../services/business-profile.service';
 import { Router } from '@angular/router';
+import { BusinessProfileToReturnDto } from '../../../models/business-profile';
 
 @Component({
   selector: 'app-navbar',
@@ -18,35 +19,69 @@ export class NavbarComponent implements OnInit {
   businessService = inject(BusinessProfileService);
   router = inject(Router);
 
-  businessName = signal<string>('');
+  currentBusiness = signal<BusinessProfileToReturnDto | null>(null);
+  availableBusinesses = signal<BusinessProfileToReturnDto[]>([]);
   showUserDropdown = signal(false);
+  showBusinessDropdown = signal(false);
 
   ngOnInit() {
-    this.loadBusinessProfile();
+    this.loadBusinessData();
   }
 
-  loadBusinessProfile() {
+  loadBusinessData() {
     if (this.store.isOwner()) {
+      // Owner has only one company
       this.businessService.getUserCompany().subscribe({
         next: (response) => {
           if (response.data) {
-            this.businessName.set(response.data.businessName);
+            this.currentBusiness.set(response.data);
           }
         },
         error: (err) => {
           console.error('Error loading business profile:', err);
         }
       });
+    } else if (this.store.isAssistant()) {
+      // Assistant can have multiple companies
+      this.businessService.getUserCompanies().subscribe({
+        next: (response) => {
+          if (response.data && response.data.length > 0) {
+            this.availableBusinesses.set(response.data);
+            // Set current business from store or default to first
+            const currentId = this.store.currentBusinessId();
+            const current = response.data.find(b => b.id === currentId) || response.data[0];
+            this.currentBusiness.set(current);
+          }
+        },
+        error: (err) => {
+          console.error('Error loading businesses:', err);
+        }
+      });
     }
   }
 
-  onBusinessChange(event: any) {
-    this.store.setBusinessContext(event.target.value);
-    window.location.reload();
+  selectBusiness(businessId: string) {
+    const business = this.availableBusinesses().find(b => b.id === businessId);
+    if (business) {
+      this.currentBusiness.set(business);
+      this.store.setBusinessContext(businessId);
+      this.showBusinessDropdown.set(false);
+      window.location.reload(); // Reload to apply new business context
+    }
+  }
+
+  toggleBusinessDropdown() {
+    this.showBusinessDropdown.set(!this.showBusinessDropdown());
+    if (this.showBusinessDropdown()) {
+      this.showUserDropdown.set(false);
+    }
   }
 
   toggleUserDropdown() {
     this.showUserDropdown.set(!this.showUserDropdown());
+    if (this.showUserDropdown()) {
+      this.showBusinessDropdown.set(false);
+    }
   }
 
   navigateToSettings() {
@@ -65,5 +100,30 @@ export class NavbarComponent implements OnInit {
       this.store.logout();
       this.router.navigate(['/login']);
     });
+  }
+
+  // Helper methods
+  getUserFullName(): string {
+    const user = this.store.user();
+    return user ? `${user.firstName} ${user.lastName}` : '';
+  }
+
+  getUserInitials(): string {
+    const user = this.store.user();
+    if (!user) return '';
+    return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
+  }
+
+  getUserRole(): string {
+    return this.store.isOwner() ? 'Vlasnik' : 'Asistent';
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '';
+    const words = name.split(' ');
+    if (words.length >= 2) {
+      return `${words[0].charAt(0)}${words[1].charAt(0)}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   }
 }

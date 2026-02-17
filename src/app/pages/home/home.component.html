@@ -1,32 +1,173 @@
-<div class="home-container">
-    <div class="welcome-section">
+<div class="dashboard-container">
+
+    <!-- Header -->
+    <div class="header-section">
         <h1>Dashboard</h1>
-        <p class="subtitle">Dobrodošli u Pausalio aplikaciju</p>
+        <p class="subtitle">Dobrodošli nazad! Evo pregleda vašeg poslovanja.</p>
     </div>
 
-    <div class="dashboard-grid">
-        <div class="dashboard-card">
-            <div class="card-icon">📊</div>
-            <h3>Statistika</h3>
-            <p>Pregled poslovnih podataka</p>
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+
+        <!-- Revenue Card -->
+        <div class="card summary-card revenue-card">
+            <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+            </div>
+            <div class="card-content">
+                <h3>Ukupan Prihod</h3>
+                <div class="value">{{ displayedRevenue() | number:'1.0-0' }} RSD</div>
+                <div class="trend up">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    Ažurirano
+                </div>
+            </div>
         </div>
 
-        <div class="dashboard-card">
-            <div class="card-icon">💰</div>
-            <h3>Finansije</h3>
-            <p>Upravljanje finansijama</p>
+        <!-- Invoice Card -->
+        <div class="card summary-card invoice-card">
+            <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            </div>
+            <div class="card-content">
+                <h3>Ukupno Faktura</h3>
+                <div class="value">{{ displayedCount() }}</div>
+                <div class="sub-value">Prosečna: {{ displayedAvg() | number:'1.0-0' }} RSD</div>
+            </div>
         </div>
 
-        <div class="dashboard-card">
-            <div class="card-icon">📋</div>
-            <h3>Šifarnici</h3>
-            <p>Upravljanje šifarnicima</p>
+        <!-- Best Selling Card -->
+        <div class="card summary-card items-card">
+            <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+            </div>
+            <div class="card-content">
+                <h3>Najprodavaniji</h3>
+                <div class="value highlight-text" *ngIf="bestSellingItems().length > 0">
+                    {{ bestSellingItems()[0].name }}
+                </div>
+                <div class="sub-value" *ngIf="bestSellingItems().length > 0">
+                    {{ bestSellingItems()[0].quantity }} komada
+                </div>
+                <div class="value highlight-text" *ngIf="bestSellingItems().length === 0">
+                    -
+                </div>
+            </div>
         </div>
 
-        <div class="dashboard-card">
-            <div class="card-icon">⚙️</div>
-            <h3>Administracija</h3>
-            <p>Sistemska podešavanja</p>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="main-grid">
+
+        <!-- Top Clients -->
+        <div class="card list-card">
+            <div class="card-header">
+                <h2>Top 4 Klijenta</h2>
+                <button class="icon-btn" title="Opcije">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="5" r="1"></circle>
+                        <circle cx="12" cy="12" r="1"></circle>
+                        <circle cx="12" cy="19" r="1"></circle>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="card-body">
+                <div class="client-list" *ngIf="topClients().length > 0">
+                    <div class="client-item" *ngFor="let client of topClients(); let i = index">
+                        <span [class]="'rank-badge rank-' + (i + 1)">{{ i + 1 }}</span>
+                        <div class="client-info">
+                            <div class="client-name">{{ client.name }}</div>
+                            <div class="client-count">{{ client.invoiceCount }} faktura</div>
+                        </div>
+                        <div class="client-stats">
+                            <div class="stat-amount">{{ client.totalAmount | number:'1.0-0' }} RSD</div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" [style.width.%]="client.percentage"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-state" *ngIf="topClients().length === 0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                        stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <p>Nema podataka o klijentima.</p>
+                </div>
+            </div>
         </div>
+
+        <!-- Best Selling Services -->
+        <div class="card list-card">
+            <div class="card-header">
+                <h2>Najprodavanije Usluge</h2>
+                <button class="icon-btn" title="Grafikon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="card-body">
+                <div class="service-list" *ngIf="bestSellingItems().length > 0">
+                    <div class="service-item" *ngFor="let item of bestSellingItems(); let i = index">
+                        <div class="service-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z">
+                                </path>
+                                <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                            </svg>
+                        </div>
+                        <div class="service-info">
+                            <div class="service-name">{{ item.name }}</div>
+                            <div class="service-revenue">Prihod: {{ item.revenue | number:'1.0-0' }} RSD</div>
+                        </div>
+                        <span class="qty-badge">{{ item.quantity }}x</span>
+                    </div>
+                </div>
+
+                <div class="empty-state" *ngIf="bestSellingItems().length === 0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                        stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    <p>Nema podataka o uslugama.</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

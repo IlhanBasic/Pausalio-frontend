@@ -7,11 +7,21 @@
         </div>
         <div class="header-actions">
             <button class="btn-secondary" (click)="openAddModal()">
-                <span class="btn-icon">➕</span>
+                <span class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </span>
                 Dodaj ručno
             </button>
             <button class="btn-primary" (click)="openGenerateModal()">
-                <span class="btn-icon">🔄</span>
+                <span class="btn-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                </span>
                 Generiši godišnje
             </button>
         </div>
@@ -19,12 +29,23 @@
 
     <!-- Alerts -->
     <div *ngIf="errorMessage()" class="alert alert-error">
-        <span class="alert-icon">⚠️</span>
+        <span class="alert-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </span>
         {{ errorMessage() }}
     </div>
 
     <div *ngIf="successMessage()" class="alert alert-success">
-        <span class="alert-icon">✅</span>
+        <span class="alert-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </span>
         {{ successMessage() }}
     </div>
 
@@ -68,16 +89,17 @@
         </select>
     </div>
 
-    <!-- Data Table with Custom Actions -->
-    <div class="table-wrapper">
-        <app-data-table [columns]="columns" [data]="obligations()" [actions]="actions"
-            searchPlaceholder="Pretraži obaveze..."
-            emptyMessage="Nema poreskih obaveza za prikaz. Dodajte prvu obavezu!" (onEdit)="openEditModal($event)"
-            (onDelete)="openDeleteConfirm($event)" (onCustomAction)="handleCustomAction($event)">
-        </app-data-table>
-
-        <!-- Removed: Actions are now integrated into DataTable -->
-    </div>
+    <!-- Data Table -->
+    <app-data-table 
+        [columns]="columns" 
+        [data]="obligations()" 
+        [actions]="actions"
+        searchPlaceholder="Pretraži obaveze..."
+        emptyMessage="Nema poreskih obaveza za prikaz. Dodajte prvu obavezu!" 
+        (onEdit)="openEditModal($event)"
+        (onDelete)="openDeleteConfirm($event)" 
+        (onCustomAction)="handleCustomAction($event)">
+    </app-data-table>
 
     <!-- Generate Modal -->
     <div class="modal-overlay" *ngIf="showGenerateModal()" (click)="closeGenerateModal()">
@@ -97,18 +119,15 @@
                         <div class="form-group">
                             <label>Godina *</label>
                             <input type="number" formControlName="year" placeholder="2026" min="2020" max="2030">
-                            <div *ngIf="generateForm.get('year')?.touched && generateForm.get('year')?.invalid"
-                                class="error">
+                            <div *ngIf="generateForm.get('year')?.touched && generateForm.get('year')?.invalid" class="error">
                                 Godina je obavezna (2020-2030)
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Mesečni iznos (RSD) *</label>
-                            <input type="number" formControlName="monthlyAmount" placeholder="50000" step="0.01"
-                                min="1">
-                            <div *ngIf="generateForm.get('monthlyAmount')?.touched && generateForm.get('monthlyAmount')?.invalid"
-                                class="error">
+                            <input type="number" formControlName="monthlyAmount" placeholder="50000" step="0.01" min="1">
+                            <div *ngIf="generateForm.get('monthlyAmount')?.touched && generateForm.get('monthlyAmount')?.invalid" class="error">
                                 Iznos mora biti veći od 0
                             </div>
                         </div>
@@ -128,8 +147,7 @@
                         <div class="form-group">
                             <label>Dan dospeća (1-28) *</label>
                             <input type="number" formControlName="dueDayOfMonth" placeholder="15" min="1" max="28">
-                            <div *ngIf="generateForm.get('dueDayOfMonth')?.touched && generateForm.get('dueDayOfMonth')?.invalid"
-                                class="error">
+                            <div *ngIf="generateForm.get('dueDayOfMonth')?.touched && generateForm.get('dueDayOfMonth')?.invalid" class="error">
                                 Dan mora biti između 1 i 28
                             </div>
                         </div>
@@ -161,8 +179,7 @@
                     <div class="form-group">
                         <label>Datum dospeća *</label>
                         <input type="date" formControlName="dueDate">
-                        <div *ngIf="obligationForm.get('dueDate')?.touched && obligationForm.get('dueDate')?.invalid"
-                            class="error">
+                        <div *ngIf="obligationForm.get('dueDate')?.touched && obligationForm.get('dueDate')?.invalid" class="error">
                             Datum dospeća je obavezan
                         </div>
                     </div>
@@ -180,8 +197,7 @@
                     <div class="form-group">
                         <label>Ukupan iznos (RSD) *</label>
                         <input type="number" formControlName="totalAmount" placeholder="50000.00" step="0.01" min="1">
-                        <div *ngIf="obligationForm.get('totalAmount')?.touched && obligationForm.get('totalAmount')?.invalid"
-                            class="error">
+                        <div *ngIf="obligationForm.get('totalAmount')?.touched && obligationForm.get('totalAmount')?.invalid" class="error">
                             Iznos mora biti veći od 0
                         </div>
                     </div>

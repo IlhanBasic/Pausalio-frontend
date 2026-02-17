@@ -1,63 +1,216 @@
+/* Navbar Container */
 .navbar {
-    height: 70px;
-    background: white;
+    height: 75px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid #e2e8f0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 30px;
-    margin-left: 260px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 0 32px;
+    margin-left: 280px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
+/* Company Section (Center) */
 .company-info {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.company-logo-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.company-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.company-logo-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.company-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .business-name {
     font-weight: 700;
-    color: #2d3748;
+    color: #1e293b;
     font-size: 18px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    letter-spacing: -0.3px;
+    line-height: 1;
 }
 
+.business-meta {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Business Switcher for Assistants */
 .business-switcher {
+    position: relative;
+}
+
+.business-selector {
     display: flex;
     align-items: center;
-}
-
-.business-switcher select {
-    padding: 8px 16px;
-    border-radius: 8px;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 12px;
     border: 2px solid #e2e8f0;
     background: white;
-    font-size: 14px;
-    font-weight: 500;
-    color: #4a5568;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-width: 280px;
 }
 
-.business-switcher select:hover {
+.business-selector:hover {
     border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
 }
 
-.business-switcher select:focus {
+.business-selector:focus {
     outline: none;
     border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
+.selector-arrow {
+    margin-left: auto;
+    color: #94a3b8;
+    transition: transform 0.3s ease;
+}
+
+.selector-arrow.open {
+    transform: rotate(180deg);
+}
+
+.business-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e2e8f0;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    max-height: 320px;
+    overflow-y: auto;
+    min-width: 320px;
+}
+
+.business-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.business-option {
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.business-option:hover {
+    background: #f8fafc;
+}
+
+.business-option.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.business-option-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+    flex-shrink: 0;
+}
+
+.business-option-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.business-option-placeholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.business-option-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.business-option-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.business-option-meta {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* User Menu (Right Side) */
 .user-menu {
     position: relative;
+    margin-left: auto;
 }
 
 .user-info {
@@ -65,60 +218,90 @@
     align-items: center;
     gap: 12px;
     padding: 8px 12px;
-    border-radius: 12px;
+    border-radius: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: #f7fafc;
+    background: white;
+    border: 2px solid transparent;
 }
 
 .user-info:hover {
-    background: #edf2f7;
+    background: #f8fafc;
+    border-color: #e2e8f0;
 }
 
-.user-avatar {
-    width: 40px;
-    height: 40px;
+.user-avatar-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+.user-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-avatar-placeholder {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: 700;
+    font-size: 16px;
 }
 
 .user-details {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
 }
 
 .user-name {
-    color: #2d3748;
+    color: #1e293b;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1;
 }
 
 .user-role {
-    color: #718096;
+    color: #64748b;
     font-size: 12px;
+    font-weight: 500;
 }
 
 .dropdown-arrow {
-    color: #718096;
-    font-size: 10px;
+    color: #94a3b8;
     transition: transform 0.3s ease;
 }
 
+.dropdown-arrow svg {
+    width: 16px;
+    height: 16px;
+}
+
+.dropdown-arrow.open svg {
+    transform: rotate(180deg);
+}
+
+/* User Dropdown */
 .user-dropdown {
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    min-width: 200px;
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e2e8f0;
+    min-width: 220px;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
@@ -135,43 +318,45 @@
 
 .dropdown-item {
     width: 100%;
-    padding: 12px 16px;
+    padding: 13px 18px;
     border: none;
     background: none;
     text-align: left;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     font-size: 14px;
     font-weight: 500;
-    color: #4a5568;
+    color: #475569;
     transition: all 0.2s ease;
 }
 
 .dropdown-item:hover {
-    background: #f7fafc;
-    color: #2d3748;
+    background: #f8fafc;
+    color: #1e293b;
 }
 
 .dropdown-item.logout {
-    color: #e53e3e;
+    color: #ef4444;
 }
 
 .dropdown-item.logout:hover {
-    background: #fed7d7;
+    background: #fef2f2;
 }
 
-.item-icon {
-    font-size: 16px;
+.item-icon svg {
+    width: 18px;
+    height: 18px;
 }
 
 .dropdown-divider {
     height: 1px;
     background: #e2e8f0;
-    margin: 4px 0;
+    margin: 6px 0;
 }
 
+/* Overlay */
 .dropdown-overlay {
     position: fixed;
     top: 0;
@@ -182,18 +367,143 @@
     background: transparent;
 }
 
+/* Loading State */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+    border-radius: 8px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
 /* Responsive Design */
+@media (max-width: 1200px) {
+    .navbar {
+        margin-left: 260px;
+        padding: 0 24px;
+    }
+}
+
 @media (max-width: 768px) {
     .navbar {
         margin-left: 0;
-        padding: 0 15px;
+        padding: 0 16px;
+        height: 65px;
+        justify-content: flex-end;
+    }
+
+    .company-info {
+        position: static;
+        transform: none;
+        margin-right: auto;
+        margin-left: 8px;
+    }
+
+    .company-logo-wrapper,
+    .company-logo-placeholder {
+        width: 40px;
+        height: 40px;
+    }
+
+    .company-logo-placeholder {
+        font-size: 16px;
+    }
+
+    .company-details {
+        display: flex;
+    }
+
+    .business-name {
+        font-size: 15px;
+    }
+
+    .business-meta {
+        font-size: 11px;
+    }
+
+    .business-selector {
+        min-width: auto;
+        padding: 8px 12px;
+    }
+
+    .business-dropdown {
+        left: 0;
+        transform: translateX(0) translateY(-10px);
+        min-width: 280px;
+    }
+
+    .business-dropdown.show {
+        transform: translateX(0) translateY(0);
     }
 
     .user-details {
         display: none;
     }
 
+    .user-avatar-wrapper,
+    .user-avatar-placeholder {
+        width: 38px;
+        height: 38px;
+    }
+
+    .user-avatar-placeholder {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        padding: 0 12px;
+    }
+
+    .company-info {
+        margin-left: 4px;
+    }
+
+    .company-logo-wrapper,
+    .company-logo-placeholder {
+        width: 36px;
+        height: 36px;
+    }
+
+    .company-logo-placeholder {
+        font-size: 14px;
+    }
+
     .business-name {
-        font-size: 16px;
+        font-size: 14px;
+    }
+
+    .business-meta {
+        font-size: 10px;
+    }
+
+    .business-selector {
+        padding: 6px 10px;
+        gap: 8px;
+    }
+
+    .business-dropdown {
+        min-width: calc(100vw - 24px);
+        max-width: 280px;
+    }
+
+    .user-avatar-wrapper,
+    .user-avatar-placeholder {
+        width: 36px;
+        height: 36px;
+    }
+
+    .user-info {
+        padding: 6px 8px;
+        gap: 8px;
     }
 }

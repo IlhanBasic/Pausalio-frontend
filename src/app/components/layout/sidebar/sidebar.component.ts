@@ -8,4 +8,21 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent { }
+export class SidebarComponent {
+  isSidebarOpen = false;
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar() {
+    this.isSidebarOpen = false;
+  }
+
+  closeSidebarOnMobile() {
+    if (window.innerWidth <= 768) {
+      this.closeSidebar();
+    }
+  }
+
+}

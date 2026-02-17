@@ -13,7 +13,7 @@
 
 .content-body {
     margin-left: 260px;
-    padding: 30px;
+    padding: 80px;
     background: #f7fafc;
     min-height: calc(100vh - 70px);
     flex: 1;

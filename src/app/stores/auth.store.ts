@@ -19,6 +19,7 @@ export interface UserState {
   firstName: string | null;
   lastName: string | null;
   roles: string[];
+  profilePicture?: string | null; 
   availableBusinesses: string[];
 }
 

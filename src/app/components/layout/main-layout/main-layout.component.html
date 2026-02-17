@@ -1,9 +1,13 @@
 <div class="layout-container">
     <app-sidebar></app-sidebar>
+    
     <div class="main-content">
         <app-navbar></app-navbar>
+        
         <div class="content-body">
-            <router-outlet></router-outlet>
+            <div class="content-wrapper">
+                <router-outlet></router-outlet>
+            </div>
         </div>
     </div>
 </div>
