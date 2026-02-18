@@ -133,7 +133,7 @@ export class TaxObligationsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading tax obligations:', err);
-                this.toastr.error('Greška pri učitavanju poreskih obaveza', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju poreskih obaveza', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -198,7 +198,7 @@ export class TaxObligationsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error generating obligations:', err);
-                this.toastr.error('Greška pri generisanju obaveza', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri generisanju obaveza', 'Greška');
             }
         });
     }
@@ -255,7 +255,7 @@ export class TaxObligationsComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating obligation:', err);
-                    this.toastr.error('Greška pri ažuriranju obaveze', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju obaveze', 'Greška');
                 }
             });
         } else {
@@ -273,7 +273,7 @@ export class TaxObligationsComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating obligation:', err);
-                    this.toastr.error('Greška pri dodavanju obaveze', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju obaveze', 'Greška');
                 }
             });
         }
@@ -361,7 +361,7 @@ export class TaxObligationsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting obligation:', err);
-                this.toastr.error('Greška pri brisanju obaveze', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju obaveze', 'Greška');
                 this.closeDeleteConfirm();
             }
         });

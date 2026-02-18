@@ -116,7 +116,7 @@ export class ExpensesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading expenses:', err);
-                this.toastr.error('Greška pri učitavanju troškova', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju troškova', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -207,7 +207,7 @@ export class ExpensesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error archiving expense:', err);
-                this.toastr.error('Greška pri arhiviranju troška', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri arhiviranju troška', 'Greška');
             }
         });
     }
@@ -247,7 +247,7 @@ export class ExpensesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting expense:', err);
-                this.toastr.error('Greška pri brisanju troška', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju troška', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
@@ -277,7 +277,7 @@ export class ExpensesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating expense:', err);
-                    this.toastr.error('Greška pri ažuriranju troška', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju troška', 'Greška');
                 }
             });
         } else {
@@ -293,7 +293,7 @@ export class ExpensesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating expense:', err);
-                    this.toastr.error('Greška pri dodavanju troška', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju troška', 'Greška');
                 }
             });
         }

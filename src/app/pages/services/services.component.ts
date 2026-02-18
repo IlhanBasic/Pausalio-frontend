@@ -73,7 +73,7 @@ export class ServicesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading services:', err);
-                this.toastr.error('Greška pri učitavanju usluga', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju usluga', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -137,7 +137,7 @@ export class ServicesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating service:', err);
-                    this.toastr.error('Greška pri ažuriranju usluge', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju usluge', 'Greška');
                 }
             });
         } else {
@@ -157,7 +157,7 @@ export class ServicesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating service:', err);
-                    this.toastr.error('Greška pri dodavanju usluge', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju usluge', 'Greška');
                 }
             });
         }
@@ -185,7 +185,7 @@ export class ServicesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting service:', err);
-                this.toastr.error('Greška pri brisanju usluge', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju usluge', 'Greška');
                 this.closeDeleteConfirm();
             }
         });

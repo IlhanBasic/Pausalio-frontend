@@ -53,7 +53,7 @@ export class CitiesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading cities:', err);
-                this.toastr.error('Greška pri učitavanju gradova', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju gradova', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -103,7 +103,7 @@ export class CitiesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating city:', err);
-                    this.toastr.error('Greška pri ažuriranju grada', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju grada', 'Greška');
                 }
             });
         } else {
@@ -120,7 +120,7 @@ export class CitiesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating city:', err);
-                    this.toastr.error('Greška pri dodavanju grada', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju grada', 'Greška');
                 }
             });
         }
@@ -148,7 +148,7 @@ export class CitiesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting city:', err);
-                this.toastr.error('Greška pri brisanju grada', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju grada', 'Greška');
                 this.closeDeleteConfirm();
             }
         });

@@ -125,7 +125,7 @@ export class ClientsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading clients:', err);
-                this.toastr.error('Greška pri učitavanju klijenata', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju klijenata', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -143,7 +143,7 @@ export class ClientsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading countries:', err);
-                this.toastr.error('Greška pri učitavanju država', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju država', 'Greška');
             }
         });
     }
@@ -265,7 +265,7 @@ export class ClientsComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating client:', err);
-                    this.toastr.error('Greška pri ažuriranju klijenta', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju klijenta', 'Greška');
                 }
             });
         } else {
@@ -291,7 +291,7 @@ export class ClientsComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating client:', err);
-                    this.toastr.error('Greška pri dodavanju klijenta', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju klijenta', 'Greška');
                 }
             });
         }
@@ -319,7 +319,7 @@ export class ClientsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting client:', err);
-                this.toastr.error('Greška pri brisanju klijenta', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju klijenta', 'Greška');
                 this.closeDeleteConfirm();
             }
         });

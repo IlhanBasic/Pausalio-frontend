@@ -224,7 +224,7 @@ export class ProfileComponent implements OnInit {
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.toastr.error('Greška pri brisanju slike', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju slike', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -244,7 +244,7 @@ export class ProfileComponent implements OnInit {
                     this.submitUserProfileUpdate(user.id, response.url || null);
                 },
                 error: (err) => {
-                    this.toastr.error('Greška pri upload-u slike', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri upload-u slike', 'Greška');
                     this.isLoading.set(false);
                 }
             });
@@ -334,7 +334,7 @@ export class ProfileComponent implements OnInit {
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.toastr.error('Greška pri brisanju loga', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju loga', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -353,7 +353,7 @@ export class ProfileComponent implements OnInit {
                     this.submitBusinessProfileUpdate(response.url);
                 },
                 error: (err) => {
-                    this.toastr.error('Greška pri upload-u loga', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri upload-u loga', 'Greška');
                     this.isLoading.set(false);
                 }
             });

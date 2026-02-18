@@ -95,7 +95,7 @@ export class BankAccountsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading accounts:', err);
-                this.toastr.error('Greška pri učitavanju računa', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju računa', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -158,7 +158,7 @@ export class BankAccountsComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating account:', err);
-                    this.toastr.error(err.error.message || 'Greška pri ažuriranju računa', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju računa', 'Greška');
                 }
             });
         } else {
@@ -179,7 +179,7 @@ export class BankAccountsComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating account:', err);
-                    this.toastr.error('Greška pri dodavanju računa', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju računa', 'Greška');
                 }
             });
         }
@@ -207,7 +207,7 @@ export class BankAccountsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting account:', err);
-                this.toastr.error('Greška pri brisanju računa', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju računa', 'Greška');
                 this.closeDeleteConfirm();
             }
         });

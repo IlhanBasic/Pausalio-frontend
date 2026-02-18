@@ -176,7 +176,7 @@ export class PaymentsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading payments:', err);
-                this.toastr.error('Greška pri učitavanju plaćanja', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju plaćanja', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -341,7 +341,7 @@ export class PaymentsComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating payment:', err);
-                    this.toastr.error('Greška pri ažuriranju plaćanja', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju plaćanja', 'Greška');
                 }
             });
 
@@ -365,7 +365,7 @@ export class PaymentsComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating payment:', err);
-                    this.toastr.error('Greška pri dodavanju plaćanja', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju plaćanja', 'Greška');
                 }
             });
         }
@@ -393,7 +393,7 @@ export class PaymentsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting payment:', err);
-                this.toastr.error('Greška pri brisanju plaćanja', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju plaćanja', 'Greška');
                 this.closeDeleteConfirm();
             }
         });

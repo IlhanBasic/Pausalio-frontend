@@ -52,7 +52,7 @@ export class UsersComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading users:', err);
-                this.toastr.error('Greška pri učitavanju korisnika', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju korisnika', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -80,8 +80,7 @@ export class UsersComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting user:', err);
-                const errorMessage = err.error?.message || 'Greška pri brisanju korisnika';
-                this.toastr.error(errorMessage, 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju korisnika', 'Greška');
                 this.closeDeleteConfirm();
             }
         });

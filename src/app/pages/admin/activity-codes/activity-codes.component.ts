@@ -53,7 +53,7 @@ export class ActivityCodesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading activity codes:', err);
-                this.toastr.error('Greška pri učitavanju šifara delatnosti', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju šifara delatnosti', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -103,7 +103,7 @@ export class ActivityCodesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating activity code:', err);
-                    this.toastr.error('Greška pri ažuriranju šifre delatnosti', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju šifre delatnosti', 'Greška');
                 }
             });
         } else {
@@ -120,7 +120,7 @@ export class ActivityCodesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating activity code:', err);
-                    this.toastr.error('Greška pri dodavanju šifre delatnosti', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju šifre delatnosti', 'Greška');
                 }
             });
         }
@@ -148,7 +148,7 @@ export class ActivityCodesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting activity code:', err);
-                this.toastr.error('Greška pri brisanju šifre delatnosti', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju šifre delatnosti', 'Greška');
                 this.closeDeleteConfirm();
             }
         });

@@ -134,7 +134,7 @@ export class StatisticsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading statistics:', err);
-                this.toastr.error('Greška pri učitavanju statistike', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju statistike', 'Greška');
                 this.isLoading.set(false);
             }
         });

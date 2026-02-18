@@ -53,7 +53,7 @@ export class CountriesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading countries:', err);
-                this.toastr.error('Greška pri učitavanju država', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju država', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -103,7 +103,7 @@ export class CountriesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating country:', err);
-                    this.toastr.error('Greška pri ažuriranju države', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju države', 'Greška');
                 }
             });
         } else {
@@ -120,7 +120,7 @@ export class CountriesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating country:', err);
-                    this.toastr.error('Greška pri dodavanju države', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju države', 'Greška');
                 }
             });
         }
@@ -148,7 +148,7 @@ export class CountriesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting country:', err);
-                this.toastr.error('Greška pri brisanju države', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju države', 'Greška');
                 this.closeDeleteConfirm();
             }
         });

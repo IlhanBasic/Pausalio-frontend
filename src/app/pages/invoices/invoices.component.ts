@@ -275,7 +275,7 @@ export class InvoicesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error converting currency:', err);
-                    this.toastr.warning('Nije moguće konvertovati valutu, unesite cenu ručno', 'Upozorenje');
+                    this.toastr.warning(err.error?.message || 'Nije moguće konvertovati valutu, unesite cenu ručno', 'Upozorenje');
                     this.convertingItemIndex.set(null);
                 }
             });
@@ -318,7 +318,7 @@ export class InvoicesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading invoices:', err);
-                this.toastr.error('Greška pri učitavanju faktura', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju faktura', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -654,7 +654,7 @@ export class InvoicesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating invoice:', err);
-                    this.toastr.error('Greška pri ažuriranju fakture', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju fakture', 'Greška');
                 }
             });
         } else {
@@ -674,7 +674,7 @@ export class InvoicesComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating invoice:', err);
-                    this.toastr.error('Greška pri kreiranju fakture', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri kreiranju fakture', 'Greška');
                 }
             });
         }

@@ -3,8 +3,6 @@ import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { InvoiceService } from '../../services/invoice.service';
 import { InvoiceToReturnDto } from '../../models/invoice';
-import { forkJoin } from 'rxjs';
-import { catchError, of } from 'rxjs';
 
 interface TopClient {
     id: string;
@@ -70,7 +68,7 @@ export class HomeComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading dashboard data', err);
-                this.toastr.error('Greška pri učitavanju podataka za kontrolnu tablu', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju podataka za kontrolnu tablu', 'Greška');
                 this.isLoading.set(false);
             }
         });

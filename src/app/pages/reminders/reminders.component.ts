@@ -80,7 +80,7 @@ export class RemindersComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading reminders:', err);
-                this.toastr.error('Greška pri učitavanju podsetnika', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri učitavanju podsetnika', 'Greška');
                 this.isLoading.set(false);
             }
         });
@@ -192,7 +192,7 @@ export class RemindersComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error updating reminder:', err);
-                    this.toastr.error('Greška pri ažuriranju podsetnika', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju podsetnika', 'Greška');
                 }
             });
         } else {
@@ -212,7 +212,7 @@ export class RemindersComponent implements OnInit {
                 },
                 error: (err) => {
                     console.error('Error creating reminder:', err);
-                    this.toastr.error('Greška pri dodavanju podsetnika', 'Greška');
+                    this.toastr.error(err.error?.message || 'Greška pri dodavanju podsetnika', 'Greška');
                 }
             });
         }
@@ -227,7 +227,7 @@ export class RemindersComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error marking reminder as completed:', err);
-                this.toastr.error('Greška pri označavanju podsetnika', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri označavanju podsetnika', 'Greška');
             }
         });
     }
@@ -255,7 +255,7 @@ export class RemindersComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error deleting reminder:', err);
-                this.toastr.error('Greška pri brisanju podsetnika', 'Greška');
+                this.toastr.error(err.error?.message || 'Greška pri brisanju podsetnika', 'Greška');
                 this.closeDeleteConfirm();
             }
         });
