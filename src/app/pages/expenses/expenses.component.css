@@ -28,16 +28,16 @@
 }
 
 .filter-tab:hover {
-    border-color: #667eea;
-    color: #667eea;
-    background: #f5f3ff;
+    border-color: #2b86c5;
+    color: #2b86c5;
+    background: #f0f9ff;
 }
 
 .filter-tab.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 50%, #6dd5ed 100%);
     border-color: transparent;
     color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+    box-shadow: 0 4px 12px rgba(43, 134, 197, 0.3);
 }
 
 .tab-dot {
@@ -123,7 +123,7 @@
 /* Buttons */
 .btn-primary {
     padding: 13px 26px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 50%, #6dd5ed 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -134,12 +134,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 14px rgba(43, 134, 197, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 8px 24px rgba(43, 134, 197, 0.4);
 }
 
 .btn-primary:disabled {
@@ -181,7 +181,7 @@
 
 .btn-danger:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
 }
 
 .btn-icon {
@@ -312,7 +312,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, #fafbff 0%, #f8fafc 100%);
+    background: linear-gradient(135deg, #f8fcff 0%, #f0f9ff 100%);
     border-radius: 20px 20px 0 0;
 }
 
@@ -382,14 +382,23 @@ input:focus,
 select:focus,
 textarea:focus {
     outline: none;
-    border-color: #667eea;
-    background: #fafbff;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    border-color: #2b86c5;
+    background: #f8fcff;
+    box-shadow: 0 0 0 4px rgba(43, 134, 197, 0.1);
     transform: translateY(-1px);
 }
 
 input::placeholder {
     color: #cbd5e1;
+}
+
+select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
 }
 
 /* Error Messages */
@@ -415,7 +424,7 @@ input::placeholder {
     display: flex;
     justify-content: flex-end;
     gap: 14px;
-    background: #fafbff;
+    background: #f8fcff;
     border-radius: 0 0 20px 20px;
 }
 
@@ -428,7 +437,7 @@ input::placeholder {
 }
 
 .confirm-message strong {
-    color: #667eea;
+    color: #2b86c5;
     font-weight: 700;
 }
 

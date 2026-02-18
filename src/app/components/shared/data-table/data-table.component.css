@@ -35,8 +35,8 @@
 
 .search-box input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #2b86c5;
+    box-shadow: 0 0 0 3px rgba(43, 134, 197, 0.1);
 }
 
 .table-wrapper {
@@ -95,7 +95,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-    background: #f7fafc;
+    background: #f0f9ff;
 }
 
 td {
@@ -130,11 +130,11 @@ td {
 }
 
 .edit-btn {
-    color: #667eea;
+    color: #2b86c5;
 }
 
 .edit-btn:hover {
-    background: #edf2f7;
+    background: #e1f0fa;
 }
 
 .delete-btn {

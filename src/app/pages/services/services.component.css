@@ -27,16 +27,16 @@
 }
 
 .filter-tab:hover {
-    border-color: #667eea;
-    color: #667eea;
-    background: #f5f3ff;
+    border-color: #2b86c5;
+    color: #2b86c5;
+    background: #f0f9ff;
 }
 
 .filter-tab.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 50%, #6dd5ed 100%);
     border-color: transparent;
     color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+    box-shadow: 0 4px 12px rgba(43, 134, 197, 0.3);
 }
 
 .tab-dot {
@@ -101,7 +101,7 @@
 
 .btn-primary {
     padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -116,7 +116,7 @@
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(43, 134, 197, 0.3);
 }
 
 .btn-primary:disabled {
@@ -323,8 +323,8 @@ input:focus,
 select:focus,
 textarea:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #2b86c5;
+    box-shadow: 0 0 0 3px rgba(43, 134, 197, 0.1);
 }
 
 textarea {
@@ -353,7 +353,7 @@ textarea {
 }
 
 .confirm-message strong {
-    color: #667eea;
+    color: #2b86c5;
 }
 
 .confirm-warning {

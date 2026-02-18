@@ -2,7 +2,7 @@
 
 .profile-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 50%, #6dd5ed 100%);
     padding-bottom: 4rem;
 }
 
@@ -19,7 +19,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(43, 134, 197, 0.1) 0%, rgba(79, 172, 211, 0.1) 100%);
     backdrop-filter: blur(10px);
 }
 
@@ -56,7 +56,7 @@
     position: absolute;
     bottom: 5px;
     right: 5px;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #4facd3 0%, #2b86c5 100%);
     color: white;
     padding: 0.4rem 0.8rem;
     border-radius: 20px;
@@ -113,7 +113,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, #2b86c5 0%, #4facd3 100%);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.3s ease;
@@ -144,12 +144,12 @@
 }
 
 .card-icon.personal {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 100%);
     color: white;
 }
 
 .card-icon.security {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #4facd3 0%, #6dd5ed 100%);
     color: white;
 }
 
@@ -185,7 +185,7 @@
 .card-button {
     width: 100%;
     padding: 0.875rem 1.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -201,7 +201,7 @@
 
 .card-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 20px rgba(43, 134, 197, 0.4);
 }
 
 .card-button svg {
@@ -216,7 +216,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 100%);
     color: white;
 }
 
@@ -366,8 +366,8 @@
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #2b86c5;
+    box-shadow: 0 0 0 3px rgba(43, 134, 197, 0.1);
 }
 
 .form-group select {
@@ -412,7 +412,7 @@
 }
 
 .password-toggle:hover {
-    color: #2d3748;
+    color: #2b86c5;
 }
 
 /* Image Upload Section */
@@ -486,9 +486,9 @@
 }
 
 .upload-btn:hover {
-    border-color: #667eea;
-    background: rgba(102, 126, 234, 0.05);
-    color: #667eea;
+    border-color: #2b86c5;
+    background: rgba(43, 134, 197, 0.05);
+    color: #2b86c5;
 }
 
 .upload-btn svg {
@@ -526,13 +526,13 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 100%);
     color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 20px rgba(43, 134, 197, 0.4);
 }
 
 .btn-primary:disabled {

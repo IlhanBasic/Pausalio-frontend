@@ -27,7 +27,7 @@
 
 .btn-primary {
     padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -42,7 +42,7 @@
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(43, 134, 197, 0.3);
 }
 
 .btn-primary:disabled {
@@ -167,7 +167,7 @@
 }
 
 :host ::ng-deep .fc-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 100%);
     border: none;
     border-radius: 8px;
     padding: 8px 16px;
@@ -176,11 +176,11 @@
 }
 
 :host ::ng-deep .fc-button:hover {
-    background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+    background: linear-gradient(135deg, #1e6f9f 0%, #2b86c5 100%);
 }
 
 :host ::ng-deep .fc-button-active {
-    background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+    background: linear-gradient(135deg, #1e6f9f 0%, #2b86c5 100%);
 }
 
 :host ::ng-deep .fc-event {
@@ -328,8 +328,8 @@ input:focus,
 select:focus,
 textarea:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #2b86c5;
+    box-shadow: 0 0 0 3px rgba(43, 134, 197, 0.1);
 }
 
 .error {
@@ -398,7 +398,7 @@ textarea:focus {
 }
 
 .confirm-message strong {
-    color: #667eea;
+    color: #2b86c5;
 }
 
 .confirm-warning {

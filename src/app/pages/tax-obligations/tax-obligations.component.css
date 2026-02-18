@@ -40,7 +40,7 @@
 /* Buttons */
 .btn-primary {
     padding: 13px 26px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #2b86c5 0%, #4facd3 50%, #6dd5ed 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -51,12 +51,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 14px rgba(43, 134, 197, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 8px 24px rgba(43, 134, 197, 0.4);
 }
 
 .btn-primary:disabled {
@@ -101,7 +101,7 @@
 
 .btn-danger:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
 }
 
 .btn-mark-paid {
@@ -119,7 +119,7 @@
 
 .btn-mark-paid:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 .btn-icon {
@@ -299,8 +299,8 @@
 
 .filter-section select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    border-color: #2b86c5;
+    box-shadow: 0 0 0 4px rgba(43, 134, 197, 0.1);
 }
 
 /* Modal Styles */
@@ -379,7 +379,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, #fafbff 0%, #f8fafc 100%);
+    background: linear-gradient(135deg, #f8fcff 0%, #f0f9ff 100%);
     border-radius: 20px 20px 0 0;
 }
 
@@ -417,14 +417,14 @@
 }
 
 .modal-description {
-    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    background: linear-gradient(135deg, #e1f0fa 0%, #c9e2f5 100%);
     padding: 18px 20px;
     border-radius: 12px;
     margin-bottom: 24px;
     color: #475569;
     font-size: 14px;
     line-height: 1.7;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #2b86c5;
     font-weight: 500;
 }
 
@@ -467,9 +467,9 @@ input:focus,
 select:focus,
 textarea:focus {
     outline: none;
-    border-color: #667eea;
-    background: #fafbff;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    border-color: #2b86c5;
+    background: #f8fcff;
+    box-shadow: 0 0 0 4px rgba(43, 134, 197, 0.1);
     transform: translateY(-1px);
 }
 
@@ -509,7 +509,7 @@ select {
     display: flex;
     justify-content: flex-end;
     gap: 14px;
-    background: #fafbff;
+    background: #f8fcff;
     border-radius: 0 0 20px 20px;
 }
 

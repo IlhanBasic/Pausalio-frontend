@@ -91,7 +91,7 @@
 }
 
 .invoice-card::before {
-    background: linear-gradient(to bottom, #667eea, #764ba2);
+    background: linear-gradient(to bottom, #2b86c5, #4facd3);
 }
 
 .items-card::before {
@@ -120,8 +120,8 @@
 }
 
 .invoice-card .card-icon {
-    background: #eef2ff;
-    color: #667eea;
+    background: #e1f0fa;
+    color: #2b86c5;
 }
 
 .items-card .card-icon {
@@ -260,6 +260,7 @@
 
 .client-item:hover {
     padding-left: 6px;
+    background: #f8fcff;
 }
 
 .rank-badge {
@@ -285,8 +286,8 @@
 }
 
 .rank-3 {
-    background: #f5f3ff;
-    color: #7c3aed;
+    background: #e1f0fa;
+    color: #2b86c5;
 }
 
 .rank-4 {
@@ -338,7 +339,7 @@
 
 .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(90deg, #2b86c5 0%, #4facd3 100%);
     border-radius: 3px;
     transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -362,8 +363,8 @@
 }
 
 .service-item:hover {
-    background: #eef2ff;
-    border-color: #c7d2fe;
+    background: #e1f0fa;
+    border-color: #9fc9e9;
     transform: translateX(4px);
 }
 
@@ -375,7 +376,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #667eea;
+    color: #2b86c5;
     flex-shrink: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
@@ -402,8 +403,8 @@
 }
 
 .qty-badge {
-    background: #eef2ff;
-    color: #667eea;
+    background: #e1f0fa;
+    color: #2b86c5;
     padding: 6px 14px;
     border-radius: 20px;
     font-weight: 700;

@@ -25,7 +25,33 @@
         </div>
 
         <form [formGroup]="activeForm" (ngSubmit)="onSubmit()">
-
+            <!-- Assistant Specific Fields -->
+            <ng-container *ngIf="!isOwner()">
+                <div class="form-section">
+                    <h3>
+                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M15.5 2H8.6c-.4 0-.8.2-1.1.5-.3.3-.5.7-.5 1.1v12.8c0 .4.2.8.5 1.1.3.3.7.5 1.1.5h9.8c.4 0 .8-.2 1.1-.5.3-.3.5-.7.5-1.1V6.5L15.5 2z">
+                            </path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        Invite Token
+                    </h3>
+                    <div class="form-group">
+                        <label>Invite Token *</label>
+                        <input type="text" formControlName="inviteToken" placeholder="Unesite invite token">
+                        <div *ngIf="getControl('inviteToken')?.touched && getControl('inviteToken')?.invalid"
+                            class="error">
+                            Obavezno polje
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
             <!-- Shared User Fields -->
             <div class="form-section">
                 <h3>
@@ -284,33 +310,7 @@
                 </div>
             </ng-container>
 
-            <!-- Assistant Specific Fields -->
-            <ng-container *ngIf="!isOwner()">
-                <div class="form-section">
-                    <h3>
-                        <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M15.5 2H8.6c-.4 0-.8.2-1.1.5-.3.3-.5.7-.5 1.1v12.8c0 .4.2.8.5 1.1.3.3.7.5 1.1.5h9.8c.4 0 .8-.2 1.1-.5.3-.3.5-.7.5-1.1V6.5L15.5 2z">
-                            </path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                        Invite Token
-                    </h3>
-                    <div class="form-group">
-                        <label>Invite Token *</label>
-                        <input type="text" formControlName="inviteToken" placeholder="Unesite invite token">
-                        <div *ngIf="getControl('inviteToken')?.touched && getControl('inviteToken')?.invalid"
-                            class="error">
-                            Obavezno polje
-                        </div>
-                    </div>
-                </div>
-            </ng-container>
+
 
 
 
