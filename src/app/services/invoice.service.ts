@@ -44,4 +44,12 @@ export class InvoiceService {
   getSummary(): Observable<ApiResponse<InvoiceSummaryDto>> {
     return this.http.get<ApiResponse<InvoiceSummaryDto>>(`${this.baseUrl}/summary`);
   }
+
+  archiveInvoice(id: string): Observable<ApiResponse> {
+    return this.http.patch<ApiResponse>(`${this.baseUrl}/archive/${id}`, null);
+  }
+
+  cancelInvoice(id: string): Observable<ApiResponse> {
+    return this.http.patch<ApiResponse>(`${this.baseUrl}/cancel/${id}`, null);
+  }
 }

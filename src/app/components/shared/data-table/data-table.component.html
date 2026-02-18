@@ -11,12 +11,11 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th *ngFor="let column of columns" [class.sortable]="column.sortable" (click)="toggleSort(column)">
+                    <th *ngFor="let column of columns" [class.sortable]="column.sortable"
+                        (click)="toggleSort(column)">
                         <div class="th-content">
                             <span>{{ column.label }}</span>
-                            <span class="sort-icon" *ngIf="column.sortable">
-                                {{ getSortIcon(column) }}
-                            </span>
+                            <span class="sort-icon" *ngIf="column.sortable">{{ getSortIcon(column) }}</span>
                         </div>
                     </th>
                     <th *ngIf="actions.length > 0" class="actions-column">Akcije</th>
@@ -30,11 +29,14 @@
                     </td>
                     <td *ngIf="actions.length > 0" class="actions-cell">
                         <div class="action-buttons">
-                            <button *ngFor="let action of actions" class="action-btn"
-                                [class.edit-btn]="action.type === 'edit'" [class.delete-btn]="action.type === 'delete'"
+                            <button *ngFor="let action of actions"
+                                class="action-btn"
+                                [class.edit-btn]="action.type === 'edit'"
+                                [class.delete-btn]="action.type === 'delete'"
                                 [style.color]="action.color"
-                                (click)="action.type === 'edit' ? handleEdit(item) : action.type === 'delete' ? handleDelete(item) : handleCustomAction(action, item)"
-                                [title]="action.label" [hidden]="action.showCondition && !action.showCondition(item)">
+                                (click)="handleAction(action, item)"
+                                [title]="action.label"
+                                [hidden]="action.showCondition && !action.showCondition(item)">
                                 <span class="action-icon">{{ action.icon }}</span>
                             </button>
                         </div>

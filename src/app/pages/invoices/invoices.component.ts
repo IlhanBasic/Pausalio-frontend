@@ -6,14 +6,18 @@ import { InvoiceService } from '../../services/invoice.service';
 import { ClientService } from '../../services/client.service';
 import { ItemService } from '../../services/item.service';
 import { ExchangeRateService } from '../../services/exchange-rate.service';
+import { PaymentService } from '../../services/payment.service';
+import { BankAccountService } from '../../services/bank-account.service';
 import { InvoiceToReturnDto, AddInvoiceDto, UpdateInvoiceDto } from '../../models/invoice';
 import { ClientToReturnDto } from '../../models/client';
 import { ItemToReturnDto } from '../../models/item';
+import { BankAccountToReturnDto } from '../../models/bank-account';
 import { InvoiceStatus } from '../../enums/invoice-status';
 import { PaymentStatus } from '../../enums/payment-status';
 import { Currency } from '../../enums/currency';
 import { ItemType } from '../../enums/item-type';
 import { ClientType } from '../../enums/client-type';
+import { PaymentType } from '../../enums/payment-type';
 import { DataTableComponent, TableColumn, TableAction } from '../../components/shared/data-table/data-table.component';
 import { AddInvoiceItemDto } from '../../models/invoice-item';
 
@@ -29,19 +33,28 @@ export class InvoicesComponent implements OnInit {
     clientService = inject(ClientService);
     itemService = inject(ItemService);
     exchangeRateService = inject(ExchangeRateService);
+    paymentService = inject(PaymentService);
+    bankAccountService = inject(BankAccountService);
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
 
     invoices = signal<InvoiceToReturnDto[]>([]);
     clients = signal<ClientToReturnDto[]>([]);
     availableItems = signal<ItemToReturnDto[]>([]);
+    bankAccounts = signal<BankAccountToReturnDto[]>([]);
     isLoading = signal(false);
     showModal = signal(false);
     showDeleteConfirm = signal(false);
+    showPaymentModal = signal(false);
+    showArchiveConfirm = signal(false);
+    showCancelConfirm = signal(false);
     editingInvoice = signal<InvoiceToReturnDto | null>(null);
     deletingInvoice = signal<InvoiceToReturnDto | null>(null);
+    payingInvoice = signal<InvoiceToReturnDto | null>(null);
+    archivingInvoice = signal<InvoiceToReturnDto | null>(null);
+    cancellingInvoice = signal<InvoiceToReturnDto | null>(null);
     activeStatusFilter = signal<InvoiceStatus | null>(null);
-    convertingItemIndex = signal<number | null>(null); // tracker za loading po stavci
+    convertingItemIndex = signal<number | null>(null);
 
     InvoiceStatus = InvoiceStatus;
     PaymentStatus = PaymentStatus;
@@ -57,6 +70,11 @@ export class InvoicesComponent implements OnInit {
         items: this.fb.array([])
     });
 
+    paymentForm: FormGroup = this.fb.group({
+        amount: [0, [Validators.required, Validators.min(0.01)]],
+        bankAccountId: ['']
+    });
+
     columns: TableColumn[] = [
         { key: 'invoiceNumber', label: 'Broj Fakture', sortable: true },
         { key: 'clientName', label: 'Klijent', sortable: true },
@@ -69,14 +87,83 @@ export class InvoicesComponent implements OnInit {
     ];
 
     actions: TableAction[] = [
-        { label: 'Izmeni', icon: '✏️', type: 'edit' },
-        { label: 'Obriši', icon: '🗑️', type: 'delete' }
+
+        // IZMENI — samo neplaćene
+        {
+            label: 'Izmeni',
+            icon: '✏️',
+            type: 'edit',
+            showCondition: (item) =>
+                item.paymentStatus !== PaymentStatus.paid &&
+                item.invoiceStatus !== InvoiceStatus.cancelled &&
+                item.invoiceStatus !== InvoiceStatus.archived
+        },
+
+        // PLATI — samo ako nije plaćena
+        {
+            label: 'Plati',
+            icon: '💳',
+            type: 'custom',
+            showCondition: (item) =>
+                item.paymentStatus !== PaymentStatus.paid &&
+                item.invoiceStatus !== InvoiceStatus.cancelled &&
+                item.invoiceStatus !== InvoiceStatus.archived
+        },
+
+        // ARHIVIRAJ — samo završene
+        {
+            label: 'Arhiviraj',
+            icon: '📦',
+            type: 'custom',
+            showCondition: (item) =>
+                item.invoiceStatus === InvoiceStatus.finished
+        },
+
+        // PONIŠTI — ne može ako je arhivirana
+        {
+            label: 'Poništi',
+            icon: '❌',
+            type: 'custom',
+            showCondition: (item) =>
+                item.invoiceStatus !== InvoiceStatus.archived &&
+                item.invoiceStatus !== InvoiceStatus.cancelled
+        },
+
+        // OBRIŠI — sve osim arhiviranih
+        {
+            label: 'Obriši',
+            icon: '🗑️',
+            type: 'delete',
+            showCondition: (item) =>
+                item.invoiceStatus !== InvoiceStatus.archived
+        }
+
     ];
+
+    // --- Custom actions handling from table ---
+    onCustomAction(event: { action: string, item: any }) {
+        const invoice = event.item;
+
+        switch (event.action) {
+            case 'Plati':
+                this.openPaymentModal(invoice);
+                break;
+            case 'Arhiviraj':
+                this.openArchiveConfirm(invoice);
+                break;
+            case 'Poništi':
+                this.openCancelConfirm(invoice);
+                break;
+            default:
+                console.warn('Nepoznata akcija:', event.action);
+        }
+    }
 
     ngOnInit() {
         this.loadInvoices();
         this.loadClients();
         this.loadItems();
+        this.loadBankAccounts();
 
         this.invoiceForm.get('clientId')?.valueChanges.subscribe((clientId) => {
             this.onClientSelected(clientId);
@@ -84,6 +171,15 @@ export class InvoicesComponent implements OnInit {
 
         this.invoiceForm.get('currency')?.valueChanges.subscribe((currency) => {
             this.onCurrencyChanged(currency);
+        });
+    }
+
+    loadBankAccounts() {
+        this.bankAccountService.getAll().subscribe({
+            next: (accounts) => {
+                this.bankAccounts.set(accounts.filter(a => a.isActive));
+            },
+            error: (err) => console.error('Error loading bank accounts:', err)
         });
     }
 
@@ -102,7 +198,6 @@ export class InvoicesComponent implements OnInit {
         const clientType = this.getSelectedClientType();
         if (clientType !== ClientType.foreign) return;
 
-        // Re-konvertuj sve stavke koje imaju selektovan item
         this.itemsFormArray.controls.forEach((control, index) => {
             const itemGroup = control as FormGroup;
             const selectedItemId = itemGroup.get('selectedItemId')?.value;
@@ -116,22 +211,14 @@ export class InvoicesComponent implements OnInit {
             this.exchangeRateService.convert(selectedItem.unitPrice, Currency.RSD, currency).subscribe({
                 next: (response) => {
                     if (response.success && response.data) {
-                        itemGroup.patchValue({
-                            unitPrice: response.data.convertedAmount
-                        });
-                        this.toastr.info(
-                            `Stavka ${index + 1}: ${response.data.calculation}`,
-                            'Konverzija valute'
-                        );
+                        itemGroup.patchValue({ unitPrice: response.data.convertedAmount });
+                        this.toastr.info(`Stavka ${index + 1}: ${response.data.calculation}`, 'Konverzija valute');
                     }
                     this.convertingItemIndex.set(null);
                 },
                 error: (err) => {
                     console.error('Error converting currency:', err);
-                    this.toastr.warning(
-                        `Nije moguće konvertovati cenu za stavku ${index + 1}`,
-                        'Upozorenje'
-                    );
+                    this.toastr.warning(`Nije moguće konvertovati cenu za stavku ${index + 1}`, 'Upozorenje');
                     this.convertingItemIndex.set(null);
                 }
             });
@@ -162,14 +249,12 @@ export class InvoicesComponent implements OnInit {
     onItemSelect(index: number, event: any) {
         const selectedId = event.target.value;
         const selectedItem = this.availableItems().find(x => x.id === selectedId);
-
         if (!selectedItem) return;
 
         const itemGroup = this.itemsFormArray.at(index) as FormGroup;
         const clientType = this.getSelectedClientType();
         const currency = this.invoiceForm.getRawValue().currency as Currency;
 
-        // Osnovno popunjavanje
         itemGroup.patchValue({
             name: selectedItem.name,
             description: selectedItem.description || '',
@@ -177,29 +262,20 @@ export class InvoicesComponent implements OnInit {
             unitPrice: selectedItem.unitPrice
         });
 
-        // Ako je strani klijent i valuta nije RSD - konvertuj cenu
         if (clientType === ClientType.foreign && currency !== Currency.RSD) {
             this.convertingItemIndex.set(index);
 
             this.exchangeRateService.convert(selectedItem.unitPrice, Currency.RSD, currency).subscribe({
                 next: (response) => {
-                    if (response.success) {
-                        itemGroup.patchValue({
-                            unitPrice: response.data?.convertedAmount
-                        });
-                        this.toastr.info(
-                            `Cena konvertovana: ${response.data?.calculation}`,
-                            'Konverzija valute'
-                        );
+                    if (response.success && response.data) {
+                        itemGroup.patchValue({ unitPrice: response.data.convertedAmount });
+                        this.toastr.info(`Cena konvertovana: ${response.data.calculation}`, 'Konverzija valute');
                     }
                     this.convertingItemIndex.set(null);
                 },
                 error: (err) => {
                     console.error('Error converting currency:', err);
-                    this.toastr.warning(
-                        'Nije moguće konvertovati valutu, unesite cenu ručno',
-                        'Upozorenje'
-                    );
+                    this.toastr.warning('Nije moguće konvertovati valutu, unesite cenu ručno', 'Upozorenje');
                     this.convertingItemIndex.set(null);
                 }
             });
@@ -211,6 +287,12 @@ export class InvoicesComponent implements OnInit {
         if (!clientId) return null;
         const client = this.clients().find(c => c.id === clientId);
         return client?.clientType ?? null;
+    }
+
+    getPayingInvoiceClientType(): ClientType | null {
+        const invoice = this.payingInvoice();
+        if (!invoice) return null;
+        return invoice.client.clientType;
     }
 
     get itemsFormArray() {
@@ -249,18 +331,14 @@ export class InvoicesComponent implements OnInit {
 
     loadClients() {
         this.clientService.getAll().subscribe({
-            next: (response) => {
-                this.clients.set(response.data || []);
-            },
+            next: (response) => this.clients.set(response.data || []),
             error: (err) => console.error('Error loading clients:', err)
         });
     }
 
     loadItems() {
         this.itemService.getAll().subscribe({
-            next: (data) => {
-                this.availableItems.set(data || []);
-            },
+            next: (data) => this.availableItems.set(data || []),
             error: (err) => console.error('Error loading items:', err)
         });
     }
@@ -286,12 +364,7 @@ export class InvoicesComponent implements OnInit {
 
     openAddModal() {
         this.editingInvoice.set(null);
-        this.invoiceForm.reset({
-            clientId: '',
-            dueDate: null,
-            currency: Currency.RSD,
-            notes: ''
-        });
+        this.invoiceForm.reset({ clientId: '', dueDate: null, currency: Currency.RSD, notes: '' });
         this.invoiceForm.get('currency')?.enable();
         this.itemsFormArray.clear();
         this.addItem();
@@ -299,13 +372,26 @@ export class InvoicesComponent implements OnInit {
     }
 
     openEditModal(invoice: InvoiceToReturnDto) {
+        // Arhivirane i otkazane fakture se ne mogu menjati
+        if (invoice.invoiceStatus === InvoiceStatus.archived) {
+            this.toastr.warning('Arhivirane fakture se ne mogu menjati', 'Upozorenje');
+            return;
+        }
+
+        if (invoice.invoiceStatus === InvoiceStatus.cancelled) {
+            this.toastr.warning('Otkazane fakture se ne mogu menjati', 'Upozorenje');
+            return;
+        }
+        if (invoice.paymentStatus === PaymentStatus.paid) {
+            this.toastr.warning('Plaćene fakture se ne mogu menjati');
+            return;
+        }
+
         this.editingInvoice.set(invoice);
         this.itemsFormArray.clear();
 
         if (invoice.items && invoice.items.length > 0) {
-            invoice.items.forEach(item => {
-                this.itemsFormArray.push(this.createItemGroup(item));
-            });
+            invoice.items.forEach(item => this.itemsFormArray.push(this.createItemGroup(item)));
         } else {
             this.addItem();
         }
@@ -336,6 +422,202 @@ export class InvoicesComponent implements OnInit {
         this.convertingItemIndex.set(null);
     }
 
+    // --- Payment Modal ---
+    openPaymentModal(invoice: InvoiceToReturnDto) {
+        if (invoice.invoiceStatus === InvoiceStatus.archived) {
+            this.toastr.warning('Arhivirane fakture se ne mogu platiti', 'Upozorenje');
+            return;
+        }
+
+        if (invoice.invoiceStatus === InvoiceStatus.cancelled) {
+            this.toastr.warning('Otkazane fakture se ne mogu platiti', 'Upozorenje');
+            return;
+        }
+
+        if (invoice.paymentStatus === PaymentStatus.paid) {
+            this.toastr.info('Faktura je već u potpunosti plaćena', 'Info');
+            return;
+        }
+
+        this.payingInvoice.set(invoice);
+
+        const clientType = invoice.client.clientType;
+        const bankAccountIdControl = this.paymentForm.get('bankAccountId');
+
+        // Strani klijent - bankovni racun obavezan
+        if (clientType === ClientType.foreign) {
+            bankAccountIdControl?.setValidators([Validators.required]);
+        } else {
+            bankAccountIdControl?.clearValidators();
+        }
+        bankAccountIdControl?.updateValueAndValidity();
+
+        this.paymentForm.reset({
+            amount: invoice.amountToPay,
+            bankAccountId: ''
+        });
+
+        this.showPaymentModal.set(true);
+    }
+
+    closePaymentModal() {
+        this.showPaymentModal.set(false);
+        this.payingInvoice.set(null);
+        this.paymentForm.reset();
+        this.paymentForm.get('bankAccountId')?.clearValidators();
+        this.paymentForm.get('bankAccountId')?.updateValueAndValidity();
+    }
+
+    onSubmitPayment() {
+        if (this.paymentForm.invalid) {
+            this.paymentForm.markAllAsTouched();
+            return;
+        }
+
+        const invoice = this.payingInvoice();
+        if (!invoice) return;
+
+        const formValue = this.paymentForm.value;
+
+        const dto = {
+            paymentType: PaymentType.InvoicePayment,
+            entityId: invoice.id,
+            amount: formValue.amount,
+            currency: invoice.currency,
+            bankAccountId: formValue.bankAccountId || undefined
+        };
+
+        this.paymentService.create(dto).subscribe({
+            next: () => {
+                this.toastr.success('Plaćanje uspešno dodato', 'Uspeh');
+                this.loadInvoices(this.activeStatusFilter());
+                this.closePaymentModal();
+            },
+            error: (err) => {
+                console.error('Error creating payment:', err);
+                this.toastr.error(err.error?.message || 'Greška pri dodavanju plaćanja', 'Greška');
+            }
+        });
+    }
+
+    getCurrencyLabel(currency: Currency): string {
+        return Currency[currency];
+    }
+
+    // --- Archive ---
+    openArchiveConfirm(invoice: InvoiceToReturnDto) {
+        if (invoice.invoiceStatus !== InvoiceStatus.finished) {
+            this.toastr.warning('Faktura mora biti završena (plaćena) da bi se arhivirala', 'Upozorenje');
+            return;
+        }
+
+        this.archivingInvoice.set(invoice);
+        this.showArchiveConfirm.set(true);
+    }
+
+    closeArchiveConfirm() {
+        this.showArchiveConfirm.set(false);
+        this.archivingInvoice.set(null);
+    }
+
+    confirmArchive() {
+        const invoice = this.archivingInvoice();
+        if (!invoice) return;
+
+        this.invoiceService.archiveInvoice(invoice.id).subscribe({
+            next: () => {
+                this.toastr.success('Faktura uspešno arhivirana', 'Uspeh');
+                this.loadInvoices(this.activeStatusFilter());
+                this.closeArchiveConfirm();
+            },
+            error: (err) => {
+                console.error('Error archiving invoice:', err);
+                this.toastr.error(err.error?.message || 'Greška pri arhiviranju fakture', 'Greška');
+                this.closeArchiveConfirm();
+            }
+        });
+    }
+
+    // --- Cancel ---
+    openCancelConfirm(invoice: InvoiceToReturnDto) {
+        if (invoice.invoiceStatus === InvoiceStatus.cancelled) {
+            this.toastr.warning('Faktura je već otkazana', 'Upozorenje');
+            return;
+        }
+
+        // if (invoice.invoiceStatus === InvoiceStatus.finished || invoice.invoiceStatus === InvoiceStatus.archived) {
+        //     this.toastr.warning('Završene i arhivirane fakture se ne mogu otkazati', 'Upozorenje');
+        //     return;
+        // }
+        if (invoice.invoiceStatus === InvoiceStatus.archived) {
+            this.toastr.warning('Arhivirane fakture se ne mogu poništiti', 'Upozorenje');
+            return;
+        }
+
+        this.cancellingInvoice.set(invoice);
+        this.showCancelConfirm.set(true);
+    }
+
+    closeCancelConfirm() {
+        this.showCancelConfirm.set(false);
+        this.cancellingInvoice.set(null);
+    }
+
+    confirmCancel() {
+        const invoice = this.cancellingInvoice();
+        if (!invoice) return;
+
+        this.invoiceService.cancelInvoice(invoice.id).subscribe({
+            next: () => {
+                this.toastr.success('Faktura uspešno otkazana', 'Uspeh');
+                this.loadInvoices(this.activeStatusFilter());
+                this.closeCancelConfirm();
+            },
+            error: (err) => {
+                console.error('Error cancelling invoice:', err);
+                this.toastr.error(err.error?.message || 'Greška pri otkazivanju fakture', 'Greška');
+                this.closeCancelConfirm();
+            }
+        });
+    }
+
+    // --- Delete ---
+    openDeleteConfirm(invoice: InvoiceToReturnDto) {
+
+        if (invoice.invoiceStatus === InvoiceStatus.archived) {
+            this.toastr.warning('Arhivirane fakture se ne mogu obrisati');
+            return;
+        }
+
+        this.deletingInvoice.set(invoice);
+        this.showDeleteConfirm.set(true);
+    }
+
+
+    closeDeleteConfirm() {
+        this.showDeleteConfirm.set(false);
+        this.deletingInvoice.set(null);
+    }
+
+    confirmDelete() {
+        const invoice = this.deletingInvoice();
+        if (!invoice) return;
+
+        this.invoiceService.delete(invoice.id).subscribe({
+            next: () => {
+                this.toastr.success('Faktura uspešno obrisana', 'Uspeh');
+                this.loadInvoices(this.activeStatusFilter());
+                this.closeDeleteConfirm();
+            },
+            error: (err) => {
+                console.error('Error deleting invoice:', err);
+                this.toastr.error(err.error?.message || 'Greška pri brisanju fakture', 'Greška');
+                this.closeDeleteConfirm();
+            }
+        });
+    }
+
+    // --- Submit invoice form ---
     onSubmit() {
         if (this.invoiceForm.invalid) {
             this.invoiceForm.markAllAsTouched();
@@ -398,34 +680,7 @@ export class InvoicesComponent implements OnInit {
         }
     }
 
-    openDeleteConfirm(invoice: InvoiceToReturnDto) {
-        this.deletingInvoice.set(invoice);
-        this.showDeleteConfirm.set(true);
-    }
-
-    closeDeleteConfirm() {
-        this.showDeleteConfirm.set(false);
-        this.deletingInvoice.set(null);
-    }
-
-    confirmDelete() {
-        const invoice = this.deletingInvoice();
-        if (!invoice) return;
-
-        this.invoiceService.delete(invoice.id).subscribe({
-            next: () => {
-                this.toastr.success('Faktura uspešno obrisana', 'Uspeh');
-                this.loadInvoices(this.activeStatusFilter());
-                this.closeDeleteConfirm();
-            },
-            error: (err) => {
-                console.error('Error deleting invoice:', err);
-                this.toastr.error('Greška pri brisanju fakture', 'Greška');
-                this.closeDeleteConfirm();
-            }
-        });
-    }
-
+    // --- Helpers ---
     getInvoiceStatusName(status: InvoiceStatus): string {
         switch (status) {
             case InvoiceStatus.draft: return 'Nacrt';

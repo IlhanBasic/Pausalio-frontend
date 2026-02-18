@@ -22,34 +22,29 @@
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.draft"
             (click)="setStatusFilter(InvoiceStatus.draft)">
-            <span class="tab-dot dot-draft"></span>
-            Nacrt
+            <span class="tab-dot dot-draft"></span>Nacrt
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.sent"
             (click)="setStatusFilter(InvoiceStatus.sent)">
-            <span class="tab-dot dot-sent"></span>
-            Poslato
+            <span class="tab-dot dot-sent"></span>Poslato
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.cancelled"
             (click)="setStatusFilter(InvoiceStatus.cancelled)">
-            <span class="tab-dot dot-cancelled"></span>
-            Otkazano
+            <span class="tab-dot dot-cancelled"></span>Otkazano
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.finished"
             (click)="setStatusFilter(InvoiceStatus.finished)">
-            <span class="tab-dot dot-finished"></span>
-            Završeno
+            <span class="tab-dot dot-finished"></span>Završeno
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.archived"
             (click)="setStatusFilter(InvoiceStatus.archived)">
-            <span class="tab-dot dot-archived"></span>
-            Arhivirano
+            <span class="tab-dot dot-archived"></span>Arhivirano
         </button>
     </div>
 
     <app-data-table [data]="invoices()" [columns]="columns" [actions]="actions" searchPlaceholder="Pretraži fakture..."
         emptyMessage="Nema faktura za prikaz. Kreirajte prvu fakturu!" (onEdit)="openEditModal($event)"
-        (onDelete)="openDeleteConfirm($event)">
+        (onDelete)="openDeleteConfirm($event)" (onCustomAction)="onCustomAction($event)">
     </app-data-table>
 
     <!-- Add/Edit Modal -->
@@ -68,7 +63,7 @@
                             <select formControlName="clientId">
                                 <option value="">Izaberite klijenta</option>
                                 <option *ngFor="let client of clients()" [value]="client.id">
-                                    {{ client.name }} ({{getClientTypeLabel(client.clientType)}})
+                                    {{ client.name }} ({{ getClientTypeLabel(client.clientType) }})
                                 </option>
                             </select>
                             <div *ngIf="invoiceForm.get('clientId')?.touched && invoiceForm.get('clientId')?.invalid"
@@ -87,8 +82,8 @@
                         <div class="form-group">
                             <label>Valuta *</label>
                             <select formControlName="currency">
-                                <option [ngValue]="Currency.RSD" *ngIf="invoiceForm.get('currency')?.enabled === false || 
-               getSelectedClientType() !== ClientType.foreign">RSD</option>
+                                <option [ngValue]="Currency.RSD" *ngIf="getSelectedClientType() !== ClientType.foreign">
+                                    RSD</option>
                                 <option [ngValue]="Currency.EUR">EUR</option>
                                 <option [ngValue]="Currency.USD">USD</option>
                                 <option [ngValue]="Currency.GBP">GBP</option>
@@ -139,8 +134,8 @@
                                         <label>Stavka</label>
                                         <select formControlName="selectedItemId" (change)="onItemSelect(i, $event)">
                                             <option value="">Izaberite stavku</option>
-                                            <option *ngFor="let item of availableItems()" [value]="item.id">
-                                                {{ item.name }}
+                                            <option *ngFor="let availItem of availableItems()" [value]="availItem.id">
+                                                {{ availItem.name }}
                                             </option>
                                         </select>
                                     </div>
@@ -189,21 +184,129 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeModal()">
-                        Otkaži
-                    </button>
+                    <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
                     <button type="submit" class="btn-primary" [disabled]="isLoading()">
-                        <span *ngIf="isLoading()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" style="animation: spin 1s linear infinite;">
-                                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                            </svg>
-                        </span>
                         {{ isLoading() ? 'Čuvanje...' : 'Sačuvaj fakturu' }}
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" *ngIf="showPaymentModal()" (click)="closePaymentModal()">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Plati fakturu {{ payingInvoice()?.invoiceNumber }}</h2>
+                <button class="close-btn" (click)="closePaymentModal()">✕</button>
+            </div>
+
+            <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()">
+                <div class="modal-body">
+
+                    <div class="payment-info">
+                        <span>Preostalo za plaćanje:</span>
+                        <strong>{{ payingInvoice()?.amountToPay | number:'1.2-2' }}
+                            {{ payingInvoice() ? Currency[payingInvoice()!.currency] : '' }}</strong>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Iznos *</label>
+                        <input type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0.01">
+                        <div *ngIf="paymentForm.get('amount')?.touched && paymentForm.get('amount')?.invalid"
+                            class="error">
+                            Iznos je obavezan i mora biti veći od 0
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Bankovni račun
+                            <span *ngIf="getPayingInvoiceClientType() === ClientType.foreign"> *</span>
+                        </label>
+                        <select formControlName="bankAccountId">
+                            <option value="" *ngIf="getPayingInvoiceClientType() !== ClientType.foreign">
+                                -- Gotovinska uplata --
+                            </option>
+                            <option *ngFor="let account of bankAccounts()" [value]="account.id">
+                                {{ account.bankName }} - {{ account.accountNumber }} ({{ getCurrencyLabel(account.currency) }})
+                            </option>
+                        </select>
+                        <small class="form-hint" *ngIf="getPayingInvoiceClientType() === ClientType.foreign">
+                            Strani klijenti moraju platiti na bankovni račun
+                        </small>
+                        <small class="form-hint" *ngIf="getPayingInvoiceClientType() !== ClientType.foreign">
+                            Ostavite prazno za gotovinsku uplatu
+                        </small>
+                        <div *ngIf="paymentForm.get('bankAccountId')?.touched && paymentForm.get('bankAccountId')?.invalid"
+                            class="error">
+                            Bankovni račun je obavezan za strane klijente
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" (click)="closePaymentModal()">Otkaži</button>
+                    <button type="submit" class="btn-primary" [disabled]="paymentForm.invalid">
+                        Potvrdi plaćanje
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Archive Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="showArchiveConfirm()" (click)="closeArchiveConfirm()">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Potvrda arhiviranja</h2>
+                <button class="close-btn" (click)="closeArchiveConfirm()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="confirm-message">
+                    Da li ste sigurni da želite da arhivirate fakturu
+                    <strong>{{ archivingInvoice()?.invoiceNumber }}</strong>?
+                </p>
+                <p class="confirm-warning">Arhivirane fakture se ne mogu menjati niti plaćati.</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" (click)="closeArchiveConfirm()">Otkaži</button>
+                <button type="button" class="btn-primary" (click)="confirmArchive()">Arhiviraj</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div class="modal-overlay" *ngIf="showCancelConfirm()" (click)="closeCancelConfirm()">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Potvrda otkazivanja</h2>
+                <button class="close-btn" (click)="closeCancelConfirm()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="confirm-message">
+                    Da li ste sigurni da želite da otkažete fakturu
+                    <strong>{{ cancellingInvoice()?.invoiceNumber }}</strong>?
+                </p>
+                <p class="confirm-warning">Otkazane fakture se ne mogu menjati niti plaćati.</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" (click)="closeCancelConfirm()">Otkaži</button>
+                <button type="button" class="btn-danger" (click)="confirmCancel()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Otkaži fakturu
+                </button>
+            </div>
         </div>
     </div>
 
@@ -224,9 +327,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
-                    Otkaži
-                </button>
+                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
                 <button type="button" class="btn-danger" (click)="confirmDelete()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

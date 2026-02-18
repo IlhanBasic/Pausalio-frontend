@@ -45,26 +45,22 @@ export class DataTableComponent {
     filteredData = computed(() => {
         let result = [...this.dataSignal()];
 
-        // Search filter
         const search = this.searchTerm().toLowerCase();
         if (search) {
-            result = result.filter(item => {
-                return this.columns.some(col => {
+            result = result.filter(item =>
+                this.columns.some(col => {
                     const value = item[col.key];
                     return value?.toString().toLowerCase().includes(search);
-                });
-            });
+                })
+            );
         }
 
-        // Sorting
         const sortCol = this.sortColumn();
         if (sortCol) {
             result.sort((a, b) => {
                 const aVal = a[sortCol];
                 const bVal = b[sortCol];
-
                 if (aVal === bVal) return 0;
-
                 const comparison = aVal > bVal ? 1 : -1;
                 return this.sortDirection() === 'asc' ? comparison : -comparison;
             });
@@ -79,7 +75,6 @@ export class DataTableComponent {
 
     toggleSort(column: TableColumn) {
         if (!column.sortable) return;
-
         if (this.sortColumn() === column.key) {
             this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
         } else {
@@ -90,7 +85,6 @@ export class DataTableComponent {
 
     formatValue(value: any, type?: string): string {
         if (value === null || value === undefined) return '-';
-
         switch (type) {
             case 'number':
                 return new Intl.NumberFormat('sr-Latn-RS').format(value);
@@ -101,16 +95,15 @@ export class DataTableComponent {
         }
     }
 
-    handleEdit(item: any) {
-        this.onEdit.emit(item);
-    }
-
-    handleDelete(item: any) {
-        this.onDelete.emit(item);
-    }
-
-    handleCustomAction(action: TableAction, item: any) {
-        this.onCustomAction.emit({ action: action.label, item });
+    handleAction(action: TableAction, item: any) {
+        if (action.type === 'edit') {
+            this.onEdit.emit(item);
+        } else if (action.type === 'delete') {
+            this.onDelete.emit(item);
+        } else {
+            // custom - emituj label kao action identifikator
+            this.onCustomAction.emit({ action: action.label, item });
+        }
     }
 
     getSortIcon(column: TableColumn): string {
