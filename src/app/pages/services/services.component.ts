@@ -46,7 +46,7 @@ export class ServicesComponent implements OnInit {
         { key: 'name', label: 'Naziv', sortable: true },
         { key: 'description', label: 'Opis', sortable: false },
         { key: 'itemTypeBadge', label: 'Tip', type: 'badge', sortable: false },
-        { key: 'unitPrice', label: 'Cena', type: 'currency', sortable: true }
+        { key: 'unitPrice', label: 'Cena (RSD)', type: 'currency', sortable: true }
     ];
 
     actions: TableAction[] = [

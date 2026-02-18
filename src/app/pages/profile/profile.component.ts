@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -9,11 +9,11 @@ import { BusinessProfileService } from '../../services/business-profile.service'
 import { ActivityCodeService } from '../../services/activity-code.service';
 import { BusinessInviteService } from '../../services/business-invite.service';
 import { FileService } from '../../services/file.service';
-import { ProfileToReturnDto, UpdateUserProfileDto, UserProfileToReturnDto } from '../../models/user-profile';
+import { UpdateUserProfileDto, UserProfileToReturnDto } from '../../models/user-profile';
 import { BusinessProfileToReturnDto, UpdateBusinessProfileDto } from '../../models/business-profile';
 import { ActivityCodeToReturnDto } from '../../models/activity-code';
 import { AddBusinessInviteDto } from '../../models/business-invite';
-import { forkJoin } from 'rxjs';
+import { UserProfileStore } from '../../stores/user-profile.store';
 
 @Component({
     selector: 'app-profile',
@@ -31,42 +31,39 @@ export class ProfileComponent implements OnInit {
     businessInviteService = inject(BusinessInviteService);
     fileService = inject(FileService);
     store = inject(AuthStore);
+    userProfileStore = inject(UserProfileStore);
     toastr = inject(ToastrService);
 
     isLoading = signal(false);
     isLoadingProfile = signal(true);
 
-    // Profile data
-    userProfile = signal<UserProfileToReturnDto | null>(null);
-    businessProfile = signal<BusinessProfileToReturnDto | null>(null);
+    // Lokalni signali koji se pune iz store-a reaktivno
+    userProfile = signal<UserProfileToReturnDto | null | undefined>(null);
+    businessProfile = signal<BusinessProfileToReturnDto | null | undefined>(null);
+
     activityCodes = signal<ActivityCodeToReturnDto[]>([]);
 
-    // Modal states
     showUserEditModal = signal(false);
     showBusinessEditModal = signal(false);
     showPasswordModal = signal(false);
     showInviteModal = signal(false);
     showAcceptInviteModal = signal(false);
 
-    // Password visibility
     showOldPassword = signal(false);
     showNewPassword = signal(false);
     showConfirmPassword = signal(false);
 
-    // Image upload
     profilePictureFile = signal<File | null>(null);
     companyLogoFile = signal<File | null>(null);
     profilePicturePreview = signal<string | null>(null);
     companyLogoPreview = signal<string | null>(null);
 
-    // Change password form
     changePasswordForm = this.fb.group({
         oldPassword: ['', Validators.required],
         newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)]],
         confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
 
-    // User profile edit form
     userProfileForm = this.fb.group({
         firstName: ['', Validators.required],
         lastName: ['', Validators.required],
@@ -75,7 +72,6 @@ export class ProfileComponent implements OnInit {
         address: [''],
     });
 
-    // Business profile edit form
     businessProfileForm = this.fb.group({
         businessName: ['', Validators.required],
         PIB: ['', Validators.required],
@@ -88,15 +84,25 @@ export class ProfileComponent implements OnInit {
         website: ['']
     });
 
-    // Invite assistant form
     inviteForm = this.fb.group({
         email: ['', [Validators.required, Validators.email]]
     });
 
-    // Accept invite form (for assistants)
     acceptInviteForm = this.fb.group({
         inviteToken: ['', Validators.required]
     });
+
+    constructor() {
+        // Effect reaguje svaki put kada se store signal promeni
+        effect(() => {
+            const profile = this.userProfileStore.Profile();
+            if (profile) {
+                this.userProfile.set(profile.userProfile);
+                this.businessProfile.set(profile.businessProfile);
+                this.isLoadingProfile.set(false);
+            }
+        });
+    }
 
     ngOnInit() {
         this.loadProfileData();
@@ -105,13 +111,8 @@ export class ProfileComponent implements OnInit {
 
     loadProfileData() {
         this.isLoadingProfile.set(true);
-        this.userProfileService.getProfile().subscribe({
-            next: (data: ProfileToReturnDto) => {
-                this.userProfile.set(data.userProfile);
-                this.businessProfile.set(data.businessProfile);
-                this.isLoadingProfile.set(false);
-            },
-            error: (err) => {
+        this.userProfileStore.loadProfile().subscribe({
+            error: () => {
                 this.toastr.error('Greška pri učitavanju profila', 'Greška');
                 this.isLoadingProfile.set(false);
             }
@@ -140,7 +141,6 @@ export class ProfileComponent implements OnInit {
         if (field === 'confirm') this.showConfirmPassword.set(!this.showConfirmPassword());
     }
 
-    // Password modal methods
     openPasswordModal() {
         this.showPasswordModal.set(true);
     }
@@ -173,7 +173,6 @@ export class ProfileComponent implements OnInit {
         });
     }
 
-    // User profile modal methods
     openUserEditModal() {
         const user = this.userProfile();
         if (user) {
@@ -239,7 +238,6 @@ export class ProfileComponent implements OnInit {
 
         this.isLoading.set(true);
 
-        // Upload profile picture if selected
         if (this.profilePictureFile()) {
             this.fileService.uploadFile(this.profilePictureFile()!).subscribe({
                 next: (response) => {
@@ -279,11 +277,9 @@ export class ProfileComponent implements OnInit {
         });
     }
 
-    // Business profile modal methods
     openBusinessEditModal() {
         const business = this.businessProfile();
         if (business) {
-            // Find activity code ID from the activity code name
             const activityCode = this.activityCodes().find(ac => ac.code === business.activityCode);
 
             this.businessProfileForm.patchValue({
@@ -351,7 +347,6 @@ export class ProfileComponent implements OnInit {
 
         const business = this.businessProfile();
 
-        // Upload company logo if selected
         if (this.companyLogoFile()) {
             this.fileService.uploadFile(this.companyLogoFile()!).subscribe({
                 next: (response) => {
@@ -395,7 +390,6 @@ export class ProfileComponent implements OnInit {
         });
     }
 
-    // Invite assistant modal methods
     openInviteModal() {
         this.showInviteModal.set(true);
     }
@@ -415,7 +409,7 @@ export class ProfileComponent implements OnInit {
         };
 
         this.businessInviteService.sendInvite(dto).subscribe({
-            next: (response) => {
+            next: () => {
                 this.toastr.success('Pozivnica uspešno poslata na ' + dto.email, 'Uspeh');
                 this.closeInviteModal();
                 this.isLoading.set(false);
@@ -427,7 +421,6 @@ export class ProfileComponent implements OnInit {
         });
     }
 
-    // Accept invite modal methods (for assistants)
     openAcceptInviteModal() {
         this.showAcceptInviteModal.set(true);
     }
@@ -450,7 +443,7 @@ export class ProfileComponent implements OnInit {
             next: (response) => {
                 this.toastr.success('Uspešno ste se pridružili kompaniji: ' + response.businessName, 'Uspeh');
                 this.closeAcceptInviteModal();
-                this.loadProfileData(); // Reload profile to show new business
+                this.loadProfileData();
                 this.isLoading.set(false);
             },
             error: (err) => {

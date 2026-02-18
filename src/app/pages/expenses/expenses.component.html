@@ -1,5 +1,4 @@
 <div class="expenses-page">
-    <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
             <h1>Troškovi</h1>
@@ -17,29 +16,24 @@
         </button>
     </div>
 
-    <!-- Filter Tabs -->
     <div class="filter-tabs">
         <button class="filter-tab" [class.active]="activeStatusFilter() === null" (click)="setStatusFilter(null)">
             Svi
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === ExpenseStatus.pending"
             (click)="setStatusFilter(ExpenseStatus.pending)">
-            <span class="tab-dot dot-pending"></span>
-            Na čekanju
+            <span class="tab-dot dot-pending"></span>Na čekanju
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === ExpenseStatus.paid"
             (click)="setStatusFilter(ExpenseStatus.paid)">
-            <span class="tab-dot dot-paid"></span>
-            Plaćeno
+            <span class="tab-dot dot-paid"></span>Plaćeno
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === ExpenseStatus.archived"
             (click)="setStatusFilter(ExpenseStatus.archived)">
-            <span class="tab-dot dot-archived"></span>
-            Arhivirano
+            <span class="tab-dot dot-archived"></span>Arhivirano
         </button>
     </div>
 
-    <!-- Data Table -->
     <app-data-table [data]="expenses()" [columns]="columns" [actions]="actions" searchPlaceholder="Pretraži troškove..."
         emptyMessage="Nema troškova za prikaz. Dodajte prvi trošak!" (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)" (onCustomAction)="handleCustomAction($event)">
@@ -75,11 +69,58 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeModal()">
-                        Otkaži
-                    </button>
+                    <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
                     <button type="submit" class="btn-primary" [disabled]="expenseForm.invalid">
                         {{ editingExpense() ? 'Sačuvaj izmene' : 'Dodaj trošak' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" *ngIf="showPaymentModal()" (click)="closePaymentModal()">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Plati trošak</h2>
+                <button class="close-btn" (click)="closePaymentModal()">✕</button>
+            </div>
+
+            <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()">
+                <div class="modal-body">
+
+                    <div class="payment-info">
+                        <span>Iznos za plaćanje:</span>
+                        <strong>{{ formatCurrency(payingExpense()?.amount || 0) }}</strong>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bankovni račun *</label>
+                        <select formControlName="bankAccountId">
+                            <option value="">Izaberite račun</option>
+                            <option *ngFor="let account of bankAccounts()" [value]="account.id">
+                                {{ account.bankName }} - {{ account.accountNumber }}
+                            </option>
+                        </select>
+                        <small class="form-hint">
+                            Troškovi se plaćaju isključivo preko domaćih bankovnih računa
+                        </small>
+                        <small class="form-hint" *ngIf="bankAccounts().length === 0">
+                            Nema aktivnih domaćih bankovnih računa
+                        </small>
+                        <div *ngIf="paymentForm.get('bankAccountId')?.touched && paymentForm.get('bankAccountId')?.invalid"
+                            class="error">
+                            Bankovni račun je obavezan
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" (click)="closePaymentModal()">Otkaži</button>
+                    <button type="submit" class="btn-primary"
+                        [disabled]="paymentForm.invalid || bankAccounts().length === 0">
+                        Potvrdi plaćanje
                     </button>
                 </div>
             </form>
@@ -103,9 +144,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
-                    Otkaži
-                </button>
+                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
                 <button type="button" class="btn-danger" (click)="confirmDelete()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

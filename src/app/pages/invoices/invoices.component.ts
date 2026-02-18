@@ -177,7 +177,7 @@ export class InvoicesComponent implements OnInit {
     loadBankAccounts() {
         this.bankAccountService.getAll().subscribe({
             next: (accounts) => {
-                this.bankAccounts.set(accounts.filter(a => a.isActive));
+                this.bankAccounts.set(accounts.filter(a => a.isActive && a.currency !== Currency.RSD));
             },
             error: (err) => console.error('Error loading bank accounts:', err)
         });

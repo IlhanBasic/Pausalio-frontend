@@ -11,7 +11,9 @@ export class UserProfileService {
     private http = inject(HttpClient);
     private baseUrl = 'https://localhost:7272/api/UserProfile';
     updateProfile(id: string, user: UpdateUserProfileDto): Observable<ApiResponse> {
-        return this.http.put<ApiResponse>(`${this.baseUrl}/${id}`, user);
+        return this.http.put<ApiResponse>(`${this.baseUrl}/${id}`, user, {
+            withCredentials: true
+        });
     }
     getProfile(): Observable<ProfileToReturnDto> {
         return this.http.get<ProfileToReturnDto>(`${this.baseUrl}/me`, {

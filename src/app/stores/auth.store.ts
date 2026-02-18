@@ -9,7 +9,6 @@ export interface DecodedToken {
   LastName: string;
   role: string | string[];
   AvailableBusinesses?: string;
-  ProfilePicture?: string;
   exp: number;
   iat: number;
 }
@@ -20,7 +19,6 @@ export interface UserState {
   firstName: string | null;
   lastName: string | null;
   roles: string[];
-  profilePicture?: string | null;
   availableBusinesses: string[];
 }
 
@@ -64,7 +62,6 @@ export class AuthStore {
         firstName: decoded.FirstName,
         lastName: decoded.LastName,
         roles,
-        profilePicture: decoded.ProfilePicture ?? null,
         availableBusinesses
       } satisfies UserState;
     } catch (error) {

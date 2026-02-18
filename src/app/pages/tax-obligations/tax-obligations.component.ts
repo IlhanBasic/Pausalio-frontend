@@ -1,8 +1,10 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TaxObligationService } from '../../services/tax-obligation.service';
+import { PaymentService } from '../../services/payment.service';
+import { BankAccountService } from '../../services/bank-account.service';
 import {
     TaxObligationToReturnDto,
     AddTaxObligationDto,
@@ -10,8 +12,11 @@ import {
     GenerateTaxObligationsDto,
     TaxObligationSummaryDto
 } from '../../models/tax-obligation';
+import { BankAccountToReturnDto } from '../../models/bank-account';
 import { TaxObligationStatus } from '../../enums/tax-obligation-status';
 import { TaxObligationType } from '../../enums/tax-obligation-type';
+import { PaymentType } from '../../enums/payment-type';
+import { Currency } from '../../enums/currency';
 import { DataTableComponent, TableColumn, TableAction } from '../../components/shared/data-table/data-table.component';
 
 @Component({
@@ -23,40 +28,43 @@ import { DataTableComponent, TableColumn, TableAction } from '../../components/s
 })
 export class TaxObligationsComponent implements OnInit {
     taxService = inject(TaxObligationService);
-
-    handleCustomAction(event: { action: string, item: any }) {
-        if (event.action === 'Označi kao plaćeno') {
-            this.markAsPaid(event.item);
-        }
-    }
+    paymentService = inject(PaymentService);
+    bankAccountService = inject(BankAccountService);
     fb = inject(FormBuilder);
+    toastr = inject(ToastrService);
 
     obligations = signal<TaxObligationToReturnDto[]>([]);
     summary = signal<TaxObligationSummaryDto | null>(null);
+    bankAccounts = signal<BankAccountToReturnDto[]>([]);
     isLoading = signal(false);
     showGenerateModal = signal(false);
     showAddModal = signal(false);
     showDeleteConfirm = signal(false);
+    showPaymentModal = signal(false);
     editingObligation = signal<TaxObligationToReturnDto | null>(null);
     deletingObligation = signal<TaxObligationToReturnDto | null>(null);
+    payingObligation = signal<TaxObligationToReturnDto | null>(null);
     activeStatusFilter = signal<TaxObligationStatus | null>(null);
+    selectedYear = signal<number>(new Date().getFullYear());
 
     TaxObligationStatus = TaxObligationStatus;
     TaxObligationType = TaxObligationType;
-    toastr = inject(ToastrService);
-    selectedYear = signal<number>(new Date().getFullYear());
 
-    generateForm = this.fb.group({
+    generateForm: FormGroup = this.fb.group({
         year: [new Date().getFullYear(), [Validators.required, Validators.min(2020), Validators.max(2030)]],
         monthlyAmount: [0, [Validators.required, Validators.min(1)]],
         type: [TaxObligationType.PIO, Validators.required],
         dueDayOfMonth: [15, [Validators.required, Validators.min(1), Validators.max(28)]]
     });
 
-    obligationForm = this.fb.group({
+    obligationForm: FormGroup = this.fb.group({
         dueDate: ['', Validators.required],
         type: [TaxObligationType.PIO, Validators.required],
         totalAmount: [0, [Validators.required, Validators.min(1)]]
+    });
+
+    paymentForm: FormGroup = this.fb.group({
+        bankAccountId: ['', Validators.required]
     });
 
     columns: TableColumn[] = [
@@ -70,19 +78,39 @@ export class TaxObligationsComponent implements OnInit {
 
     actions: TableAction[] = [
         {
-            label: 'Označi kao plaćeno',
-            icon: '✅',
+            label: 'Plati',
+            icon: '💳',
             type: 'custom',
             color: '#48bb78',
-            showCondition: (item: TaxObligationToReturnDto) => item.status === TaxObligationStatus.Pending
+            showCondition: (item) => item.status === TaxObligationStatus.Pending
         },
-        { label: 'Izmeni', icon: '✏️', type: 'edit' },
-        { label: 'Obriši', icon: '🗑️', type: 'delete' }
+        {
+            label: 'Izmeni',
+            icon: '✏️',
+            type: 'edit',
+            showCondition: (item) => item.status === TaxObligationStatus.Pending
+        },
+        {
+            label: 'Obriši',
+            icon: '🗑️',
+            type: 'delete',
+            showCondition: (item) => item.status === TaxObligationStatus.Pending
+        }
     ];
 
     ngOnInit() {
         this.loadTaxObligations();
         this.loadSummary();
+        this.loadBankAccounts();
+    }
+
+    loadBankAccounts() {
+        this.bankAccountService.getAll().subscribe({
+            next: (accounts) => {
+                this.bankAccounts.set(accounts.filter(a => a.isActive && a.currency === Currency.RSD));
+            },
+            error: (err) => console.error('Error loading bank accounts:', err)
+        });
     }
 
     loadTaxObligations(status?: TaxObligationStatus | null) {
@@ -97,8 +125,8 @@ export class TaxObligationsComponent implements OnInit {
                     typeDisplay: this.getTypeName(obligation.type),
                     statusDisplay: this.getStatusName(obligation.status),
                     statusBadge: this.getStatusBadge(obligation.status),
-                    year: new Date(obligation.dueDate).getFullYear(), // Added for new columns
-                    month: new Date(obligation.dueDate).getMonth() + 1 // Added for new columns
+                    year: new Date(obligation.dueDate).getFullYear(),
+                    month: new Date(obligation.dueDate).getMonth() + 1
                 }));
                 this.obligations.set(transformedData);
                 this.isLoading.set(false);
@@ -119,12 +147,8 @@ export class TaxObligationsComponent implements OnInit {
     loadSummary() {
         const year = this.selectedYear();
         this.taxService.getSummary(year).subscribe({
-            next: (response) => {
-                this.summary.set(response.data || null);
-            },
-            error: (err) => {
-                console.error('Error loading summary:', err);
-            }
+            next: (response) => this.summary.set(response.data || null),
+            error: (err) => console.error('Error loading summary:', err)
         });
     }
 
@@ -133,6 +157,8 @@ export class TaxObligationsComponent implements OnInit {
         this.loadTaxObligations();
         this.loadSummary();
     }
+
+    // --- Generate ---
 
     openGenerateModal() {
         this.generateForm.reset({
@@ -177,17 +203,19 @@ export class TaxObligationsComponent implements OnInit {
         });
     }
 
+    // --- Add/Edit ---
+
     openAddModal() {
         this.editingObligation.set(null);
-        this.obligationForm.reset({
-            dueDate: '',
-            type: TaxObligationType.PIO,
-            totalAmount: 0
-        });
+        this.obligationForm.reset({ dueDate: '', type: TaxObligationType.PIO, totalAmount: 0 });
         this.showAddModal.set(true);
     }
 
     openEditModal(obligation: TaxObligationToReturnDto) {
+        if (obligation.status !== TaxObligationStatus.Pending) {
+            this.toastr.warning('Može se menjati samo obaveza na čekanju', 'Upozorenje');
+            return;
+        }
         this.editingObligation.set(obligation);
         this.obligationForm.patchValue({
             dueDate: new Date(obligation.dueDate).toISOString().split('T')[0],
@@ -213,17 +241,15 @@ export class TaxObligationsComponent implements OnInit {
         const editing = this.editingObligation();
 
         if (editing) {
-            // Update
             const dto: UpdateTaxObligationDto = {
                 dueDate: new Date(formValue.dueDate!),
                 type: Number(formValue.type!),
                 totalAmount: Number(formValue.totalAmount!)
             };
-
             this.taxService.update(editing.id, dto).subscribe({
                 next: () => {
                     this.toastr.success('Obaveza uspešno ažurirana', 'Uspeh');
-                    this.loadTaxObligations();
+                    this.loadTaxObligations(this.activeStatusFilter());
                     this.loadSummary();
                     this.closeAddModal();
                 },
@@ -233,17 +259,15 @@ export class TaxObligationsComponent implements OnInit {
                 }
             });
         } else {
-            // Create
             const dto: AddTaxObligationDto = {
                 dueDate: new Date(formValue.dueDate!),
                 type: Number(formValue.type!),
                 totalAmount: Number(formValue.totalAmount!)
             };
-
             this.taxService.create(dto).subscribe({
                 next: () => {
                     this.toastr.success('Obaveza uspešno dodata', 'Uspeh');
-                    this.loadTaxObligations();
+                    this.loadTaxObligations(this.activeStatusFilter());
                     this.loadSummary();
                     this.closeAddModal();
                 },
@@ -255,6 +279,64 @@ export class TaxObligationsComponent implements OnInit {
         }
     }
 
+    // --- Payment ---
+
+    openPaymentModal(obligation: TaxObligationToReturnDto) {
+        if (obligation.status !== TaxObligationStatus.Pending) {
+            this.toastr.warning('Obaveza nije na čekanju', 'Upozorenje');
+            return;
+        }
+        this.payingObligation.set(obligation);
+        this.paymentForm.reset({ bankAccountId: '' });
+        this.showPaymentModal.set(true);
+    }
+
+    closePaymentModal() {
+        this.showPaymentModal.set(false);
+        this.payingObligation.set(null);
+        this.paymentForm.reset();
+    }
+
+    onSubmitPayment() {
+        if (this.paymentForm.invalid) {
+            this.paymentForm.markAllAsTouched();
+            return;
+        }
+
+        const obligation = this.payingObligation();
+        if (!obligation) return;
+
+        const dto = {
+            paymentType: PaymentType.TaxPayment,
+            entityId: obligation.id,
+            amount: obligation.totalAmount,
+            currency: Currency.RSD,
+            bankAccountId: this.paymentForm.value.bankAccountId
+        };
+
+        this.paymentService.create(dto).subscribe({
+            next: () => {
+                this.toastr.success('Poreska obaveza uspešno plaćena', 'Uspeh');
+                this.loadTaxObligations(this.activeStatusFilter());
+                this.loadSummary();
+                this.closePaymentModal();
+            },
+            error: (err) => {
+                console.error('Error paying tax obligation:', err);
+                this.toastr.error(err.error?.message || 'Greška pri plaćanju poreske obaveze', 'Greška');
+            }
+        });
+    }
+
+    handleCustomAction(event: { action: string, item: any }) {
+        switch (event.action) {
+            case 'Plati':
+                this.openPaymentModal(event.item);
+                break;
+        }
+    }
+
+    // --- Delete ---
 
     openDeleteConfirm(obligation: TaxObligationToReturnDto) {
         this.deletingObligation.set(obligation);
@@ -273,7 +355,7 @@ export class TaxObligationsComponent implements OnInit {
         this.taxService.delete(obligation.id).subscribe({
             next: () => {
                 this.toastr.success('Obaveza uspešno obrisana', 'Uspeh');
-                this.loadTaxObligations();
+                this.loadTaxObligations(this.activeStatusFilter());
                 this.loadSummary();
                 this.closeDeleteConfirm();
             },
@@ -285,21 +367,7 @@ export class TaxObligationsComponent implements OnInit {
         });
     }
 
-    markAsPaid(obligation: TaxObligationToReturnDto) {
-        if (obligation.status !== TaxObligationStatus.Pending) return;
-
-        this.taxService.markAsPaid(obligation.id).subscribe({
-            next: () => {
-                this.toastr.success('Obaveza označena kao plaćena', 'Uspeh');
-                this.loadTaxObligations();
-                this.loadSummary();
-            },
-            error: (err) => {
-                console.error('Error marking as paid:', err);
-                this.toastr.error('Greška pri označavanju kao plaćeno', 'Greška');
-            }
-        });
-    }
+    // --- Helpers ---
 
     getMonthName(month: number): string {
         const months = ['Januar', 'Februar', 'Mart', 'April', 'Maj', 'Jun',
@@ -348,9 +416,12 @@ export class TaxObligationsComponent implements OnInit {
         }
     }
 
-    canMarkAsPaid(obligation: TaxObligationToReturnDto): boolean {
-        return obligation.status === TaxObligationStatus.Pending;
+    formatCurrency(amount: number): string {
+        return new Intl.NumberFormat('sr-Latn-RS', {
+            style: 'currency',
+            currency: 'RSD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(amount);
     }
-
-
 }

@@ -15,6 +15,7 @@ import { BankAccountToReturnDto } from '../../models/bank-account';
 import { PaymentType } from '../../enums/payment-type';
 import { Currency } from '../../enums/currency';
 import { DataTableComponent, TableColumn, TableAction } from '../../components/shared/data-table/data-table.component';
+import { ClientType } from '../../enums/client-type';
 
 @Component({
     selector: 'app-payments',
@@ -31,6 +32,7 @@ export class PaymentsComponent implements OnInit {
     bankAccountService = inject(BankAccountService);
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
+    allBankAccounts = signal<BankAccountToReturnDto[]>([]);
 
     payments = signal<PaymentToReturnDto[]>([]);
     invoices = signal<InvoiceToReturnDto[]>([]);
@@ -81,6 +83,7 @@ export class PaymentsComponent implements OnInit {
             this.paymentForm.get('entityId')?.setValue('');
             this.paymentForm.get('amount')?.enable();
             this.paymentForm.get('currency')?.enable();
+            this.bankAccounts.set(this.allBankAccounts());
             this.loadEntitiesByType(paymentType || PaymentType.InvoicePayment);
         });
 
@@ -104,10 +107,15 @@ export class PaymentsComponent implements OnInit {
 
         if (paymentType === PaymentType.InvoicePayment) {
             const invoice = this.invoices().find(i => i.id === entityId);
+
             if (invoice) {
                 currencyControl?.setValue(invoice.currency);
                 currencyControl?.disable();
+
+                // 🔥 OVO JE KLJUČ
+                this.filterBankAccountsByClient(invoice.client.clientType);
             }
+
             amountControl?.enable();
         } else if (paymentType === PaymentType.ExpensePayment) {
             const expense = this.expenses().find(e => e.id === entityId);
@@ -116,6 +124,7 @@ export class PaymentsComponent implements OnInit {
                 amountControl?.disable();
                 currencyControl?.setValue(Currency.RSD);
                 currencyControl?.disable();
+                this.filterBankAccountForDomesticPayments();
             }
         } else if (paymentType === PaymentType.TaxPayment) {
             const tax = this.taxObligations().find(t => t.id === entityId);
@@ -124,9 +133,30 @@ export class PaymentsComponent implements OnInit {
                 amountControl?.disable();
                 currencyControl?.setValue(Currency.RSD);
                 currencyControl?.disable();
+                this.filterBankAccountForDomesticPayments();
             }
         }
     }
+
+    private filterBankAccountsByClient(clientType: ClientType) {
+        const allAccounts = this.allBankAccounts();
+
+        if (clientType === ClientType.foreign) {
+            this.bankAccounts.set(allAccounts.filter(a => a.currency !== Currency.RSD));
+        } else {
+            this.bankAccounts.set(allAccounts.filter(a => a.currency === Currency.RSD));
+        }
+    }
+
+    private filterBankAccountForDomesticPayments(){
+        const allAccounts = this.allBankAccounts();
+        if (this.paymentForm.get('paymentType')?.value === PaymentType.ExpensePayment ||
+            this.paymentForm.get('paymentType')?.value === PaymentType.TaxPayment) {
+            this.bankAccounts.set(allAccounts.filter(a => a.currency === Currency.RSD));    
+        }
+    }
+
+
 
     loadPayments() {
         this.isLoading.set(true);
@@ -155,11 +185,14 @@ export class PaymentsComponent implements OnInit {
     loadBankAccounts() {
         this.bankAccountService.getAll().subscribe({
             next: (accounts) => {
-                this.bankAccounts.set(accounts.filter(a => a.isActive));
+                const active = accounts.filter(a => a.isActive);
+                this.allBankAccounts.set(active);
+                this.bankAccounts.set(active);
             },
             error: (err) => console.error('Error loading bank accounts:', err)
         });
     }
+
 
     loadEntitiesByType(paymentType: PaymentType) {
         switch (paymentType) {
@@ -242,6 +275,7 @@ export class PaymentsComponent implements OnInit {
     }
 
     onSubmit() {
+
         if (this.paymentForm.invalid) {
             this.paymentForm.markAllAsTouched();
             return;
@@ -250,7 +284,50 @@ export class PaymentsComponent implements OnInit {
         const formValue = this.paymentForm.getRawValue();
         const editing = this.editingPayment();
 
+        // 🔥 INVOICE VALIDACIJA
+        if (!editing && formValue.paymentType === PaymentType.InvoicePayment) {
+
+            const invoice = this.invoices().find(i => i.id === formValue.entityId);
+
+            if (invoice?.client.clientType === ClientType.foreign && !formValue.bankAccountId) {
+                this.toastr.error(
+                    'Strani klijent mora biti plaćen preko bankovnog računa',
+                    'Greška'
+                );
+                return;
+            }
+        }
+
+        // 🔥 EXPENSE VALIDACIJA
+        if (!editing && formValue.paymentType === PaymentType.ExpensePayment) {
+
+            if (formValue.currency !== Currency.RSD) {
+                this.toastr.error('Troškovi se mogu plaćati samo u RSD', 'Greška');
+                return;
+            }
+
+            if (!formValue.bankAccountId) {
+                this.toastr.error('Trošak mora biti plaćen preko bankovnog računa', 'Greška');
+                return;
+            }
+        }
+
+        // 🔥 TAX VALIDACIJA
+        if (!editing && formValue.paymentType === PaymentType.TaxPayment) {
+
+            if (formValue.currency !== Currency.RSD) {
+                this.toastr.error('Porez se može platiti samo u RSD', 'Greška');
+                return;
+            }
+
+            if (!formValue.bankAccountId) {
+                this.toastr.error('Porez mora biti plaćen preko bankovnog računa', 'Greška');
+                return;
+            }
+        }
+
         if (editing) {
+
             const dto: UpdatePaymentDto = {
                 referenceNumber: formValue.referenceNumber || undefined,
                 description: formValue.description || undefined
@@ -267,7 +344,9 @@ export class PaymentsComponent implements OnInit {
                     this.toastr.error('Greška pri ažuriranju plaćanja', 'Greška');
                 }
             });
+
         } else {
+
             const dto: AddPaymentDto = {
                 paymentType: formValue.paymentType!,
                 entityId: formValue.entityId!,

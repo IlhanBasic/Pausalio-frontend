@@ -32,7 +32,6 @@ export class BankAccountsComponent implements OnInit {
         currency: [Currency.RSD, Validators.required],
         IBAN: [''],
         SWIFT: [''],
-        isActive: [true]
     });
 
     columns: TableColumn[] = [
@@ -40,7 +39,6 @@ export class BankAccountsComponent implements OnInit {
         { key: 'accountNumber', label: 'Broj računa', sortable: true },
         { key: 'currencyDisplay', label: 'Valuta', sortable: true },
         { key: 'details', label: 'Detalji (IBAN/SWIFT)', sortable: false },
-        { key: 'statusDisplay', label: 'Status', sortable: true }
     ];
 
     actions: TableAction[] = [
@@ -90,7 +88,6 @@ export class BankAccountsComponent implements OnInit {
                 const transformedData = data.map(account => ({
                     ...account,
                     currencyDisplay: this.getCurrencyName(account.currency),
-                    statusDisplay: account.isActive ? 'Aktivan' : 'Neaktivan',
                     details: this.formatDetails(account)
                 }));
                 this.accounts.set(transformedData);
@@ -112,7 +109,6 @@ export class BankAccountsComponent implements OnInit {
             currency: Currency.RSD,
             IBAN: '',
             SWIFT: '',
-            isActive: true
         });
         this.showModal.set(true);
     }
@@ -125,7 +121,6 @@ export class BankAccountsComponent implements OnInit {
             currency: account.currency,
             IBAN: account.iban || '',
             SWIFT: account.swift || '',
-            isActive: account.isActive
         });
         this.showModal.set(true);
     }
@@ -153,7 +148,6 @@ export class BankAccountsComponent implements OnInit {
                 currency: Number(formValue.currency!),
                 IBAN: formValue.IBAN || undefined,
                 SWIFT: formValue.SWIFT || undefined,
-                isActive: formValue.isActive !== null ? formValue.isActive : undefined
             };
 
             this.bankService.update(editing.id, dto).subscribe({
