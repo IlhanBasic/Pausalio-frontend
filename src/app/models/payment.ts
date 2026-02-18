@@ -3,6 +3,7 @@ import { Currency } from "../enums/currency";
 import { InvoiceToReturnDto } from "./invoice";
 import { TaxObligationToReturnDto } from "./tax-obligation";
 import { ExpenseToReturnDto } from "./expense";
+import { BankAccountToReturnDto } from "./bank-account";
 
 export interface AddPaymentDto {
   paymentType?: PaymentType;
@@ -11,6 +12,7 @@ export interface AddPaymentDto {
   currency?: Currency;
   referenceNumber?: string;
   description?: string;
+  bankAccountId?: string;
 }
 
 export interface PaymentToReturnDto {
@@ -27,6 +29,7 @@ export interface PaymentToReturnDto {
   description?: string;
   paymentDate: Date;
   createdAt: Date;
+  bankAccount?: BankAccountToReturnDto;
 }
 
 export interface UpdatePaymentDto {

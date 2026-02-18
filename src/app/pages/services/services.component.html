@@ -11,10 +11,27 @@
         </button>
     </div>
 
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="activeItemTypeFilter() === null" (click)="setItemTypeFilter(null)">
+            Sve
+        </button>
+        <button class="filter-tab" [class.active]="activeItemTypeFilter() === ItemType.service"
+            (click)="setItemTypeFilter(ItemType.service)">
+            <span class="tab-dot dot-service"></span>
+            Usluga
+        </button>
+        <button class="filter-tab" [class.active]="activeItemTypeFilter() === ItemType.product"
+            (click)="setItemTypeFilter(ItemType.product)">
+            <span class="tab-dot dot-product"></span>
+            Proizvod
+        </button>
+    </div>
+
     <!-- Data Table -->
-    <app-data-table [columns]="columns" [data]="services()" [actions]="actions" searchPlaceholder="Pretraži usluge..."
-        emptyMessage="Nema usluga za prikaz. Dodajte prvu uslugu!" (onEdit)="openEditModal($event)"
-        (onDelete)="openDeleteConfirm($event)">
+    <app-data-table [columns]="columns" [data]="filteredServices()" [actions]="actions"
+        searchPlaceholder="Pretraži usluge..." emptyMessage="Nema usluga za prikaz. Dodajte prvu uslugu!"
+        (onEdit)="openEditModal($event)" (onDelete)="openDeleteConfirm($event)">
     </app-data-table>
 
     <!-- Add/Edit Modal -->

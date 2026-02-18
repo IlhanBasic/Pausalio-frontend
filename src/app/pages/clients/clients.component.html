@@ -20,6 +20,29 @@
     <!-- Alerts -->
 
 
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="activeClientTypeFilter() === null"
+            (click)="setClientTypeFilter(null)">
+            Svi
+        </button>
+        <button class="filter-tab" [class.active]="activeClientTypeFilter() === ClientType.individual"
+            (click)="setClientTypeFilter(ClientType.individual)">
+            <span class="tab-dot dot-individual"></span>
+            Domaće fizičko lice
+        </button>
+        <button class="filter-tab" [class.active]="activeClientTypeFilter() === ClientType.domestic"
+            (click)="setClientTypeFilter(ClientType.domestic)">
+            <span class="tab-dot dot-domestic"></span>
+            Domaće pravno lice
+        </button>
+        <button class="filter-tab" [class.active]="activeClientTypeFilter() === ClientType.foreign"
+            (click)="setClientTypeFilter(ClientType.foreign)">
+            <span class="tab-dot dot-foreign"></span>
+            Strano pravno lice
+        </button>
+    </div>
+
     <!-- Data Table -->
     <app-data-table [columns]="columns" [data]="clients()" [actions]="actions" searchPlaceholder="Pretraži klijente..."
         emptyMessage="Nema klijenata za prikaz. Dodajte prvog klijenta!" (onEdit)="openEditModal($event)"
@@ -57,26 +80,22 @@
                     <div class="form-group" *ngIf="isForeignClient()">
                         <label>Država *</label>
                         <div class="autocomplete-wrapper">
-                            <input 
-                                type="text" 
-                                formControlName="countrySearch" 
-                                placeholder="Pretražite državu..."
-                                (focus)="onCountrySearchFocus()"
-                                (blur)="onCountrySearchBlur()"
-                                autocomplete="off">
-                            <div class="autocomplete-dropdown" *ngIf="showCountryDropdown() && filteredCountries().length > 0">
-                                <div 
-                                    class="autocomplete-item" 
-                                    *ngFor="let country of filteredCountries()"
+                            <input type="text" formControlName="countrySearch" placeholder="Pretražite državu..."
+                                (focus)="onCountrySearchFocus()" (blur)="onCountrySearchBlur()" autocomplete="off">
+                            <div class="autocomplete-dropdown"
+                                *ngIf="showCountryDropdown() && filteredCountries().length > 0">
+                                <div class="autocomplete-item" *ngFor="let country of filteredCountries()"
                                     (mousedown)="selectCountry(country)">
                                     {{ country.name }} ({{ country.code }})
                                 </div>
                             </div>
-                            <div *ngIf="showCountryDropdown() && filteredCountries().length === 0 && countrySearchText()" class="autocomplete-dropdown">
+                            <div *ngIf="showCountryDropdown() && filteredCountries().length === 0 && countrySearchText()"
+                                class="autocomplete-dropdown">
                                 <div class="autocomplete-item no-results">Nema rezultata</div>
                             </div>
                         </div>
-                        <div *ngIf="clientForm.get('countryId')?.touched && clientForm.get('countryId')?.invalid" class="error">
+                        <div *ngIf="clientForm.get('countryId')?.touched && clientForm.get('countryId')?.invalid"
+                            class="error">
                             Država je obavezna za strane klijente
                         </div>
                     </div>

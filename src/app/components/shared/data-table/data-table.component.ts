@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 export interface TableColumn {
     key: string;
     label: string;
-    type?: 'text' | 'number' | 'currency' | 'date';
+    type?: 'text' | 'number' | 'currency' | 'date' | 'badge';
     sortable?: boolean;
 }
 
@@ -92,11 +92,6 @@ export class DataTableComponent {
         if (value === null || value === undefined) return '-';
 
         switch (type) {
-            case 'currency':
-                return new Intl.NumberFormat('sr-Latn-RS', {
-                    style: 'currency',
-                    currency: 'RSD'
-                }).format(value);
             case 'number':
                 return new Intl.NumberFormat('sr-Latn-RS').format(value);
             case 'date':

@@ -39,7 +39,10 @@ export class TaxObligationsComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingObligation = signal<TaxObligationToReturnDto | null>(null);
     deletingObligation = signal<TaxObligationToReturnDto | null>(null);
+    activeStatusFilter = signal<TaxObligationStatus | null>(null);
 
+    TaxObligationStatus = TaxObligationStatus;
+    TaxObligationType = TaxObligationType;
     toastr = inject(ToastrService);
     selectedYear = signal<number>(new Date().getFullYear());
 
@@ -57,12 +60,12 @@ export class TaxObligationsComponent implements OnInit {
     });
 
     columns: TableColumn[] = [
-        { key: 'yearMonth', label: 'Period', sortable: true },
-        { key: 'statusDisplay', label: 'Status', sortable: true },
-        { key: 'dueDate', label: 'Datum dospeća', type: 'date', sortable: true },
         { key: 'typeDisplay', label: 'Tip', sortable: true },
-        { key: 'totalAmount', label: 'Iznos', type: 'currency', sortable: true },
-        { key: 'paidDate', label: 'Datum plaćanja', type: 'date', sortable: false }
+        { key: 'totalAmount', label: 'Iznos (RSD)', type: 'currency', sortable: true },
+        { key: 'statusBadge', label: 'Status', type: 'badge', sortable: false },
+        { key: 'dueDate', label: 'Rok plaćanja', type: 'date', sortable: true },
+        { key: 'year', label: 'Godina', sortable: true },
+        { key: 'month', label: 'Mesec', sortable: true }
     ];
 
     actions: TableAction[] = [
@@ -78,31 +81,39 @@ export class TaxObligationsComponent implements OnInit {
     ];
 
     ngOnInit() {
-        this.loadObligations();
+        this.loadTaxObligations();
         this.loadSummary();
     }
 
-    loadObligations() {
+    loadTaxObligations(status?: TaxObligationStatus | null) {
         this.isLoading.set(true);
-        const year = this.selectedYear();
-
-        this.taxService.getByYear(year).subscribe({
+        const obs = (status !== null && status !== undefined)
+            ? this.taxService.getByStatus(status)
+            : this.taxService.getAll();
+        obs.subscribe({
             next: (response) => {
                 const transformedData = (response.data || []).map(obligation => ({
                     ...obligation,
-                    yearMonth: `${obligation.year}/${this.getMonthName(obligation.month)}`,
+                    typeDisplay: this.getTypeName(obligation.type),
                     statusDisplay: this.getStatusName(obligation.status),
-                    typeDisplay: this.getTypeName(obligation.type)
+                    statusBadge: this.getStatusBadge(obligation.status),
+                    year: new Date(obligation.dueDate).getFullYear(), // Added for new columns
+                    month: new Date(obligation.dueDate).getMonth() + 1 // Added for new columns
                 }));
                 this.obligations.set(transformedData);
                 this.isLoading.set(false);
             },
             error: (err) => {
-                console.error('Error loading obligations:', err);
+                console.error('Error loading tax obligations:', err);
                 this.toastr.error('Greška pri učitavanju poreskih obaveza', 'Greška');
                 this.isLoading.set(false);
             }
         });
+    }
+
+    setStatusFilter(status: TaxObligationStatus | null) {
+        this.activeStatusFilter.set(status);
+        this.loadTaxObligations(status);
     }
 
     loadSummary() {
@@ -119,7 +130,7 @@ export class TaxObligationsComponent implements OnInit {
 
     onYearChange(year: number) {
         this.selectedYear.set(year);
-        this.loadObligations();
+        this.loadTaxObligations();
         this.loadSummary();
     }
 
@@ -155,7 +166,7 @@ export class TaxObligationsComponent implements OnInit {
         this.taxService.generateAnnualTaxObligations(dto).subscribe({
             next: () => {
                 this.toastr.success('Godišnje obaveze uspešno generisane', 'Uspeh');
-                this.loadObligations();
+                this.loadTaxObligations();
                 this.loadSummary();
                 this.closeGenerateModal();
             },
@@ -212,7 +223,7 @@ export class TaxObligationsComponent implements OnInit {
             this.taxService.update(editing.id, dto).subscribe({
                 next: () => {
                     this.toastr.success('Obaveza uspešno ažurirana', 'Uspeh');
-                    this.loadObligations();
+                    this.loadTaxObligations();
                     this.loadSummary();
                     this.closeAddModal();
                 },
@@ -232,7 +243,7 @@ export class TaxObligationsComponent implements OnInit {
             this.taxService.create(dto).subscribe({
                 next: () => {
                     this.toastr.success('Obaveza uspešno dodata', 'Uspeh');
-                    this.loadObligations();
+                    this.loadTaxObligations();
                     this.loadSummary();
                     this.closeAddModal();
                 },
@@ -262,7 +273,7 @@ export class TaxObligationsComponent implements OnInit {
         this.taxService.delete(obligation.id).subscribe({
             next: () => {
                 this.toastr.success('Obaveza uspešno obrisana', 'Uspeh');
-                this.loadObligations();
+                this.loadTaxObligations();
                 this.loadSummary();
                 this.closeDeleteConfirm();
             },
@@ -280,7 +291,7 @@ export class TaxObligationsComponent implements OnInit {
         this.taxService.markAsPaid(obligation.id).subscribe({
             next: () => {
                 this.toastr.success('Obaveza označena kao plaćena', 'Uspeh');
-                this.loadObligations();
+                this.loadTaxObligations();
                 this.loadSummary();
             },
             error: (err) => {
@@ -302,6 +313,19 @@ export class TaxObligationsComponent implements OnInit {
             case TaxObligationStatus.Paid: return 'Plaćeno';
             case TaxObligationStatus.Archived: return 'Arhivirano';
             default: return 'Nepoznato';
+        }
+    }
+
+    getStatusBadge(status: TaxObligationStatus): string {
+        switch (status) {
+            case TaxObligationStatus.Pending:
+                return '<span class="badge badge-pending">Na čekanju</span>';
+            case TaxObligationStatus.Paid:
+                return '<span class="badge badge-paid">Plaćeno</span>';
+            case TaxObligationStatus.Archived:
+                return '<span class="badge badge-archived">Arhivirano</span>';
+            default:
+                return '<span class="badge badge-unknown">Nepoznato</span>';
         }
     }
 

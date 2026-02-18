@@ -1,5 +1,4 @@
 <div class="invoices-page">
-    <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
             <h1>Fakture</h1>
@@ -17,10 +16,37 @@
         </button>
     </div>
 
-    <!-- Alerts -->
+    <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="activeStatusFilter() === null" (click)="setStatusFilter(null)">
+            Sve
+        </button>
+        <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.draft"
+            (click)="setStatusFilter(InvoiceStatus.draft)">
+            <span class="tab-dot dot-draft"></span>
+            Nacrt
+        </button>
+        <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.sent"
+            (click)="setStatusFilter(InvoiceStatus.sent)">
+            <span class="tab-dot dot-sent"></span>
+            Poslato
+        </button>
+        <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.cancelled"
+            (click)="setStatusFilter(InvoiceStatus.cancelled)">
+            <span class="tab-dot dot-cancelled"></span>
+            Otkazano
+        </button>
+        <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.finished"
+            (click)="setStatusFilter(InvoiceStatus.finished)">
+            <span class="tab-dot dot-finished"></span>
+            Završeno
+        </button>
+        <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.archived"
+            (click)="setStatusFilter(InvoiceStatus.archived)">
+            <span class="tab-dot dot-archived"></span>
+            Arhivirano
+        </button>
+    </div>
 
-
-    <!-- Data Table -->
     <app-data-table [data]="invoices()" [columns]="columns" [actions]="actions" searchPlaceholder="Pretraži fakture..."
         emptyMessage="Nema faktura za prikaz. Kreirajte prvu fakturu!" (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)">
@@ -36,14 +62,13 @@
 
             <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
                 <div class="modal-body">
-                    <!-- Header Fields -->
                     <div class="form-row">
                         <div class="form-group">
                             <label>Klijent *</label>
                             <select formControlName="clientId">
                                 <option value="">Izaberite klijenta</option>
                                 <option *ngFor="let client of clients()" [value]="client.id">
-                                    {{ client.name }}
+                                    {{ client.name }} ({{getClientTypeLabel(client.clientType)}})
                                 </option>
                             </select>
                             <div *ngIf="invoiceForm.get('clientId')?.touched && invoiceForm.get('clientId')?.invalid"
@@ -62,12 +87,17 @@
                         <div class="form-group">
                             <label>Valuta *</label>
                             <select formControlName="currency">
-                                <option [ngValue]="Currency.RSD">RSD</option>
+                                <option [ngValue]="Currency.RSD" *ngIf="invoiceForm.get('currency')?.enabled === false || 
+               getSelectedClientType() !== ClientType.foreign">RSD</option>
                                 <option [ngValue]="Currency.EUR">EUR</option>
                                 <option [ngValue]="Currency.USD">USD</option>
                                 <option [ngValue]="Currency.GBP">GBP</option>
                                 <option [ngValue]="Currency.CHF">CHF</option>
                             </select>
+                            <small class="form-hint"
+                                *ngIf="invoiceForm.get('currency')?.disabled && invoiceForm.get('clientId')?.value">
+                                Domaći klijenti plaćaju isključivo u RSD
+                            </small>
                         </div>
 
                         <div class="form-group">
@@ -76,7 +106,6 @@
                         </div>
                     </div>
 
-                    <!-- Invoice Items -->
                     <div class="invoice-items-section">
                         <div class="items-header">
                             <h3>Stavke fakture</h3>
@@ -142,7 +171,10 @@
                                     <div>
                                         <label>Cena *</label>
                                         <input type="number" formControlName="unitPrice" min="0" step="0.01"
-                                            placeholder="0.00">
+                                            placeholder="0.00" [class.converting]="convertingItemIndex() === i">
+                                        <small class="form-hint" *ngIf="convertingItemIndex() === i">
+                                            Konverzija u toku...
+                                        </small>
                                     </div>
                                 </div>
 

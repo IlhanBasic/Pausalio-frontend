@@ -4,6 +4,7 @@ export interface ApiResponse<T = null> {
   message: string;
   data?: T;
   count?: number;
+  cached?: boolean;
 }
 
 export interface LoginResponse extends ApiResponse {

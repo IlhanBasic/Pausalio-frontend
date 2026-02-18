@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -25,6 +25,15 @@ export class ServicesComponent implements OnInit {
     editingService = signal<ItemToReturnDto | null>(null);
     deletingService = signal<ItemToReturnDto | null>(null);
     toastr = inject(ToastrService);
+    activeItemTypeFilter = signal<ItemType | null>(null);
+
+    ItemType = ItemType;
+
+    filteredServices = computed(() => {
+        const filter = this.activeItemTypeFilter();
+        if (filter === null) return this.services();
+        return this.services().filter(s => s.itemType === filter);
+    });
 
     serviceForm = this.fb.group({
         name: ['', Validators.required],
@@ -36,7 +45,7 @@ export class ServicesComponent implements OnInit {
     columns: TableColumn[] = [
         { key: 'name', label: 'Naziv', sortable: true },
         { key: 'description', label: 'Opis', sortable: false },
-        { key: 'itemTypeDisplay', label: 'Tip', sortable: true },
+        { key: 'itemTypeBadge', label: 'Tip', type: 'badge', sortable: false },
         { key: 'unitPrice', label: 'Cena', type: 'currency', sortable: true }
     ];
 
@@ -56,7 +65,8 @@ export class ServicesComponent implements OnInit {
                 // Transform data to include display values
                 const transformedData = data.map(item => ({
                     ...item,
-                    itemTypeDisplay: this.getItemTypeName(item.itemType)
+                    itemTypeDisplay: this.getItemTypeName(item.itemType),
+                    itemTypeBadge: this.getItemTypeBadge(item.itemType)
                 }));
                 this.services.set(transformedData);
                 this.isLoading.set(false);
@@ -67,6 +77,10 @@ export class ServicesComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    setItemTypeFilter(type: ItemType | null) {
+        this.activeItemTypeFilter.set(type);
     }
 
     openAddModal() {
@@ -179,6 +193,13 @@ export class ServicesComponent implements OnInit {
 
     getItemTypeName(type: ItemType): string {
         return type === ItemType.product ? 'Proizvod' : 'Usluga';
+    }
+
+    getItemTypeBadge(type: ItemType): string {
+        if (type === ItemType.product) {
+            return '<span class="badge badge-product">Proizvod</span>';
+        }
+        return '<span class="badge badge-service">Usluga</span>';
     }
 
 

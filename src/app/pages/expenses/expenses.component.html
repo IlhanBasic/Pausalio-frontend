@@ -17,8 +17,27 @@
         </button>
     </div>
 
-    <!-- Alerts -->
-
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="activeStatusFilter() === null" (click)="setStatusFilter(null)">
+            Svi
+        </button>
+        <button class="filter-tab" [class.active]="activeStatusFilter() === ExpenseStatus.pending"
+            (click)="setStatusFilter(ExpenseStatus.pending)">
+            <span class="tab-dot dot-pending"></span>
+            Na čekanju
+        </button>
+        <button class="filter-tab" [class.active]="activeStatusFilter() === ExpenseStatus.paid"
+            (click)="setStatusFilter(ExpenseStatus.paid)">
+            <span class="tab-dot dot-paid"></span>
+            Plaćeno
+        </button>
+        <button class="filter-tab" [class.active]="activeStatusFilter() === ExpenseStatus.archived"
+            (click)="setStatusFilter(ExpenseStatus.archived)">
+            <span class="tab-dot dot-archived"></span>
+            Arhivirano
+        </button>
+    </div>
 
     <!-- Data Table -->
     <app-data-table [data]="expenses()" [columns]="columns" [actions]="actions" searchPlaceholder="Pretraži troškove..."

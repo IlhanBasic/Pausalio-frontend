@@ -31,6 +31,9 @@ export class ClientsComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingClient = signal<ClientToReturnDto | null>(null);
     deletingClient = signal<ClientToReturnDto | null>(null);
+    activeClientTypeFilter = signal<ClientType | null>(null);
+
+    ClientType = ClientType;
 
     // Filtered countries based on search text
     filteredCountries = computed(() => {
@@ -59,7 +62,7 @@ export class ClientsComponent implements OnInit {
 
     columns: TableColumn[] = [
         { key: 'name', label: 'Naziv', sortable: true },
-        { key: 'clientTypeDisplay', label: 'Tip', sortable: true },
+        { key: 'clientTypeBadge', label: 'Tip', type: 'badge', sortable: false },
         { key: 'pib', label: 'Pib', sortable: false },
         { key: 'city', label: 'Grad', sortable: true },
         { key: 'email', label: 'Email', sortable: false },
@@ -105,13 +108,17 @@ export class ClientsComponent implements OnInit {
         });
     }
 
-    loadClients() {
+    loadClients(type?: ClientType | null) {
         this.isLoading.set(true);
-        this.clientService.getAll().subscribe({
+        const obs = (type !== null && type !== undefined)
+            ? this.clientService.getByType(type)
+            : this.clientService.getAll();
+        obs.subscribe({
             next: (response) => {
                 const transformedData = (response.data || []).map(client => ({
                     ...client,
-                    clientTypeDisplay: this.getClientTypeName(client.clientType)
+                    clientTypeDisplay: this.getClientTypeName(client.clientType),
+                    clientTypeBadge: this.getClientTypeBadge(client.clientType)
                 }));
                 this.clients.set(transformedData);
                 this.isLoading.set(false);
@@ -122,6 +129,11 @@ export class ClientsComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    setClientTypeFilter(type: ClientType | null) {
+        this.activeClientTypeFilter.set(type);
+        this.loadClients(type);
     }
 
     loadCountries() {
@@ -323,6 +335,19 @@ export class ClientsComponent implements OnInit {
                 return 'Strano pravno lice';
             default:
                 return 'Nepoznato';
+        }
+    }
+
+    getClientTypeBadge(type: ClientType): string {
+        switch (type) {
+            case ClientType.individual:
+                return '<span class="badge badge-individual">Domaće fizičko lice</span>';
+            case ClientType.domestic:
+                return '<span class="badge badge-domestic">Domaće pravno lice</span>';
+            case ClientType.foreign:
+                return '<span class="badge badge-foreign">Strano pravno lice</span>';
+            default:
+                return '<span class="badge badge-unknown">Nepoznato</span>';
         }
     }
 

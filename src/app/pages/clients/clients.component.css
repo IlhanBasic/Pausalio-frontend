@@ -3,6 +3,87 @@
     padding: 0;
 }
 
+/* Filter Tabs */
+.filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 50px;
+    background: white;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.filter-tab:hover {
+    border-color: #667eea;
+    color: #667eea;
+    background: #f5f3ff;
+}
+
+.filter-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+}
+
+.tab-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.dot-individual { background: #3b82f6; }
+.dot-domestic   { background: #10b981; }
+.dot-foreign    { background: #f59e0b; }
+
+/* Status / Type Badges */
+:host ::ng-deep .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+:host ::ng-deep .badge-individual {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+:host ::ng-deep .badge-domestic {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+:host ::ng-deep .badge-foreign {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+:host ::ng-deep .badge-unknown {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+
 /* Page Header */
 .page-header {
     display: flex;

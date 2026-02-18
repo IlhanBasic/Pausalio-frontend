@@ -13,8 +13,8 @@ export interface BankAccountToReturnDto {
   bankName: string;
   accountNumber: string;
   currency: Currency;
-  IBAN?: string;
-  SWIFT?: string;
+  iban?: string;
+  swift?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt?: Date;

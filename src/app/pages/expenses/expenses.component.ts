@@ -25,6 +25,7 @@ export class ExpensesComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingExpense = signal<ExpenseToReturnDto | null>(null);
     deletingExpense = signal<ExpenseToReturnDto | null>(null);
+    activeStatusFilter = signal<ExpenseStatus | null>(null);
 
     ExpenseStatus = ExpenseStatus;
 
@@ -36,7 +37,7 @@ export class ExpensesComponent implements OnInit {
     columns: TableColumn[] = [
         { key: 'name', label: 'Naziv', sortable: true },
         { key: 'amount', label: 'Iznos (RSD)', sortable: true },
-        { key: 'statusDisplay', label: 'Status', sortable: true },
+        { key: 'statusBadge', label: 'Status', type: 'badge', sortable: false },
         { key: 'referenceNumber', label: 'Referenca', sortable: false },
         { key: 'createdAtDisplay', label: 'Datum kreiranja', sortable: true }
     ];
@@ -51,13 +52,17 @@ export class ExpensesComponent implements OnInit {
         this.loadExpenses();
     }
 
-    loadExpenses() {
+    loadExpenses(status?: ExpenseStatus | null) {
         this.isLoading.set(true);
-        this.expenseService.getAll().subscribe({
+        const obs = (status !== null && status !== undefined)
+            ? this.expenseService.getByStatus(status)
+            : this.expenseService.getAll();
+        obs.subscribe({
             next: (response) => {
                 const transformedData = (response.data || []).map(expense => ({
                     ...expense,
                     statusDisplay: this.getStatusName(expense.status),
+                    statusBadge: this.getStatusBadge(expense.status),
                     createdAtDisplay: this.formatDate(expense.createdAt)
                 }));
                 this.expenses.set(transformedData);
@@ -69,6 +74,11 @@ export class ExpensesComponent implements OnInit {
                 this.isLoading.set(false);
             }
         });
+    }
+
+    setStatusFilter(status: ExpenseStatus | null) {
+        this.activeStatusFilter.set(status);
+        this.loadExpenses(status);
     }
 
     openAddModal() {
@@ -205,6 +215,19 @@ export class ExpensesComponent implements OnInit {
                 return 'Arhivirano';
             default:
                 return 'Nepoznato';
+        }
+    }
+
+    getStatusBadge(status: ExpenseStatus): string {
+        switch (status) {
+            case ExpenseStatus.pending:
+                return '<span class="badge badge-pending">Na čekanju</span>';
+            case ExpenseStatus.paid:
+                return '<span class="badge badge-paid">Plaćeno</span>';
+            case ExpenseStatus.archived:
+                return '<span class="badge badge-archived">Arhivirano</span>';
+            default:
+                return '<span class="badge badge-unknown">Nepoznato</span>';
         }
     }
 

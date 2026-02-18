@@ -123,8 +123,8 @@ export class BankAccountsComponent implements OnInit {
             bankName: account.bankName,
             accountNumber: account.accountNumber,
             currency: account.currency,
-            IBAN: account.IBAN || '',
-            SWIFT: account.SWIFT || '',
+            IBAN: account.iban || '',
+            SWIFT: account.swift || '',
             isActive: account.isActive
         });
         this.showModal.set(true);
@@ -231,7 +231,7 @@ export class BankAccountsComponent implements OnInit {
         if (account.currency === Currency.RSD) {
             return '-';
         }
-        return `IBAN: ${account.IBAN || '-'} / SWIFT: ${account.SWIFT || '-'}`;
+        return `IBAN: ${account.iban || '-'} / SWIFT: ${account.swift || '-'}`;
     }
 
 

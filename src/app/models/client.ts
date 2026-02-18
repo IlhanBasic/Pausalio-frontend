@@ -1,5 +1,4 @@
 import { ClientType } from "../enums/client-type";
-import { InvoiceToReturnDto } from "./invoice";
 
 export interface AddClientDto {
   clientType?: ClientType;

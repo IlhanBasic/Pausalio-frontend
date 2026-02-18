@@ -25,7 +25,8 @@
             <tbody>
                 <tr *ngFor="let item of filteredData()" class="table-row">
                     <td *ngFor="let column of columns">
-                        {{ formatValue(item[column.key], column.type) }}
+                        <span *ngIf="column.type === 'badge'" [innerHTML]="item[column.key]"></span>
+                        <span *ngIf="column.type !== 'badge'">{{ formatValue(item[column.key], column.type) }}</span>
                     </td>
                     <td *ngIf="actions.length > 0" class="actions-cell">
                         <div class="action-buttons">
