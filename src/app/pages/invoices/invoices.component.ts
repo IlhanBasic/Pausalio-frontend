@@ -20,6 +20,7 @@ import { ClientType } from '../../enums/client-type';
 import { PaymentType } from '../../enums/payment-type';
 import { DataTableComponent, TableColumn, TableAction } from '../../components/shared/data-table/data-table.component';
 import { AddInvoiceItemDto } from '../../models/invoice-item';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-invoices',
@@ -37,7 +38,7 @@ export class InvoicesComponent implements OnInit {
     bankAccountService = inject(BankAccountService);
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
-
+    private router = inject(Router);
     invoices = signal<InvoiceToReturnDto[]>([]);
     clients = signal<ClientToReturnDto[]>([]);
     availableItems = signal<ItemToReturnDto[]>([]);
@@ -136,8 +137,13 @@ export class InvoicesComponent implements OnInit {
             type: 'delete',
             showCondition: (item) =>
                 item.invoiceStatus !== InvoiceStatus.archived
-        }
-
+        },
+        {
+            label: 'Detalji',
+            icon: '👁️',
+            type: 'custom',
+            showCondition: () => true
+        },
     ];
 
     // --- Custom actions handling from table ---
@@ -153,6 +159,9 @@ export class InvoicesComponent implements OnInit {
                 break;
             case 'Poništi':
                 this.openCancelConfirm(invoice);
+                break;
+            case 'Detalji':
+                this.router.navigate(['/invoices', invoice.id]);
                 break;
             default:
                 console.warn('Nepoznata akcija:', event.action);

@@ -47,7 +47,7 @@
                 </div>
             </div>
             <div class="summary-card archived">
-                <div class="card-icon">📦</div>
+                <div class="card-icon">⚠️</div>
                 <div class="card-content">
                     <h3>Prekoračeno</h3>
                     <p class="amount">{{ formatCurrency(summary()!.totalOverdue) }}</p>
@@ -91,13 +91,6 @@
                             Unesite iznos iz poreskog rešenja i sistem će automatski generisati 12 mesečnih obaveza.
                         </p>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Godina *</label>
-                                <input type="number" formControlName="year" placeholder="2026" min="2020" max="2030">
-                                @if (generateForm.get('year')?.touched && generateForm.get('year')?.invalid) {
-                                    <div class="error">Godina je obavezna (2020-2030)</div>
-                                }
-                            </div>
                             <div class="form-group">
                                 <label>Mesečni iznos (RSD) *</label>
                                 <input type="number" formControlName="monthlyAmount" placeholder="50000" step="0.01" min="1">

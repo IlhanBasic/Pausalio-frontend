@@ -26,9 +26,9 @@ export class TaxObligationService {
     return this.http.get<ApiResponse<TaxObligationToReturnDto[]>>(`${this.baseUrl}/year/${year}`);
   }
 
-  getByYearAndMonth(year: number, month: number): Observable<ApiResponse<TaxObligationToReturnDto>> {
-    return this.http.get<ApiResponse<TaxObligationToReturnDto>>(`${this.baseUrl}/year/${year}/month/${month}`);
-  }
+  getByYearAndMonth(year: number, month: number): Observable<ApiResponse<TaxObligationToReturnDto[]>> {
+  return this.http.get<ApiResponse<TaxObligationToReturnDto[]>>(`${this.baseUrl}/year/${year}/month/${month}`);
+}
 
   getByStatus(status: TaxObligationStatus): Observable<ApiResponse<TaxObligationToReturnDto[]>> {
     return this.http.get<ApiResponse<TaxObligationToReturnDto[]>>(`${this.baseUrl}/status/${status}`);

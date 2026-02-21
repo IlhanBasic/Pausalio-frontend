@@ -52,6 +52,11 @@ export const routes: Routes = [
                 canActivate: [nonAdminGuard]
             },
             {
+                path: 'invoices/:id',
+                loadComponent: () => import('./pages/invoice-details/invoice-detail.component').then(m => m.InvoiceDetailComponent),
+                canActivate: [nonAdminGuard]
+            },
+            {
                 path: 'expenses',
                 loadComponent: () => import('./pages/expenses/expenses.component').then(m => m.ExpensesComponent),
                 canActivate: [nonAdminGuard]

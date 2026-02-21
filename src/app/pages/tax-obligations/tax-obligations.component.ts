@@ -115,19 +115,25 @@ export class TaxObligationsComponent implements OnInit {
 
     loadTaxObligations(status?: TaxObligationStatus | null) {
         this.isLoading.set(true);
+        const year = this.selectedYear();
+
         const obs = (status !== null && status !== undefined)
             ? this.taxService.getByStatus(status)
             : this.taxService.getAll();
+
         obs.subscribe({
             next: (response) => {
-                const transformedData = (response.data || []).map(obligation => ({
-                    ...obligation,
-                    typeDisplay: this.getTypeName(obligation.type),
-                    statusDisplay: this.getStatusName(obligation.status),
-                    statusBadge: this.getStatusBadge(obligation.status),
-                    year: new Date(obligation.dueDate).getFullYear(),
-                    month: new Date(obligation.dueDate).getMonth() + 1
-                }));
+                const transformedData = (response.data || [])
+                    // Filtriranje po godini - dueDate je string iz JSON-a pa koristimo new Date()
+                    .filter(o => new Date(o.dueDate).getFullYear() === year)
+                    .map(obligation => ({
+                        ...obligation,
+                        typeDisplay: this.getTypeName(obligation.type),
+                        statusDisplay: this.getStatusName(obligation.status),
+                        statusBadge: this.getStatusBadge(obligation.status),
+                        year: new Date(obligation.dueDate).getFullYear(),
+                        month: new Date(obligation.dueDate).getMonth() + 1
+                    }));
                 this.obligations.set(transformedData);
                 this.isLoading.set(false);
             },
@@ -154,7 +160,8 @@ export class TaxObligationsComponent implements OnInit {
 
     onYearChange(year: number) {
         this.selectedYear.set(year);
-        this.loadTaxObligations();
+        // Sada oba poziva koriste novi selectedYear signal
+        this.loadTaxObligations(this.activeStatusFilter());
         this.loadSummary();
     }
 
@@ -192,7 +199,7 @@ export class TaxObligationsComponent implements OnInit {
         this.taxService.generateAnnualTaxObligations(dto).subscribe({
             next: () => {
                 this.toastr.success('Godišnje obaveze uspešno generisane', 'Uspeh');
-                this.loadTaxObligations();
+                this.loadTaxObligations(this.activeStatusFilter());
                 this.loadSummary();
                 this.closeGenerateModal();
             },
@@ -242,6 +249,7 @@ export class TaxObligationsComponent implements OnInit {
 
         if (editing) {
             const dto: UpdateTaxObligationDto = {
+                status: editing.status,
                 dueDate: new Date(formValue.dueDate!),
                 type: Number(formValue.type!),
                 totalAmount: Number(formValue.totalAmount!)

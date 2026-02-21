@@ -52,4 +52,15 @@ export class InvoiceService {
   cancelInvoice(id: string): Observable<ApiResponse> {
     return this.http.patch<ApiResponse>(`${this.baseUrl}/cancel/${id}`, null);
   }
+  getPreview(id: string): Observable<ApiResponse<string>> {
+    return this.http.get<ApiResponse<string>>(`${this.baseUrl}/${id}/preview`);
+  }
+
+  exportPdf(id: string): Observable<Blob> {
+      return this.http.get(`${this.baseUrl}/${id}/export`, { responseType: 'blob' });
+  }
+
+  sendInvoice(id: string, dto: { emails: string[] }): Observable<ApiResponse> {
+      return this.http.post<ApiResponse>(`${this.baseUrl}/${id}/send`, dto);
+  }
 }

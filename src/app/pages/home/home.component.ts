@@ -74,19 +74,11 @@ export class HomeComponent implements OnInit {
         };
 
         const isPaid = (inv: any): boolean => {
-            return inv.paymentStatus === 2
-                || inv.paymentStatus === 'Paid'
-                || inv.paymentStatus === 1
-                || inv.invoiceStatus === 2
-                || inv.invoiceStatus === 'Paid';
+            return inv.paymentStatus === 2 || inv.invoiceStatus === 3
         };
 
         const paidInvoices = invoices.filter(inv => isPaid(inv));
         let totalRev = paidInvoices.reduce((sum, inv) => sum + getAmount(inv), 0);
-
-        if (totalRev === 0) {
-            totalRev = invoices.reduce((sum, inv) => sum + getAmount(inv), 0);
-        }
 
         const count = invoices.length;
         const avg = count > 0 ? totalRev / count : 0;
