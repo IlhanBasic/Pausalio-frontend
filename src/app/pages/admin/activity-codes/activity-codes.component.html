@@ -7,63 +7,71 @@
         </button>
     </div>
 
-    <!-- Alerts -->
-
-
     <!-- Data Table -->
     <app-data-table [data]="activityCodes()" [columns]="columns" [actions]="actions" (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)">
     </app-data-table>
 
     <!-- Modal -->
-    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h3>{{ editingCode() ? 'Izmeni šifru' : 'Nova šifra delatnosti' }}</h3>
-                <button class="close-btn" (click)="closeModal()">✕</button>
+    @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>{{ editingCode() ? 'Izmeni šifru' : 'Nova šifra delatnosti' }}</h3>
+                    <button class="close-btn" (click)="closeModal()">✕</button>
+                </div>
+                <form [formGroup]="codeForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Šifra *</label>
+                            <input type="text" formControlName="code" placeholder="npr. 6201">
+
+                            @if (codeForm.get('code')?.touched && codeForm.get('code')?.invalid) {
+                                <div class="error">
+                                    Šifra je obavezna
+                                </div>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label>Opis *</label>
+                            <textarea formControlName="description" rows="3"
+                                placeholder="npr. Računarsko programiranje"></textarea>
+
+                            @if (codeForm.get('description')?.touched && codeForm.get('description')?.invalid) {
+                                <div class="error">
+                                    Opis je obavezan
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="codeForm.invalid">Sačuvaj</button>
+                    </div>
+                </form>
             </div>
-            <form [formGroup]="codeForm" (ngSubmit)="onSubmit()">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Šifra *</label>
-                        <input type="text" formControlName="code" placeholder="npr. 6201">
-                        <div *ngIf="codeForm.get('code')?.touched && codeForm.get('code')?.invalid" class="error">
-                            Šifra je obavezna
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Opis *</label>
-                        <textarea formControlName="description" rows="3"
-                            placeholder="npr. Računarsko programiranje"></textarea>
-                        <div *ngIf="codeForm.get('description')?.touched && codeForm.get('description')?.invalid"
-                            class="error">
-                            Opis je obavezan
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
-                    <button type="submit" class="btn-primary" [disabled]="codeForm.invalid">Sačuvaj</button>
-                </div>
-            </form>
         </div>
-    </div>
+    }
 
     <!-- Delete Modal -->
-    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h3>Potvrda brisanja</h3>
-                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-            </div>
-            <div class="modal-body">
-                <p>Da li ste sigurni da želite da obrišete šifru <strong>{{ deletingCode()?.code }} - {{
-                        deletingCode()?.description }}</strong>?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
-                <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
+    @if (showDeleteConfirm()) {
+        <div class="modal-overlay" (click)="closeDeleteConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>Potvrda brisanja</h3>
+                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p>Da li ste sigurni da želite da obrišete šifru <strong>{{ deletingCode()?.code }} - {{
+                            deletingCode()?.description }}</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>

@@ -17,9 +17,6 @@
         </button>
     </div>
 
-    <!-- Alerts -->
-
-
     <!-- Filter Tabs -->
     <div class="filter-tabs">
         <button class="filter-tab" [class.active]="activeClientTypeFilter() === null"
@@ -50,137 +47,158 @@
     </app-data-table>
 
     <!-- Add/Edit Modal -->
-    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>{{ editingClient() ? 'Izmeni klijenta' : 'Dodaj novog klijenta' }}</h2>
-                <button class="close-btn" (click)="closeModal()">✕</button>
-            </div>
+    @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ editingClient() ? 'Izmeni klijenta' : 'Dodaj novog klijenta' }}</h2>
+                    <button class="close-btn" (click)="closeModal()">✕</button>
+                </div>
 
-            <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Naziv *</label>
-                        <input type="text" formControlName="name" placeholder="Ime i prezime / Naziv firme">
-                        <div *ngIf="clientForm.get('name')?.touched && clientForm.get('name')?.invalid" class="error">
-                            Naziv je obavezan
+                <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Naziv *</label>
+                            <input type="text" formControlName="name" placeholder="Ime i prezime / Naziv firme">
+                            @if (clientForm.get('name')?.touched && clientForm.get('name')?.invalid) {
+                                <div class="error">Naziv je obavezan</div>
+                            }
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Tip klijenta *</label>
-                        <select formControlName="clientType">
-                            <option [ngValue]="1">Domaće fizičko lice</option>
-                            <option [ngValue]="2">Domaće pravno lice</option>
-                            <option [ngValue]="3">Strano pravno lice</option>
-                        </select>
-                    </div>
+                        <div class="form-group">
+                            <label>Tip klijenta *</label>
+                            <select formControlName="clientType">
+                                <option [ngValue]="1">Domaće fizičko lice</option>
+                                <option [ngValue]="2">Domaće pravno lice</option>
+                                <option [ngValue]="3">Strano pravno lice</option>
+                            </select>
+                        </div>
 
-                    <!-- Country field - only for foreign clients -->
-                    <div class="form-group" *ngIf="isForeignClient()">
-                        <label>Država *</label>
-                        <div class="autocomplete-wrapper">
-                            <input type="text" formControlName="countrySearch" placeholder="Pretražite državu..."
-                                (focus)="onCountrySearchFocus()" (blur)="onCountrySearchBlur()" autocomplete="off">
-                            <div class="autocomplete-dropdown"
-                                *ngIf="showCountryDropdown() && filteredCountries().length > 0">
-                                <div class="autocomplete-item" *ngFor="let country of filteredCountries()"
-                                    (mousedown)="selectCountry(country)">
-                                    {{ country.name }} ({{ country.code }})
+                        <!-- Country field -->
+                        @if (isForeignClient()) {
+                            <div class="form-group">
+                                <label>Država *</label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" formControlName="countrySearch" placeholder="Pretražite državu..."
+                                        (focus)="onCountrySearchFocus()" (blur)="onCountrySearchBlur()" autocomplete="off">
+
+                                    @if (showCountryDropdown() && filteredCountries().length > 0) {
+                                        <div class="autocomplete-dropdown">
+                                            @for (country of filteredCountries(); track $index) {
+                                                <div class="autocomplete-item"
+                                                    (mousedown)="selectCountry(country)">
+                                                    {{ country.name }} ({{ country.code }})
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+
+                                    @if (showCountryDropdown() && filteredCountries().length === 0 && countrySearchText()) {
+                                        <div class="autocomplete-dropdown">
+                                            <div class="autocomplete-item no-results">Nema rezultata</div>
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (clientForm.get('countryId')?.touched && clientForm.get('countryId')?.invalid) {
+                                    <div class="error">Država je obavezna za strane klijente</div>
+                                }
+                            </div>
+                        }
+
+                        @if (clientForm.get('clientType')?.value !== 1) {
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>
+                                        PIB
+                                        @if (clientForm.get('clientType')?.value === 2 || clientForm.get('clientType')?.value === 3) {
+                                            <span>*</span>
+                                        }
+                                    </label>
+                                    <input type="text" formControlName="pib" placeholder="123456789">
+                                    @if (clientForm.get('pib')?.touched && clientForm.get('pib')?.invalid) {
+                                        <div class="error">PIB je obavezan za pravna lica</div>
+                                    }
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Matični broj (MB)</label>
+                                    <input type="text" formControlName="mb" placeholder="12345678">
                                 </div>
                             </div>
-                            <div *ngIf="showCountryDropdown() && filteredCountries().length === 0 && countrySearchText()"
-                                class="autocomplete-dropdown">
-                                <div class="autocomplete-item no-results">Nema rezultata</div>
-                            </div>
-                        </div>
-                        <div *ngIf="clientForm.get('countryId')?.touched && clientForm.get('countryId')?.invalid"
-                            class="error">
-                            Država je obavezna za strane klijente
-                        </div>
-                    </div>
+                        }
 
-                    <div class="form-row" *ngIf="clientForm.get('clientType')?.value !== 1">
-                        <div class="form-group">
-                            <label>PIB <span
-                                    *ngIf="clientForm.get('clientType')?.value === 2 || clientForm.get('clientType')?.value === 3">*</span></label>
-                            <input type="text" formControlName="pib" placeholder="123456789">
-                            <div *ngIf="clientForm.get('pib')?.touched && clientForm.get('pib')?.invalid" class="error">
-                                PIB je obavezan za pravna lica
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Grad</label>
+                                <input type="text" formControlName="city" placeholder="Beograd">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Adresa</label>
+                                <input type="text" formControlName="address" placeholder="Ulica i broj">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Matični broj (MB)</label>
-                            <input type="text" formControlName="mb" placeholder="12345678">
-                        </div>
-                    </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" formControlName="email" placeholder="klijent@email.com">
+                                @if (clientForm.get('email')?.touched && clientForm.get('email')?.invalid) {
+                                    <div class="error">Neispravan email format</div>
+                                }
+                            </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Grad</label>
-                            <input type="text" formControlName="city" placeholder="Beograd">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Adresa</label>
-                            <input type="text" formControlName="address" placeholder="Ulica i broj">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" formControlName="email" placeholder="klijent@email.com">
-                            <div *ngIf="clientForm.get('email')?.touched && clientForm.get('email')?.invalid"
-                                class="error">
-                                Neispravan email format
+                            <div class="form-group">
+                                <label>Telefon</label>
+                                <input type="tel" formControlName="phone" placeholder="+381...">
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label>Telefon</label>
-                            <input type="tel" formControlName="phone" placeholder="+381...">
-                        </div>
                     </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="clientForm.invalid">
+                            {{ editingClient() ? 'Sačuvaj izmene' : 'Dodaj klijenta' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    <!-- Delete Confirmation -->
+    @if (showDeleteConfirm()) {
+        <div class="modal-overlay" (click)="closeDeleteConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Potvrda brisanja</h2>
+                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="confirm-message">
+                        Da li ste sigurni da želite da obrišete klijenta
+                        <strong>{{ deletingClient()?.name }}</strong>?
+                    </p>
+                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeModal()">
-                        Otkaži
-                    </button>
-                    <button type="submit" class="btn-primary" [disabled]="clientForm.invalid">
-                        {{ editingClient() ? 'Sačuvaj izmene' : 'Dodaj klijenta' }}
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                        </svg>
+                        Obriši
                     </button>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Potvrda brisanja</h2>
-                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-            </div>
-
-            <div class="modal-body">
-                <p class="confirm-message">
-                    Da li ste sigurni da želite da obrišete klijenta
-                    <strong>{{ deletingClient()?.name }}</strong>?
-                </p>
-                <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
-                    Otkaži
-                </button>
-                <button type="button" class="btn-danger" (click)="confirmDelete()">
-                    Obriši
-                </button>
             </div>
         </div>
-    </div>
+    }
 </div>

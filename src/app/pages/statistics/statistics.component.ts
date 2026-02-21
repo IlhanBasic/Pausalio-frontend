@@ -110,23 +110,19 @@ export class StatisticsComponent implements OnInit {
             taxes: this.taxObligationService.getAll()
         }).subscribe({
             next: (data) => {
-                // Calculate KPIs
                 this.totalRevenue.set(data.invoiceSummary.data?.totalPaid || 0);
                 this.totalExpenses.set(data.expenseSummary.data?.totalPaid || 0);
                 this.netResult.set(this.totalRevenue() - this.totalExpenses());
                 this.taxObligations.set(data.taxSummary.data?.totalPending || 0);
 
-                // Prepare line chart data (monthly trends)
                 this.prepareLineChartData(data.invoices.data || [], data.expenses.data || []);
 
-                // Prepare pie chart data (invoice payment status)
                 this.preparePieChartData(data.invoiceSummary.data);
 
-                // Get upcoming tax obligations
                 const pendingTaxes = (data.taxes.data || [])
-                    .filter(tax => tax.status === 1) // Pending status
+                    .filter(tax => tax.status === 1)
                     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-                    .slice(0, 5); // Top 5 upcoming
+                    .slice(0, 5);
 
                 this.upcomingTaxes.set(pendingTaxes);
 
@@ -141,11 +137,9 @@ export class StatisticsComponent implements OnInit {
     }
 
     prepareLineChartData(invoices: any[], expenses: any[]) {
-        // Group by month
         const monthlyData: { [key: string]: { revenue: number, expenses: number } } = {};
         const currentYear = new Date().getFullYear();
 
-        // Initialize last 12 months
         for (let i = 11; i >= 0; i--) {
             const date = new Date();
             date.setMonth(date.getMonth() - i);
@@ -153,9 +147,8 @@ export class StatisticsComponent implements OnInit {
             monthlyData[key] = { revenue: 0, expenses: 0 };
         }
 
-        // Aggregate invoice revenue
         invoices.forEach(invoice => {
-            if (invoice.paymentStatus === 2) { // Paid
+            if (invoice.paymentStatus === 2) {
                 const date = new Date(invoice.issueDate);
                 const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
                 if (monthlyData[key]) {
@@ -164,9 +157,8 @@ export class StatisticsComponent implements OnInit {
             }
         });
 
-        // Aggregate expenses
         expenses.forEach(expense => {
-            if (expense.status === 2) { // Paid
+            if (expense.status === 2) {
                 const date = new Date(expense.createdAt);
                 const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
                 if (monthlyData[key]) {
@@ -175,7 +167,6 @@ export class StatisticsComponent implements OnInit {
             }
         });
 
-        // Prepare chart data
         const labels = Object.keys(monthlyData).map(key => {
             const [year, month] = key.split('-');
             return this.getMonthName(parseInt(month));

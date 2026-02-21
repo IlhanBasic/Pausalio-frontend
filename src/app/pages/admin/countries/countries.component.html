@@ -7,56 +7,66 @@
         </button>
     </div>
 
-
-
     <app-data-table [data]="countries()" [columns]="columns" [actions]="actions" (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)">
     </app-data-table>
 
-    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h3>{{ editingCountry() ? 'Izmeni državu' : 'Nova država' }}</h3>
-                <button class="close-btn" (click)="closeModal()">✕</button>
+    @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>{{ editingCountry() ? 'Izmeni državu' : 'Nova država' }}</h3>
+                    <button class="close-btn" (click)="closeModal()">✕</button>
+                </div>
+                <form [formGroup]="countryForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Naziv *</label>
+                            <input type="text" formControlName="name" placeholder="npr. Srbija">
+
+                            @if (countryForm.get('name')?.touched && countryForm.get('name')?.invalid) {
+                                <div class="error">
+                                    Naziv je obavezan
+                                </div>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label>Oznaka *</label>
+                            <input type="text" formControlName="code" placeholder="npr. RS">
+
+                            @if (countryForm.get('code')?.touched && countryForm.get('code')?.invalid) {
+                                <div class="error">
+                                    Oznaka je obavezna
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="countryForm.invalid">Sačuvaj</button>
+                    </div>
+                </form>
             </div>
-            <form [formGroup]="countryForm" (ngSubmit)="onSubmit()">
+        </div>
+    }
+
+    @if (showDeleteConfirm()) {
+        <div class="modal-overlay" (click)="closeDeleteConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h3>Potvrda brisanja</h3>
+                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+                </div>
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label>Naziv *</label>
-                        <input type="text" formControlName="name" placeholder="npr. Srbija">
-                        <div *ngIf="countryForm.get('name')?.touched && countryForm.get('name')?.invalid" class="error">
-                            Naziv je obavezan
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Oznaka *</label>
-                        <input type="text" formControlName="code" placeholder="npr. RS">
-                        <div *ngIf="countryForm.get('code')?.touched && countryForm.get('code')?.invalid" class="error">
-                            Oznaka je obavezna
-                        </div>
-                    </div>
+                    <p>Da li ste sigurni da želite da obrišete državu <strong>{{ deletingCountry()?.name }}</strong>?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
-                    <button type="submit" class="btn-primary" [disabled]="countryForm.invalid">Sačuvaj</button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h3>Potvrda brisanja</h3>
-                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-            </div>
-            <div class="modal-body">
-                <p>Da li ste sigurni da želite da obrišete državu <strong>{{ deletingCountry()?.name }}</strong>?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
-                <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
             </div>
         </div>
-    </div>
+    }
 </div>

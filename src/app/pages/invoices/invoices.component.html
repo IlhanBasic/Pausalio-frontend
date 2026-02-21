@@ -48,298 +48,308 @@
     </app-data-table>
 
     <!-- Add/Edit Modal -->
-    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>{{ editingInvoice() ? 'Izmeni Fakturu' : 'Nova Faktura' }}</h2>
-                <button class="close-btn" (click)="closeModal()">✕</button>
-            </div>
+    @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ editingInvoice() ? 'Izmeni Fakturu' : 'Nova Faktura' }}</h2>
+                    <button class="close-btn" (click)="closeModal()">✕</button>
+                </div>
 
-            <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
-                <div class="modal-body">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Klijent *</label>
-                            <select formControlName="clientId">
-                                <option value="">Izaberite klijenta</option>
-                                <option *ngFor="let client of clients()" [value]="client.id">
-                                    {{ client.name }} ({{ getClientTypeLabel(client.clientType) }})
-                                </option>
-                            </select>
-                            <div *ngIf="invoiceForm.get('clientId')?.touched && invoiceForm.get('clientId')?.invalid"
-                                class="error">
-                                Klijent je obavezan
+                <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Klijent *</label>
+                                <select formControlName="clientId">
+                                    <option value="">Izaberite klijenta</option>
+                                    @for (client of clients(); track client.id) {
+                                        <option [value]="client.id">
+                                            {{ client.name }} ({{ getClientTypeLabel(client.clientType) }} klijent)
+                                        </option>
+                                    }
+                                </select>
+                                @if (invoiceForm.get('clientId')?.touched && invoiceForm.get('clientId')?.invalid) {
+                                    <div class="error">Klijent je obavezan</div>
+                                }
+                            </div>
+
+                            <div class="form-group">
+                                <label>Rok plaćanja</label>
+                                <input type="date" formControlName="dueDate">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Rok plaćanja</label>
-                            <input type="date" formControlName="dueDate">
-                        </div>
-                    </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Valuta *</label>
+                                <select formControlName="currency">
+                                    @if (getSelectedClientType() !== ClientType.foreign) {
+                                        <option [ngValue]="Currency.RSD">RSD</option>
+                                    }
+                                    <option [ngValue]="Currency.EUR">EUR</option>
+                                    <option [ngValue]="Currency.USD">USD</option>
+                                    <option [ngValue]="Currency.GBP">GBP</option>
+                                    <option [ngValue]="Currency.CHF">CHF</option>
+                                </select>
+                                @if (invoiceForm.get('currency')?.disabled && invoiceForm.get('clientId')?.value) {
+                                    <small class="form-hint">Domaći klijenti plaćaju isključivo u RSD</small>
+                                }
+                            </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Valuta *</label>
-                            <select formControlName="currency">
-                                <option [ngValue]="Currency.RSD" *ngIf="getSelectedClientType() !== ClientType.foreign">
-                                    RSD</option>
-                                <option [ngValue]="Currency.EUR">EUR</option>
-                                <option [ngValue]="Currency.USD">USD</option>
-                                <option [ngValue]="Currency.GBP">GBP</option>
-                                <option [ngValue]="Currency.CHF">CHF</option>
-                            </select>
-                            <small class="form-hint"
-                                *ngIf="invoiceForm.get('currency')?.disabled && invoiceForm.get('clientId')?.value">
-                                Domaći klijenti plaćaju isključivo u RSD
-                            </small>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Napomena</label>
-                            <input type="text" formControlName="notes" placeholder="Napomena za fakturu">
-                        </div>
-                    </div>
-
-                    <div class="invoice-items-section">
-                        <div class="items-header">
-                            <h3>Stavke fakture</h3>
-                            <button type="button" class="btn-link" (click)="addItem()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                Dodaj stavku
-                            </button>
+                            <div class="form-group">
+                                <label>Napomena</label>
+                                <input type="text" formControlName="notes" placeholder="Napomena za fakturu">
+                            </div>
                         </div>
 
-                        <div formArrayName="items">
-                            <div *ngFor="let item of itemsFormArray.controls; let i = index" [formGroupName]="i"
-                                class="invoice-item-card">
-
-                                <button type="button" (click)="removeItem(i)" class="remove-item-btn"
-                                    title="Ukloni stavku">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                        <div class="invoice-items-section">
+                            <div class="items-header">
+                                <h3>Stavke fakture</h3>
+                                <button type="button" class="btn-link" (click)="addItem()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
                                         stroke-linejoin="round">
-                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
                                     </svg>
+                                    Dodaj stavku
                                 </button>
+                            </div>
 
-                                <div class="item-grid">
-                                    <div>
-                                        <label>Stavka</label>
-                                        <select formControlName="selectedItemId" (change)="onItemSelect(i, $event)">
-                                            <option value="">Izaberite stavku</option>
-                                            <option *ngFor="let availItem of availableItems()" [value]="availItem.id">
-                                                {{ availItem.name }}
-                                            </option>
-                                        </select>
-                                    </div>
+                            <div formArrayName="items">
+                                @for (item of itemsFormArray.controls; track i; let i = $index) {
+                                    <div [formGroupName]="i" class="invoice-item-card">
+                                        <button type="button" (click)="removeItem(i)" class="remove-item-btn"
+                                            title="Ukloni stavku">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                        </button>
 
-                                    <div>
-                                        <label>Naziv *</label>
-                                        <input type="text" formControlName="name" placeholder="Usluga/proizvod">
-                                        <div *ngIf="item.get('name')?.touched && item.get('name')?.invalid"
-                                            class="error">
-                                            Obavezno
+                                        <div class="item-grid">
+                                            <div>
+                                                <label>Stavka</label>
+                                                <select formControlName="selectedItemId" (change)="onItemSelect(i, $event)">
+                                                    <option value="">Izaberite stavku</option>
+                                                    @for (availItem of availableItems(); track availItem.id) {
+                                                        <option [value]="availItem.id">{{ availItem.name }}</option>
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label>Naziv *</label>
+                                                <input type="text" formControlName="name" placeholder="Usluga/proizvod">
+                                                @if (item.get('name')?.touched && item.get('name')?.invalid) {
+                                                    <div class="error">Obavezno</div>
+                                                }
+                                            </div>
+
+                                            <div>
+                                                <label>Tip</label>
+                                                <select formControlName="itemType">
+                                                    <option [ngValue]="ItemType.service">Usluga</option>
+                                                    <option [ngValue]="ItemType.product">Proizvod</option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label>Količina *</label>
+                                                <input type="number" formControlName="quantity" min="0" step="0.01"
+                                                    placeholder="1">
+                                            </div>
+
+                                            <div>
+                                                <label>Cena *</label>
+                                                <input type="number" formControlName="unitPrice" min="0" step="0.01"
+                                                    placeholder="0.00" [class.converting]="convertingItemIndex() === i">
+                                                @if (convertingItemIndex() === i) {
+                                                    <small class="form-hint">Konverzija u toku...</small>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="item-description">
+                                            <label>Opis</label>
+                                            <input type="text" formControlName="description"
+                                                placeholder="Opis stavke (opciono)">
                                         </div>
                                     </div>
-
-                                    <div>
-                                        <label>Tip</label>
-                                        <select formControlName="itemType">
-                                            <option [ngValue]="ItemType.service">Usluga</option>
-                                            <option [ngValue]="ItemType.product">Proizvod</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label>Količina *</label>
-                                        <input type="number" formControlName="quantity" min="0" step="0.01"
-                                            placeholder="1">
-                                    </div>
-
-                                    <div>
-                                        <label>Cena *</label>
-                                        <input type="number" formControlName="unitPrice" min="0" step="0.01"
-                                            placeholder="0.00" [class.converting]="convertingItemIndex() === i">
-                                        <small class="form-hint" *ngIf="convertingItemIndex() === i">
-                                            Konverzija u toku...
-                                        </small>
-                                    </div>
-                                </div>
-
-                                <div class="item-description">
-                                    <label>Opis</label>
-                                    <input type="text" formControlName="description"
-                                        placeholder="Opis stavke (opciono)">
-                                </div>
+                                }
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
-                    <button type="submit" class="btn-primary" [disabled]="isLoading()">
-                        {{ isLoading() ? 'Čuvanje...' : 'Sačuvaj fakturu' }}
-                    </button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="isLoading()">
+                            {{ isLoading() ? 'Čuvanje...' : 'Sačuvaj fakturu' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+    }
 
     <!-- Payment Modal -->
-    <div class="modal-overlay" *ngIf="showPaymentModal()" (click)="closePaymentModal()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Plati fakturu {{ payingInvoice()?.invoiceNumber }}</h2>
-                <button class="close-btn" (click)="closePaymentModal()">✕</button>
+    @if (showPaymentModal()) {
+        <div class="modal-overlay" (click)="closePaymentModal()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Plati fakturu {{ payingInvoice()?.invoiceNumber }}</h2>
+                    <button class="close-btn" (click)="closePaymentModal()">✕</button>
+                </div>
+
+                <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()">
+                    <div class="modal-body">
+                        <div class="payment-info">
+                            <span>Preostalo za plaćanje:</span>
+                            <strong>{{ payingInvoice()?.amountToPay | number:'1.2-2' }}
+                                {{ payingInvoice() ? Currency[payingInvoice()!.currency] : '' }}</strong>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Iznos *</label>
+                            <input type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0.01">
+                            @if (paymentForm.get('amount')?.touched && paymentForm.get('amount')?.invalid) {
+                                <div class="error">Iznos je obavezan i mora biti veći od 0</div>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                Bankovni račun
+                                @if (getPayingInvoiceClientType() === ClientType.foreign) {
+                                    <span> *</span>
+                                }
+                            </label>
+                            <select formControlName="bankAccountId">
+                                @if (getPayingInvoiceClientType() !== ClientType.foreign) {
+                                    <option value="">-- Gotovinska uplata --</option>
+                                }
+                                @for (account of bankAccounts(); track account.id) {
+                                    <option [value]="account.id">
+                                        {{ account.bankName }} - {{ account.accountNumber }} ({{ getCurrencyLabel(account.currency) }})
+                                    </option>
+                                }
+                            </select>
+                            @if (getPayingInvoiceClientType() === ClientType.foreign) {
+                                <small class="form-hint">Strani klijenti moraju platiti na bankovni račun</small>
+                            }
+                            @if (getPayingInvoiceClientType() !== ClientType.foreign) {
+                                <small class="form-hint">Ostavite prazno za gotovinsku uplatu</small>
+                            }
+                            @if (paymentForm.get('bankAccountId')?.touched && paymentForm.get('bankAccountId')?.invalid) {
+                                <div class="error">Bankovni račun je obavezan za strane klijente</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closePaymentModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="paymentForm.invalid">
+                            Potvrdi plaćanje
+                        </button>
+                    </div>
+                </form>
             </div>
+        </div>
+    }
 
-            <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()">
+    <!-- Archive Confirmation Modal -->
+    @if (showArchiveConfirm()) {
+        <div class="modal-overlay" (click)="closeArchiveConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Potvrda arhiviranja</h2>
+                    <button class="close-btn" (click)="closeArchiveConfirm()">✕</button>
+                </div>
+
                 <div class="modal-body">
-
-                    <div class="payment-info">
-                        <span>Preostalo za plaćanje:</span>
-                        <strong>{{ payingInvoice()?.amountToPay | number:'1.2-2' }}
-                            {{ payingInvoice() ? Currency[payingInvoice()!.currency] : '' }}</strong>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Iznos *</label>
-                        <input type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0.01">
-                        <div *ngIf="paymentForm.get('amount')?.touched && paymentForm.get('amount')?.invalid"
-                            class="error">
-                            Iznos je obavezan i mora biti veći od 0
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
-                            Bankovni račun
-                            <span *ngIf="getPayingInvoiceClientType() === ClientType.foreign"> *</span>
-                        </label>
-                        <select formControlName="bankAccountId">
-                            <option value="" *ngIf="getPayingInvoiceClientType() !== ClientType.foreign">
-                                -- Gotovinska uplata --
-                            </option>
-                            <option *ngFor="let account of bankAccounts()" [value]="account.id">
-                                {{ account.bankName }} - {{ account.accountNumber }} ({{ getCurrencyLabel(account.currency) }})
-                            </option>
-                        </select>
-                        <small class="form-hint" *ngIf="getPayingInvoiceClientType() === ClientType.foreign">
-                            Strani klijenti moraju platiti na bankovni račun
-                        </small>
-                        <small class="form-hint" *ngIf="getPayingInvoiceClientType() !== ClientType.foreign">
-                            Ostavite prazno za gotovinsku uplatu
-                        </small>
-                        <div *ngIf="paymentForm.get('bankAccountId')?.touched && paymentForm.get('bankAccountId')?.invalid"
-                            class="error">
-                            Bankovni račun je obavezan za strane klijente
-                        </div>
-                    </div>
-
+                    <p class="confirm-message">
+                        Da li ste sigurni da želite da arhivirate fakturu
+                        <strong>{{ archivingInvoice()?.invoiceNumber }}</strong>?
+                    </p>
+                    <p class="confirm-warning">Arhivirane fakture se ne mogu menjati niti plaćati.</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closePaymentModal()">Otkaži</button>
-                    <button type="submit" class="btn-primary" [disabled]="paymentForm.invalid">
-                        Potvrdi plaćanje
-                    </button>
+                    <button type="button" class="btn-secondary" (click)="closeArchiveConfirm()">Otkaži</button>
+                    <button type="button" class="btn-primary" (click)="confirmArchive()">Arhiviraj</button>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Archive Confirmation Modal -->
-    <div class="modal-overlay" *ngIf="showArchiveConfirm()" (click)="closeArchiveConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Potvrda arhiviranja</h2>
-                <button class="close-btn" (click)="closeArchiveConfirm()">✕</button>
-            </div>
-
-            <div class="modal-body">
-                <p class="confirm-message">
-                    Da li ste sigurni da želite da arhivirate fakturu
-                    <strong>{{ archivingInvoice()?.invoiceNumber }}</strong>?
-                </p>
-                <p class="confirm-warning">Arhivirane fakture se ne mogu menjati niti plaćati.</p>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeArchiveConfirm()">Otkaži</button>
-                <button type="button" class="btn-primary" (click)="confirmArchive()">Arhiviraj</button>
             </div>
         </div>
-    </div>
+    }
 
     <!-- Cancel Confirmation Modal -->
-    <div class="modal-overlay" *ngIf="showCancelConfirm()" (click)="closeCancelConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Potvrda otkazivanja</h2>
-                <button class="close-btn" (click)="closeCancelConfirm()">✕</button>
-            </div>
+    @if (showCancelConfirm()) {
+        <div class="modal-overlay" (click)="closeCancelConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Potvrda otkazivanja</h2>
+                    <button class="close-btn" (click)="closeCancelConfirm()">✕</button>
+                </div>
 
-            <div class="modal-body">
-                <p class="confirm-message">
-                    Da li ste sigurni da želite da otkažete fakturu
-                    <strong>{{ cancellingInvoice()?.invoiceNumber }}</strong>?
-                </p>
-                <p class="confirm-warning">Otkazane fakture se ne mogu menjati niti plaćati.</p>
-            </div>
+                <div class="modal-body">
+                    <p class="confirm-message">
+                        Da li ste sigurni da želite da otkažete fakturu
+                        <strong>{{ cancellingInvoice()?.invoiceNumber }}</strong>?
+                    </p>
+                    <p class="confirm-warning">Otkazane fakture se ne mogu menjati niti plaćati.</p>
+                </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeCancelConfirm()">Otkaži</button>
-                <button type="button" class="btn-danger" (click)="confirmCancel()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    Otkaži fakturu
-                </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" (click)="closeCancelConfirm()">Otkaži</button>
+                    <button type="button" class="btn-danger" (click)="confirmCancel()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        Otkaži fakturu
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    }
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Potvrda brisanja</h2>
-                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-            </div>
+    @if (showDeleteConfirm()) {
+        <div class="modal-overlay" (click)="closeDeleteConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Potvrda brisanja</h2>
+                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+                </div>
 
-            <div class="modal-body">
-                <p class="confirm-message">
-                    Da li ste sigurni da želite da obrišete fakturu
-                    <strong>{{ deletingInvoice()?.invoiceNumber }}</strong>?
-                </p>
-                <p class="confirm-warning">Ova akcija je nepovratna.</p>
-            </div>
+                <div class="modal-body">
+                    <p class="confirm-message">
+                        Da li ste sigurni da želite da obrišete fakturu
+                        <strong>{{ deletingInvoice()?.invoiceNumber }}</strong>?
+                    </p>
+                    <p class="confirm-warning">Ova akcija je nepovratna.</p>
+                </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
-                <button type="button" class="btn-danger" (click)="confirmDelete()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                        <path d="M10 11v6"></path>
-                        <path d="M14 11v6"></path>
-                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-                    </svg>
-                    Obriši
-                </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                        </svg>
+                        Obriši
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>

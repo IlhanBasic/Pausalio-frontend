@@ -52,17 +52,6 @@ export class HomeComponent implements OnInit {
         this.invoiceService.getAll().subscribe({
             next: (response) => {
                 const invoices = response.data || [];
-
-                // DEBUG — obrisi posle resavanja
-                console.log('=== HOME DEBUG ===');
-                console.log('Broj faktura:', invoices.length);
-                console.log('Prva faktura:', invoices[0]);
-                console.log('paymentStatus vrednosti:', [...new Set(invoices.map((i: any) => i.paymentStatus))]);
-                console.log('invoiceStatus vrednosti:', [...new Set(invoices.map((i: any) => i.invoiceStatus))]);
-                console.log('totalAmountRSD:', invoices.map((i: any) => i.totalAmountRSD));
-                console.log('totalAmount:', invoices.map((i: any) => i.totalAmount));
-                console.log('=================');
-
                 this.processInvoices(invoices);
                 this.isLoading.set(false);
             },
@@ -76,7 +65,6 @@ export class HomeComponent implements OnInit {
 
     processInvoices(invoices: InvoiceToReturnDto[]) {
 
-        // Pokusaj sve moguce varijante polja za iznos
         const getAmount = (inv: any): number => {
             return inv.totalAmountRSD
                 || inv.totalAmount
@@ -85,7 +73,6 @@ export class HomeComponent implements OnInit {
                 || 0;
         };
 
-        // Pokusaj sve moguce varijante za placeni status
         const isPaid = (inv: any): boolean => {
             return inv.paymentStatus === 2
                 || inv.paymentStatus === 'Paid'
@@ -94,16 +81,11 @@ export class HomeComponent implements OnInit {
                 || inv.invoiceStatus === 'Paid';
         };
 
-        // 1. Prihodi — prvo pokusaj samo placene, ako je 0 uzmi sve
         const paidInvoices = invoices.filter(inv => isPaid(inv));
         let totalRev = paidInvoices.reduce((sum, inv) => sum + getAmount(inv), 0);
 
-        console.log('Placene fakture:', paidInvoices.length, '| Prihod iz placenih:', totalRev);
-
-        // Fallback: ako nema placenih ili je 0, uzmi SVE fakture
         if (totalRev === 0) {
             totalRev = invoices.reduce((sum, inv) => sum + getAmount(inv), 0);
-            console.log('FALLBACK — prihod iz svih faktura:', totalRev);
         }
 
         const count = invoices.length;
@@ -117,7 +99,6 @@ export class HomeComponent implements OnInit {
         this.animateValue(this.displayedCount, count, 1000);
         this.animateValue(this.displayedAvg, avg, 1500);
 
-        // 2. Top Clients
         const clientMap = new Map<string, TopClient>();
 
         invoices.forEach((inv: any) => {
@@ -149,7 +130,6 @@ export class HomeComponent implements OnInit {
 
         this.topClients.set(sortedClients);
 
-        // 3. Best Selling Items
         const itemMap = new Map<string, BestSellingItem>();
 
         invoices.forEach((inv: any) => {

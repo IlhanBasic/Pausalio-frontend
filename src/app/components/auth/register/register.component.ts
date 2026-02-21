@@ -7,8 +7,7 @@ import { AuthService } from '../../../services/auth.service';
 import { ActivityCodeService } from '../../../services/activity-code.service';
 import { FileService } from '../../../services/file.service';
 import { ActivityCodeToReturnDto } from '../../../models/activity-code';
-import { AddUserProfileDto, RegisterOwnerDto, RegisterAssistantDto } from '../../../models/user-profile';
-import { AddBusinessProfileDto } from '../../../models/business-profile';
+import { RegisterOwnerDto, RegisterAssistantDto } from '../../../models/user-profile';
 import { CityService } from '../../../services/city.service';
 import { CityToReturnDto } from '../../../models/city';
 import { forkJoin } from 'rxjs';
@@ -62,7 +61,7 @@ export class RegisterComponent implements OnInit {
         // Business fields
         businessName: ['', Validators.required],
         PIB: ['', Validators.required],
-        MB: [''],
+        MB: ['', Validators.required, Validators.pattern(/^\d{8}$/)],
         activityCodeId: ['', Validators.required],
         businessCity: ['', Validators.required],
         businessAddress: ['', Validators.required],

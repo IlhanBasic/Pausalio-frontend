@@ -106,20 +106,20 @@ export class RemindersComponent implements OnInit {
 
     getEventColor(reminder: ReminderToReturnDto): string {
         if (reminder.isCompleted) {
-            return '#68d391'; // Green for completed
+            return '#68d391';
         }
 
         switch (reminder.reminderType) {
             case ReminderType.Tax:
-                return '#f56565'; // Red for tax
+                return '#f56565';
             case ReminderType.Expense:
-                return '#ed8936'; // Orange for expense
+                return '#ed8936';
             case ReminderType.Meeting:
-                return '#4299e1'; // Blue for meeting
+                return '#4299e1';
             case ReminderType.Other:
-                return '#9f7aea'; // Purple for other
+                return '#9f7aea';
             default:
-                return '#718096'; // Gray default
+                return '#718096';
         }
     }
 

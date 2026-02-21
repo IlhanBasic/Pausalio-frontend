@@ -11,157 +11,160 @@
         </button>
     </div>
 
-    <!-- Alerts -->
-
-
     <!-- Calendar -->
     <div class="calendar-container">
         <full-calendar [options]="calendarOptions"></full-calendar>
     </div>
 
     <!-- Add/Edit Modal -->
-    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>{{ editingReminder() ? 'Izmeni podsetnik' : 'Dodaj novi podsetnik' }}</h2>
-                <button class="close-btn" (click)="closeModal()">✕</button>
-            </div>
+    @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ editingReminder() ? 'Izmeni podsetnik' : 'Dodaj novi podsetnik' }}</h2>
+                    <button class="close-btn" (click)="closeModal()">✕</button>
+                </div>
 
-            <form [formGroup]="reminderForm" (ngSubmit)="onSubmit()">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Naslov *</label>
-                        <input type="text" formControlName="title" placeholder="Naslov podsetnika">
-                        <div *ngIf="reminderForm.get('title')?.touched && reminderForm.get('title')?.invalid"
-                            class="error">
-                            Naslov je obavezan
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Opis</label>
-                        <textarea formControlName="description" rows="3" placeholder="Dodatne napomene..."></textarea>
-                    </div>
-
-                    <div class="form-row">
+                <form [formGroup]="reminderForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-body">
                         <div class="form-group">
-                            <label>Tip *</label>
-                            <select formControlName="reminderType">
-                                <option [ngValue]="ReminderType.Tax">Porez</option>
-                                <option [ngValue]="ReminderType.Expense">Trošak</option>
-                                <option [ngValue]="ReminderType.Meeting">Sastanak</option>
-                                <option [ngValue]="ReminderType.Other">Ostalo</option>
-                            </select>
+                            <label>Naslov *</label>
+                            <input type="text" formControlName="title" placeholder="Naslov podsetnika">
+                            @if (reminderForm.get('title')?.touched && reminderForm.get('title')?.invalid) {
+                                <div class="error">Naslov je obavezan</div>
+                            }
                         </div>
 
                         <div class="form-group">
-                            <label>Datum i vreme *</label>
-                            <input type="datetime-local" formControlName="dueDate" [min]="minDateTime">
-                            <div *ngIf="reminderForm.get('dueDate')?.touched && reminderForm.get('dueDate')?.invalid"
-                                class="error">
-                                Datum je obavezan
+                            <label>Opis</label>
+                            <textarea formControlName="description" rows="3" placeholder="Dodatne napomene..."></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tip *</label>
+                                <select formControlName="reminderType">
+                                    <option [ngValue]="ReminderType.Tax">Porez</option>
+                                    <option [ngValue]="ReminderType.Expense">Trošak</option>
+                                    <option [ngValue]="ReminderType.Meeting">Sastanak</option>
+                                    <option [ngValue]="ReminderType.Other">Ostalo</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Datum i vreme *</label>
+                                <input type="datetime-local" formControlName="dueDate" [min]="minDateTime">
+                                @if (reminderForm.get('dueDate')?.touched && reminderForm.get('dueDate')?.invalid) {
+                                    <div class="error">Datum je obavezan</div>
+                                }
                             </div>
                         </div>
                     </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="reminderForm.invalid">
+                            {{ editingReminder() ? 'Sačuvaj izmene' : 'Dodaj podsetnik' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    <!-- Details Modal -->
+    @if (showDetailsModal()) {
+        <div class="modal-overlay" (click)="closeDetailsModal()">
+            <div class="modal-content modal-details" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Detalji podsetnika</h2>
+                    <button class="close-btn" (click)="closeDetailsModal()">✕</button>
+                </div>
+
+                @if (selectedReminder()) {
+                    <div class="modal-body">
+                        <div class="detail-item">
+                            <label>Naslov:</label>
+                            <p>{{ selectedReminder()!.title }}</p>
+                        </div>
+
+                        @if (selectedReminder()!.description) {
+                            <div class="detail-item">
+                                <label>Opis:</label>
+                                <p>{{ selectedReminder()!.description }}</p>
+                            </div>
+                        }
+
+                        <div class="detail-row">
+                            <div class="detail-item">
+                                <label>Tip:</label>
+                                <p>{{ getReminderTypeName(selectedReminder()!.reminderType) }}</p>
+                            </div>
+
+                            <div class="detail-item">
+                                <label>Status:</label>
+                                <p class="status-badge" [class.completed]="selectedReminder()!.isCompleted">
+                                    {{ selectedReminder()!.isCompleted ? 'Završeno' : 'Aktivno' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <label>Datum i vreme:</label>
+                            <p>{{ formatDate(selectedReminder()!.dueDate) }}</p>
+                        </div>
+
+                        @if (selectedReminder()!.isCompleted && selectedReminder()!.completedAt) {
+                            <div class="detail-item">
+                                <label>Završeno:</label>
+                                <p>{{ formatDate(selectedReminder()!.completedAt!) }}</p>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-danger" (click)="openDeleteConfirm(selectedReminder()!)">
+                            Obriši
+                        </button>
+                        <div class="button-group">
+                            @if (!selectedReminder()!.isCompleted) {
+                                <button type="button" class="btn-success"
+                                    (click)="markAsCompleted(selectedReminder()!)">
+                                    Označi kao završeno
+                                </button>
+                            }
+                            <button type="button" class="btn-primary" (click)="openEditModal(selectedReminder()!)">
+                                Izmeni
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Delete Confirmation Modal -->
+    @if (showDeleteConfirm()) {
+        <div class="modal-overlay" (click)="closeDeleteConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Potvrda brisanja</h2>
+                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="confirm-message">
+                        Da li ste sigurni da želite da obrišete podsetnik
+                        <strong>{{ deletingReminder()?.title }}</strong>?
+                    </p>
+                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeModal()">
-                        Otkaži
-                    </button>
-                    <button type="submit" class="btn-primary" [disabled]="reminderForm.invalid">
-                        {{ editingReminder() ? 'Sačuvaj izmene' : 'Dodaj podsetnik' }}
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Details Modal -->
-    <div class="modal-overlay" *ngIf="showDetailsModal()" (click)="closeDetailsModal()">
-        <div class="modal-content modal-details" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Detalji podsetnika</h2>
-                <button class="close-btn" (click)="closeDetailsModal()">✕</button>
-            </div>
-
-            <div class="modal-body" *ngIf="selectedReminder()">
-                <div class="detail-item">
-                    <label>Naslov:</label>
-                    <p>{{ selectedReminder()!.title }}</p>
-                </div>
-
-                <div class="detail-item" *ngIf="selectedReminder()!.description">
-                    <label>Opis:</label>
-                    <p>{{ selectedReminder()!.description }}</p>
-                </div>
-
-                <div class="detail-row">
-                    <div class="detail-item">
-                        <label>Tip:</label>
-                        <p>{{ getReminderTypeName(selectedReminder()!.reminderType) }}</p>
-                    </div>
-
-                    <div class="detail-item">
-                        <label>Status:</label>
-                        <p class="status-badge" [class.completed]="selectedReminder()!.isCompleted">
-                            {{ selectedReminder()!.isCompleted ? 'Završeno' : 'Aktivno' }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="detail-item">
-                    <label>Datum i vreme:</label>
-                    <p>{{ formatDate(selectedReminder()!.dueDate) }}</p>
-                </div>
-
-                <div class="detail-item" *ngIf="selectedReminder()!.isCompleted && selectedReminder()!.completedAt">
-                    <label>Završeno:</label>
-                    <p>{{ formatDate(selectedReminder()!.completedAt!) }}</p>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn-danger" (click)="openDeleteConfirm(selectedReminder()!)">
-                    Obriši
-                </button>
-                <div class="button-group">
-                    <button type="button" class="btn-success" *ngIf="!selectedReminder()!.isCompleted"
-                        (click)="markAsCompleted(selectedReminder()!)">
-                        Označi kao završeno
-                    </button>
-                    <button type="button" class="btn-primary" (click)="openEditModal(selectedReminder()!)">
-                        Izmeni
-                    </button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Potvrda brisanja</h2>
-                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-            </div>
-
-            <div class="modal-body">
-                <p class="confirm-message">
-                    Da li ste sigurni da želite da obrišete podsetnik
-                    <strong>{{ deletingReminder()?.title }}</strong>?
-                </p>
-                <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
-                    Otkaži
-                </button>
-                <button type="button" class="btn-danger" (click)="confirmDelete()">
-                    Obriši
-                </button>
-            </div>
-        </div>
-    </div>
+    }
 </div>

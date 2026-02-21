@@ -14,13 +14,13 @@
 <!-- Sidebar -->
 <aside class="sidebar" [class.open]="isSidebarOpen">
     <div class="logo">
-        <h2>Pausalio</h2>
+        <h2>Paušalio</h2>
         <img src="assets/images/logo.png" alt="Pausalio Logo" width="100" height="auto"/>
     </div>
 
     <nav>
         <!-- Non-admin sekcije -->
-        <ng-container *ngIf="!store.isAdmin()">
+        @if (!store.isAdmin()) {
 
             <div class="nav-section">
                 <h3 class="section-title">
@@ -184,10 +184,10 @@
                 </ul>
             </div>
 
-        </ng-container>
+        }
 
         <!-- Admin sekcija -->
-        <ng-container *ngIf="store.isAdmin()">
+        @if (store.isAdmin()) {
 
             <div class="nav-section">
                 <h3 class="section-title">
@@ -216,6 +216,6 @@
                 </ul>
             </div>
 
-        </ng-container>
+        }
     </nav>
 </aside>

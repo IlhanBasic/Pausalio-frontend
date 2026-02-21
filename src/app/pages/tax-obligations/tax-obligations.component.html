@@ -28,32 +28,34 @@
         </div>
     </div>
 
-    <div class="summary-cards" *ngIf="summary()">
-        <div class="summary-card pending">
-            <div class="card-icon">⏳</div>
-            <div class="card-content">
-                <h3>Na čekanju</h3>
-                <p class="amount">{{ formatCurrency(summary()!.totalPending) }}</p>
-                <p class="count">{{ summary()!.countPending }} obaveza</p>
+    @if (summary()) {
+        <div class="summary-cards">
+            <div class="summary-card pending">
+                <div class="card-icon">⏳</div>
+                <div class="card-content">
+                    <h3>Na čekanju</h3>
+                    <p class="amount">{{ formatCurrency(summary()!.totalPending) }}</p>
+                    <p class="count">{{ summary()!.countPending }} obaveza</p>
+                </div>
+            </div>
+            <div class="summary-card paid">
+                <div class="card-icon">✅</div>
+                <div class="card-content">
+                    <h3>Plaćeno</h3>
+                    <p class="amount">{{ formatCurrency(summary()!.totalPaid) }}</p>
+                    <p class="count">{{ summary()!.countPaid }} obaveza</p>
+                </div>
+            </div>
+            <div class="summary-card archived">
+                <div class="card-icon">📦</div>
+                <div class="card-content">
+                    <h3>Prekoračeno</h3>
+                    <p class="amount">{{ formatCurrency(summary()!.totalOverdue) }}</p>
+                    <p class="count">{{ summary()!.countOverdue }} obaveza</p>
+                </div>
             </div>
         </div>
-        <div class="summary-card paid">
-            <div class="card-icon">✅</div>
-            <div class="card-content">
-                <h3>Plaćeno</h3>
-                <p class="amount">{{ formatCurrency(summary()!.totalPaid) }}</p>
-                <p class="count">{{ summary()!.countPaid }} obaveza</p>
-            </div>
-        </div>
-        <div class="summary-card archived">
-            <div class="card-icon">📦</div>
-            <div class="card-content">
-                <h3>Prekoračeno</h3>
-                <p class="amount">{{ formatCurrency(summary()!.totalOverdue) }}</p>
-                <p class="count">{{ summary()!.countOverdue }} obaveza</p>
-            </div>
-        </div>
-    </div>
+    }
 
     <div class="filter-section">
         <label>Godina:</label>
@@ -76,32 +78,79 @@
     </app-data-table>
 
     <!-- Generate Modal -->
-    <div class="modal-overlay" *ngIf="showGenerateModal()" (click)="closeGenerateModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Generiši godišnje poreske obaveze</h2>
-                <button class="close-btn" (click)="closeGenerateModal()">✕</button>
-            </div>
-            <form [formGroup]="generateForm" (ngSubmit)="onGenerateSubmit()">
-                <div class="modal-body">
-                    <p class="modal-description">
-                        Unesite iznos iz poreskog rešenja i sistem će automatski generisati 12 mesečnih obaveza.
-                    </p>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Godina *</label>
-                            <input type="number" formControlName="year" placeholder="2026" min="2020" max="2030">
-                            <div *ngIf="generateForm.get('year')?.touched && generateForm.get('year')?.invalid"
-                                class="error">Godina je obavezna (2020-2030)</div>
+    @if (showGenerateModal()) {
+        <div class="modal-overlay" (click)="closeGenerateModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Generiši godišnje poreske obaveze</h2>
+                    <button class="close-btn" (click)="closeGenerateModal()">✕</button>
+                </div>
+                <form [formGroup]="generateForm" (ngSubmit)="onGenerateSubmit()">
+                    <div class="modal-body">
+                        <p class="modal-description">
+                            Unesite iznos iz poreskog rešenja i sistem će automatski generisati 12 mesečnih obaveza.
+                        </p>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Godina *</label>
+                                <input type="number" formControlName="year" placeholder="2026" min="2020" max="2030">
+                                @if (generateForm.get('year')?.touched && generateForm.get('year')?.invalid) {
+                                    <div class="error">Godina je obavezna (2020-2030)</div>
+                                }
+                            </div>
+                            <div class="form-group">
+                                <label>Mesečni iznos (RSD) *</label>
+                                <input type="number" formControlName="monthlyAmount" placeholder="50000" step="0.01" min="1">
+                                @if (generateForm.get('monthlyAmount')?.touched && generateForm.get('monthlyAmount')?.invalid) {
+                                    <div class="error">Iznos mora biti veći od 0</div>
+                                }
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Mesečni iznos (RSD) *</label>
-                            <input type="number" formControlName="monthlyAmount" placeholder="50000" step="0.01" min="1">
-                            <div *ngIf="generateForm.get('monthlyAmount')?.touched && generateForm.get('monthlyAmount')?.invalid"
-                                class="error">Iznos mora biti veći od 0</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tip poreza *</label>
+                                <select formControlName="type">
+                                    <option [ngValue]="1">PDV</option>
+                                    <option [ngValue]="2">PIO</option>
+                                    <option [ngValue]="3">Zdravstveno</option>
+                                    <option [ngValue]="4">Nezaposlenost</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Dan dospeća (1-28) *</label>
+                                <input type="number" formControlName="dueDayOfMonth" placeholder="15" min="1" max="28">
+                                @if (generateForm.get('dueDayOfMonth')?.touched && generateForm.get('dueDayOfMonth')?.invalid) {
+                                    <div class="error">Dan mora biti između 1 i 28</div>
+                                }
+                            </div>
                         </div>
                     </div>
-                    <div class="form-row">
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closeGenerateModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="generateForm.invalid">Generiši obaveze</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    <!-- Add/Edit Modal -->
+    @if (showAddModal()) {
+        <div class="modal-overlay" (click)="closeAddModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ editingObligation() ? 'Izmeni obavezu' : 'Dodaj novu obavezu' }}</h2>
+                    <button class="close-btn" (click)="closeAddModal()">✕</button>
+                </div>
+                <form [formGroup]="obligationForm" (ngSubmit)="onObligationSubmit()">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Datum dospeća *</label>
+                            <input type="date" formControlName="dueDate">
+                            @if (obligationForm.get('dueDate')?.touched && obligationForm.get('dueDate')?.invalid) {
+                                <div class="error">Datum dospeća je obavezan</div>
+                            }
+                        </div>
                         <div class="form-group">
                             <label>Tip poreza *</label>
                             <select formControlName="type">
@@ -112,139 +161,104 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Dan dospeća (1-28) *</label>
-                            <input type="number" formControlName="dueDayOfMonth" placeholder="15" min="1" max="28">
-                            <div *ngIf="generateForm.get('dueDayOfMonth')?.touched && generateForm.get('dueDayOfMonth')?.invalid"
-                                class="error">Dan mora biti između 1 i 28</div>
+                            <label>Ukupan iznos (RSD) *</label>
+                            <input type="number" formControlName="totalAmount" placeholder="50000.00" step="0.01" min="1">
+                            @if (obligationForm.get('totalAmount')?.touched && obligationForm.get('totalAmount')?.invalid) {
+                                <div class="error">Iznos mora biti veći od 0</div>
+                            }
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeGenerateModal()">Otkaži</button>
-                    <button type="submit" class="btn-primary" [disabled]="generateForm.invalid">Generiši obaveze</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Add/Edit Modal -->
-    <div class="modal-overlay" *ngIf="showAddModal()" (click)="closeAddModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>{{ editingObligation() ? 'Izmeni obavezu' : 'Dodaj novu obavezu' }}</h2>
-                <button class="close-btn" (click)="closeAddModal()">✕</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closeAddModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="obligationForm.invalid">
+                            {{ editingObligation() ? 'Sačuvaj izmene' : 'Dodaj obavezu' }}
+                        </button>
+                    </div>
+                </form>
             </div>
-            <form [formGroup]="obligationForm" (ngSubmit)="onObligationSubmit()">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Datum dospeća *</label>
-                        <input type="date" formControlName="dueDate">
-                        <div *ngIf="obligationForm.get('dueDate')?.touched && obligationForm.get('dueDate')?.invalid"
-                            class="error">Datum dospeća je obavezan</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Tip poreza *</label>
-                        <select formControlName="type">
-                            <option [ngValue]="1">PDV</option>
-                            <option [ngValue]="2">PIO</option>
-                            <option [ngValue]="3">Zdravstveno</option>
-                            <option [ngValue]="4">Nezaposlenost</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Ukupan iznos (RSD) *</label>
-                        <input type="number" formControlName="totalAmount" placeholder="50000.00" step="0.01" min="1">
-                        <div *ngIf="obligationForm.get('totalAmount')?.touched && obligationForm.get('totalAmount')?.invalid"
-                            class="error">Iznos mora biti veći od 0</div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeAddModal()">Otkaži</button>
-                    <button type="submit" class="btn-primary" [disabled]="obligationForm.invalid">
-                        {{ editingObligation() ? 'Sačuvaj izmene' : 'Dodaj obavezu' }}
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
+    }
 
     <!-- Payment Modal -->
-    <div class="modal-overlay" *ngIf="showPaymentModal()" (click)="closePaymentModal()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Plati poresku obavezu</h2>
-                <button class="close-btn" (click)="closePaymentModal()">✕</button>
+    @if (showPaymentModal()) {
+        <div class="modal-overlay" (click)="closePaymentModal()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Plati poresku obavezu</h2>
+                    <button class="close-btn" (click)="closePaymentModal()">✕</button>
+                </div>
+                <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()">
+                    <div class="modal-body">
+                        <div class="payment-info">
+                            <span>Iznos za plaćanje:</span>
+                            <strong>{{ formatCurrency(payingObligation()?.totalAmount || 0) }}</strong>
+                        </div>
+                        <div class="payment-info">
+                            <span>Tip:</span>
+                            <strong>{{ getTypeName(payingObligation()?.type!) }}</strong>
+                        </div>
+                        <div class="form-group">
+                            <label>Bankovni račun *</label>
+                            <select formControlName="bankAccountId">
+                                <option value="">Izaberite račun</option>
+                                @for (account of bankAccounts(); track account.id) {
+                                    <option [value]="account.id">
+                                        {{ account.bankName }} - {{ account.accountNumber }}
+                                    </option>
+                                }
+                            </select>
+                            <small class="form-hint">
+                                Poreske obaveze se plaćaju isključivo preko domaćih bankovnih računa
+                            </small>
+                            @if (bankAccounts().length === 0) {
+                                <small class="form-hint">Nema aktivnih domaćih bankovnih računa</small>
+                            }
+                            @if (paymentForm.get('bankAccountId')?.touched && paymentForm.get('bankAccountId')?.invalid) {
+                                <div class="error">Bankovni račun je obavezan</div>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closePaymentModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary"
+                            [disabled]="paymentForm.invalid || bankAccounts().length === 0">
+                            Potvrdi plaćanje
+                        </button>
+                    </div>
+                </form>
             </div>
-            <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()">
-                <div class="modal-body">
-
-                    <div class="payment-info">
-                        <span>Iznos za plaćanje:</span>
-                        <strong>{{ formatCurrency(payingObligation()?.totalAmount || 0) }}</strong>
-                    </div>
-
-                    <div class="payment-info">
-                        <span>Tip:</span>
-                        <strong>{{ getTypeName(payingObligation()?.type!) }}</strong>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Bankovni račun *</label>
-                        <select formControlName="bankAccountId">
-                            <option value="">Izaberite račun</option>
-                            <option *ngFor="let account of bankAccounts()" [value]="account.id">
-                                {{ account.bankName }} - {{ account.accountNumber }}
-                            </option>
-                        </select>
-                        <small class="form-hint">
-                            Poreske obaveze se plaćaju isključivo preko domaćih bankovnih računa
-                        </small>
-                        <small class="form-hint" *ngIf="bankAccounts().length === 0">
-                            Nema aktivnih domaćih bankovnih računa
-                        </small>
-                        <div *ngIf="paymentForm.get('bankAccountId')?.touched && paymentForm.get('bankAccountId')?.invalid"
-                            class="error">Bankovni račun je obavezan</div>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closePaymentModal()">Otkaži</button>
-                    <button type="submit" class="btn-primary"
-                        [disabled]="paymentForm.invalid || bankAccounts().length === 0">
-                        Potvrdi plaćanje
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
+    }
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Potvrda brisanja</h2>
-                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-            </div>
-            <div class="modal-body">
-                <p class="confirm-message">
-                    Da li ste sigurni da želite da obrišete ovu poresku obavezu?
-                </p>
-                <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
-                <button type="button" class="btn-danger" (click)="confirmDelete()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                        <path d="M10 11v6"></path>
-                        <path d="M14 11v6"></path>
-                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-                    </svg>
-                    Obriši
-                </button>
+    @if (showDeleteConfirm()) {
+        <div class="modal-overlay" (click)="closeDeleteConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Potvrda brisanja</h2>
+                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p class="confirm-message">
+                        Da li ste sigurni da želite da obrišete ovu poresku obavezu?
+                    </p>
+                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                        </svg>
+                        Obriši
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>

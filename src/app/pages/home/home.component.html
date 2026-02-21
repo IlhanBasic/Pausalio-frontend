@@ -61,16 +61,22 @@
                 </svg>
             </div>
             <div class="card-content">
+
                 <h3>Najprodavaniji</h3>
-                <div class="value highlight-text" *ngIf="bestSellingItems().length > 0">
-                    {{ bestSellingItems()[0].name }}
-                </div>
-                <div class="sub-value" *ngIf="bestSellingItems().length > 0">
-                    {{ bestSellingItems()[0].quantity }} komada
-                </div>
-                <div class="value highlight-text" *ngIf="bestSellingItems().length === 0">
-                    -
-                </div>
+
+                @if (bestSellingItems().length > 0) {
+                    <div class="value highlight-text">
+                        {{ bestSellingItems()[0].name }}
+                    </div>
+                    <div class="sub-value">
+                        {{ bestSellingItems()[0].quantity }} komada
+                    </div>
+                }
+
+                @if (bestSellingItems().length === 0) {
+                    <div class="value highlight-text">-</div>
+                }
+
             </div>
         </div>
 
@@ -94,32 +100,40 @@
             </div>
 
             <div class="card-body">
-                <div class="client-list" *ngIf="topClients().length > 0">
-                    <div class="client-item" *ngFor="let client of topClients(); let i = index">
-                        <span [class]="'rank-badge rank-' + (i + 1)">{{ i + 1 }}</span>
-                        <div class="client-info">
-                            <div class="client-name">{{ client.name }}</div>
-                            <div class="client-count">{{ client.invoiceCount }} faktura</div>
-                        </div>
-                        <div class="client-stats">
-                            <div class="stat-amount">{{ client.totalAmount | number:'1.0-0' }} RSD</div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar" [style.width.%]="client.percentage"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="empty-state" *ngIf="topClients().length === 0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
-                        stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                    <p>Nema podataka o klijentima.</p>
-                </div>
+                @if (topClients().length > 0) {
+                    <div class="client-list">
+                        @for (client of topClients(); track $index; let i = $index) {
+                            <div class="client-item">
+                                <span [class]="'rank-badge rank-' + (i + 1)">{{ i + 1 }}</span>
+                                <div class="client-info">
+                                    <div class="client-name">{{ client.name }}</div>
+                                    <div class="client-count">{{ client.invoiceCount }} faktura</div>
+                                </div>
+                                <div class="client-stats">
+                                    <div class="stat-amount">{{ client.totalAmount | number:'1.0-0' }} RSD</div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" [style.width.%]="client.percentage">{{ client.percentage | number:'1.0-0' }}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (topClients().length === 0) {
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                            stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <p>Nema podataka o klijentima.</p>
+                    </div>
+                }
+
             </div>
         </div>
 
@@ -138,34 +152,41 @@
             </div>
 
             <div class="card-body">
-                <div class="service-list" *ngIf="bestSellingItems().length > 0">
-                    <div class="service-item" *ngFor="let item of bestSellingItems(); let i = index">
-                        <div class="service-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z">
-                                </path>
-                                <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                            </svg>
-                        </div>
-                        <div class="service-info">
-                            <div class="service-name">{{ item.name }}</div>
-                            <div class="service-revenue">Prihod: {{ item.revenue | number:'1.0-0' }} RSD</div>
-                        </div>
-                        <span class="qty-badge">{{ item.quantity }}x</span>
-                    </div>
-                </div>
 
-                <div class="empty-state" *ngIf="bestSellingItems().length === 0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
-                        stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                        <line x1="8" y1="21" x2="16" y2="21"></line>
-                        <line x1="12" y1="17" x2="12" y2="21"></line>
-                    </svg>
-                    <p>Nema podataka o uslugama.</p>
-                </div>
+                @if (bestSellingItems().length > 0) {
+                    <div class="service-list">
+                        @for (item of bestSellingItems(); track $index; let i = $index) {
+                            <div class="service-item">
+                                <div class="service-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                                    </svg>
+                                </div>
+                                <div class="service-info">
+                                    <div class="service-name">{{ item.name }}</div>
+                                    <div class="service-revenue">Prihod: {{ item.revenue | number:'1.0-0' }} RSD</div>
+                                </div>
+                                <span class="qty-badge">{{ item.quantity }}x</span>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (bestSellingItems().length === 0) {
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                            stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        <p>Nema podataka o uslugama.</p>
+                    </div>
+                }
+
             </div>
         </div>
 

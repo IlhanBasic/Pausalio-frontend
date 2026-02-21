@@ -16,6 +16,7 @@ import { PaymentType } from '../../enums/payment-type';
 import { Currency } from '../../enums/currency';
 import { DataTableComponent, TableColumn, TableAction } from '../../components/shared/data-table/data-table.component';
 import { ClientType } from '../../enums/client-type';
+import { TaxObligationType } from '../../enums/tax-obligation-type';
 
 @Component({
     selector: 'app-payments',
@@ -112,7 +113,6 @@ export class PaymentsComponent implements OnInit {
                 currencyControl?.setValue(invoice.currency);
                 currencyControl?.disable();
 
-                // 🔥 OVO JE KLJUČ
                 this.filterBankAccountsByClient(invoice.client.clientType);
             }
 
@@ -155,8 +155,6 @@ export class PaymentsComponent implements OnInit {
             this.bankAccounts.set(allAccounts.filter(a => a.currency === Currency.RSD));    
         }
     }
-
-
 
     loadPayments() {
         this.isLoading.set(true);
@@ -284,7 +282,6 @@ export class PaymentsComponent implements OnInit {
         const formValue = this.paymentForm.getRawValue();
         const editing = this.editingPayment();
 
-        // 🔥 INVOICE VALIDACIJA
         if (!editing && formValue.paymentType === PaymentType.InvoicePayment) {
 
             const invoice = this.invoices().find(i => i.id === formValue.entityId);
@@ -298,7 +295,6 @@ export class PaymentsComponent implements OnInit {
             }
         }
 
-        // 🔥 EXPENSE VALIDACIJA
         if (!editing && formValue.paymentType === PaymentType.ExpensePayment) {
 
             if (formValue.currency !== Currency.RSD) {
@@ -312,7 +308,6 @@ export class PaymentsComponent implements OnInit {
             }
         }
 
-        // 🔥 TAX VALIDACIJA
         if (!editing && formValue.paymentType === PaymentType.TaxPayment) {
 
             if (formValue.currency !== Currency.RSD) {
@@ -408,6 +403,16 @@ export class PaymentsComponent implements OnInit {
         }
     }
 
+    getTaxObligationTypeName(type: TaxObligationType): string {
+        switch (type) {
+            case TaxObligationType.Health: return 'Zdravstvena obaveza';
+            case TaxObligationType.PIO: return 'PIO obaveza';
+            case TaxObligationType.VAT: return 'PDV obaveza';
+            case TaxObligationType.Unemployment: return 'Nezaposlenost obaveza';
+            default: return 'Nepoznata obaveza';
+        }
+    }
+
     getCurrencyName(currency: Currency): string {
         switch (currency) {
             case Currency.RSD: return 'RSD';
@@ -447,7 +452,7 @@ export class PaymentsComponent implements OnInit {
         } else if (paymentType === PaymentType.ExpensePayment) {
             return `${entity.name} - ${entity.amount} RSD`;
         } else if (paymentType === PaymentType.TaxPayment) {
-            return `${entity.month}/${entity.year} - ${entity.totalAmount} RSD`;
+            return `${this.getTaxObligationTypeName(entity.type)} (${entity.month}/${entity.year}) - ${entity.totalAmount} RSD`;
         }
         return 'N/A';
     }

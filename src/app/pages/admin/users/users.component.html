@@ -13,29 +13,31 @@
     </app-data-table>
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Potvrda brisanja</h2>
-                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-            </div>
+    @if (showDeleteConfirm()) {
+        <div class="modal-overlay" (click)="closeDeleteConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Potvrda brisanja</h2>
+                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+                </div>
 
-            <div class="modal-body">
-                <p class="confirm-message">
-                    Da li ste sigurni da želite da obrišete korisnika
-                    <strong>{{ deletingUser()?.firstName }} {{ deletingUser()?.lastName }}</strong>?
-                </p>
-                <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
-            </div>
+                <div class="modal-body">
+                    <p class="confirm-message">
+                        Da li ste sigurni da želite da obrišete korisnika
+                        <strong>{{ deletingUser()?.firstName }} {{ deletingUser()?.lastName }}</strong>?
+                    </p>
+                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+                </div>
 
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
-                    Otkaži
-                </button>
-                <button type="button" class="btn-danger" (click)="confirmDelete()">
-                    Obriši
-                </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
+                        Otkaži
+                    </button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">
+                        Obriši
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    }
 </div>

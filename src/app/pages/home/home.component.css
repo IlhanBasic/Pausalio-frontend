@@ -331,7 +331,7 @@
 }
 
 .progress-bar-container {
-    height: 6px;
+    min-height: 14px;
     background: #f1f5f9;
     border-radius: 3px;
     overflow: hidden;
@@ -339,6 +339,10 @@
 
 .progress-bar {
     height: 100%;
+    color: white;
+    min-width: fit-content;
+    padding:2px;
+    font-size: 12px;
     background: linear-gradient(90deg, #2b86c5 0%, #4facd3 100%);
     border-radius: 3px;
     transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);

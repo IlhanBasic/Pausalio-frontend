@@ -17,9 +17,6 @@
         </button>
     </div>
 
-    <!-- Alerts -->
-
-
     <!-- Data Table -->
     <app-data-table [columns]="columns" [data]="accounts()" [actions]="actions" searchPlaceholder="Pretraži račune..."
         emptyMessage="Nema bankovnih računa za prikaz. Dodajte prvi račun!" (onEdit)="openEditModal($event)"
@@ -27,100 +24,107 @@
     </app-data-table>
 
     <!-- Add/Edit Modal -->
-    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>{{ editingAccount() ? 'Izmeni račun' : 'Dodaj novi račun' }}</h2>
-                <button class="close-btn" (click)="closeModal()">✕</button>
+    @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ editingAccount() ? 'Izmeni račun' : 'Dodaj novi račun' }}</h2>
+                    <button class="close-btn" (click)="closeModal()">✕</button>
+                </div>
+
+                <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Naziv banke *</label>
+                            <input type="text" formControlName="bankName" placeholder="Npr. Raiffeisen Bank">
+                            @if (accountForm.get('bankName')?.touched && accountForm.get('bankName')?.invalid) {
+                                <div class="error">Naziv banke je obavezan</div>
+                            }
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Broj računa *</label>
+                                <input type="text" formControlName="accountNumber" placeholder="xxx-xxxxxxxxxxxx-xx">
+                                @if (accountForm.get('accountNumber')?.touched && accountForm.get('accountNumber')?.invalid) {
+                                    <div class="error">Broj računa je obavezan</div>
+                                }
+                            </div>
+
+                            <div class="form-group">
+                                <label>Valuta *</label>
+                                <select formControlName="currency">
+                                    @for (opt of currencyOptions; track $index) {
+                                        <option [value]="opt.value">{{ opt.label }}</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Fields only for foreign currencies -->
+                        @if (!isRsdSelected()) {
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>IBAN *</label>
+                                    <input type="text" formControlName="IBAN" placeholder="RS35...">
+                                    @if (accountForm.get('IBAN')?.touched && accountForm.get('IBAN')?.invalid) {
+                                        <div class="error">IBAN je obavezan za devizne račune</div>
+                                    }
+                                </div>
+
+                                <div class="form-group">
+                                    <label>SWIFT *</label>
+                                    <input type="text" formControlName="SWIFT" placeholder="XXXXRS...">
+                                    @if (accountForm.get('SWIFT')?.touched && accountForm.get('SWIFT')?.invalid) {
+                                        <div class="error">SWIFT je obavezan za devizne račune</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="accountForm.invalid">
+                            {{ editingAccount() ? 'Sačuvaj izmene' : 'Dodaj račun' }}
+                        </button>
+                    </div>
+                </form>
             </div>
+        </div>
+    }
 
-            <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+    <!-- Delete Confirmation Modal -->
+    @if (showDeleteConfirm()) {
+        <div class="modal-overlay" (click)="closeDeleteConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Potvrda brisanja</h2>
+                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+                </div>
+
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label>Naziv banke *</label>
-                        <input type="text" formControlName="bankName" placeholder="Npr. Raiffeisen Bank">
-                        <div *ngIf="accountForm.get('bankName')?.touched && accountForm.get('bankName')?.invalid"
-                            class="error">
-                            Naziv banke je obavezan
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Broj računa *</label>
-                            <input type="text" formControlName="accountNumber" placeholder="xxx-xxxxxxxxxxxx-xx">
-                            <div *ngIf="accountForm.get('accountNumber')?.touched && accountForm.get('accountNumber')?.invalid"
-                                class="error">
-                                Broj računa je obavezan
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Valuta *</label>
-                            <select formControlName="currency">
-                                <option *ngFor="let opt of currencyOptions" [value]="opt.value">{{ opt.label }}</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Fields only for foreign currencies -->
-                    <div class="form-row" *ngIf="!isRsdSelected()">
-                        <div class="form-group">
-                            <label>IBAN *</label>
-                            <input type="text" formControlName="IBAN" placeholder="RS35...">
-                            <div *ngIf="accountForm.get('IBAN')?.touched && accountForm.get('IBAN')?.invalid"
-                                class="error">
-                                IBAN je obavezan za devizne račune
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>SWIFT *</label>
-                            <input type="text" formControlName="SWIFT" placeholder="XXXXRS...">
-                            <div *ngIf="accountForm.get('SWIFT')?.touched && accountForm.get('SWIFT')?.invalid"
-                                class="error">
-                                SWIFT je obavezan za devizne račune
-                            </div>
-                        </div>
-                    </div>
+                    <p class="confirm-message">
+                        Da li ste sigurni da želite da obrišete račun
+                        <strong>{{ deletingAccount()?.accountNumber }}</strong>?
+                    </p>
+                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeModal()">
-                        Otkaži
-                    </button>
-                    <button type="submit" class="btn-primary" [disabled]="accountForm.invalid">
-                        {{ editingAccount() ? 'Sačuvaj izmene' : 'Dodaj račun' }}
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                        </svg>Obriši
                     </button>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Potvrda brisanja</h2>
-                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-            </div>
-
-            <div class="modal-body">
-                <p class="confirm-message">
-                    Da li ste sigurni da želite da obrišete račun
-                    <strong>{{ deletingAccount()?.accountNumber }}</strong>?
-                </p>
-                <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
-                    Otkaži
-                </button>
-                <button type="button" class="btn-danger" (click)="confirmDelete()">
-                    Obriši
-                </button>
             </div>
         </div>
-    </div>
+    }
 </div>

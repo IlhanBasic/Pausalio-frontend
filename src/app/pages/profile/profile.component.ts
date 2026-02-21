@@ -280,8 +280,7 @@ export class ProfileComponent implements OnInit {
     openBusinessEditModal() {
         const business = this.businessProfile();
         if (business) {
-            const activityCode = this.activityCodes().find(ac => ac.code === business.activityCode);
-
+            const activityCode = this.activityCodes().find(ac => ac.description === business.activityCode);
             this.businessProfileForm.patchValue({
                 businessName: business.businessName,
                 PIB: business.pib,

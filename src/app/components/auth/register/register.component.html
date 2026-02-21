@@ -26,7 +26,7 @@
 
         <form [formGroup]="activeForm" (ngSubmit)="onSubmit()">
             <!-- Assistant Specific Fields -->
-            <ng-container *ngIf="!isOwner()">
+            @if (!isOwner()) {
                 <div class="form-section">
                     <h3>
                         <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -45,13 +45,13 @@
                     <div class="form-group">
                         <label>Invite Token *</label>
                         <input type="text" formControlName="inviteToken" placeholder="Unesite invite token">
-                        <div *ngIf="getControl('inviteToken')?.touched && getControl('inviteToken')?.invalid"
-                            class="error">
-                            Obavezno polje
-                        </div>
+                        @if (getControl('inviteToken')?.touched && getControl('inviteToken')?.invalid) {
+                            <div class="error">Obavezno polje</div>
+                        }
                     </div>
                 </div>
-            </ng-container>
+            }
+
             <!-- Shared User Fields -->
             <div class="form-section">
                 <h3>
@@ -68,26 +68,26 @@
                     <div class="form-group">
                         <label>Ime *</label>
                         <input type="text" formControlName="firstName" placeholder="Unesite ime">
-                        <div *ngIf="getControl('firstName')?.touched && getControl('firstName')?.invalid" class="error">
-                            Obavezno polje
-                        </div>
+                        @if (getControl('firstName')?.touched && getControl('firstName')?.invalid) {
+                            <div class="error">Obavezno polje</div>
+                        }
                     </div>
 
                     <div class="form-group">
                         <label>Prezime *</label>
                         <input type="text" formControlName="lastName" placeholder="Unesite prezime">
-                        <div *ngIf="getControl('lastName')?.touched && getControl('lastName')?.invalid" class="error">
-                            Obavezno polje
-                        </div>
+                        @if (getControl('lastName')?.touched && getControl('lastName')?.invalid) {
+                            <div class="error">Obavezno polje</div>
+                        }
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Email *</label>
                     <input type="email" formControlName="email" placeholder="primer@email.com">
-                    <div *ngIf="getControl('email')?.touched && getControl('email')?.invalid" class="error">
-                        Neispravan email format
-                    </div>
+                    @if (getControl('email')?.touched && getControl('email')?.invalid) {
+                        <div class="error">Neispravan email format</div>
+                    }
                 </div>
 
                 <div class="form-group">
@@ -97,38 +97,38 @@
                             placeholder="Unesite lozinku">
                         <button type="button" class="password-toggle" (click)="togglePasswordVisibility()"
                             aria-label="Toggle password visibility">
-                            <!-- Eye Icon (Show) -->
-                            <svg *ngIf="!showPassword()" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                            <!-- Eye Off Icon (Hide) -->
-                            <svg *ngIf="showPassword()" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path
-                                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
-                                </path>
-                                <line x1="1" y1="1" x2="23" y2="23"></line>
-                            </svg>
+                            @if (!showPassword()) {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            }
+                            @if (showPassword()) {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                    </path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            }
                         </button>
                     </div>
-                    <div *ngIf="getControl('password')?.touched && getControl('password')?.errors?.['required']"
-                        class="error">
-                        Obavezno polje
-                    </div>
-                    <div *ngIf="getControl('password')?.touched && getControl('password')?.errors?.['pattern']"
-                        class="error">
-                        Min 8 karaktera, 1 veliko, 1 malo slovo, 1 broj, 1 spec. znak
-                    </div>
+                    @if (getControl('password')?.touched && getControl('password')?.errors?.['required']) {
+                        <div class="error">Obavezno polje</div>
+                    }
+                    @if (getControl('password')?.touched && getControl('password')?.errors?.['pattern']) {
+                        <div class="error">Min 8 karaktera, 1 veliko, 1 malo slovo, 1 broj, 1 spec. znak</div>
+                    }
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label>Telefon</label>
-                        <input type="tel" formControlName="phone" placeholder="+381...">
+                        <input type="tel" formControlName="phone" placeholder="06...">
                     </div>
 
                     <div class="form-group autocomplete-wrapper">
@@ -137,30 +137,32 @@
                             (input)="onCityInput($event, 'user')" (focus)="showCityDropdown.set(true)"
                             (blur)="closeDropdown('user')" autocomplete="off">
 
-                        <div class="suggestions-list" *ngIf="showCityDropdown() && filteredCities().length > 0">
-                            <div class="suggestion-item" *ngFor="let city of filteredCities()"
-                                (mousedown)="selectCity(city, 'user')">
-                                {{ city.name }}
+                        @if (showCityDropdown() && filteredCities().length > 0) {
+                            <div class="suggestions-list">
+                                @for (city of filteredCities(); track city.name) {
+                                    <div class="suggestion-item" (mousedown)="selectCity(city, 'user')">
+                                        {{ city.name }}
+                                    </div>
+                                }
                             </div>
-                        </div>
+                        }
 
-                        <div *ngIf="getControl('city')?.touched && getControl('city')?.invalid" class="error">
-                            Obavezno polje
-                        </div>
+                        @if (getControl('city')?.touched && getControl('city')?.invalid) {
+                            <div class="error">Obavezno polje</div>
+                        }
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Adresa *</label>
                     <input type="text" formControlName="address" placeholder="Ulica i broj">
-                    <div *ngIf="getControl('address')?.touched && getControl('address')?.invalid" class="error">
-                        Obavezno polje
-                    </div>
+                    @if (getControl('address')?.touched && getControl('address')?.invalid) {
+                        <div class="error">Obavezno polje</div>
+                    }
                 </div>
 
                 <!-- Owner-specific user fields -->
-                <ng-container *ngIf="isOwner()">
-
+                @if (isOwner()) {
                     <div class="form-group file-upload">
                         <label>Profilna slika</label>
                         <div class="file-input-wrapper">
@@ -177,15 +179,17 @@
                                 {{ profilePictureFile() ? profilePictureFile()!.name : 'Izaberite sliku' }}
                             </label>
                         </div>
-                        <div *ngIf="profilePicturePreview()" class="image-preview">
-                            <img [src]="profilePicturePreview()" alt="Preview">
-                        </div>
+                        @if (profilePicturePreview()) {
+                            <div class="image-preview">
+                                <img [src]="profilePicturePreview()" alt="Preview">
+                            </div>
+                        }
                     </div>
-                </ng-container>
+                }
             </div>
 
             <!-- Owner Business Fields -->
-            <ng-container *ngIf="isOwner()">
+            @if (isOwner()) {
                 <div class="form-section">
                     <h3>
                         <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -200,19 +204,18 @@
                     <div class="form-group">
                         <label>Naziv firme *</label>
                         <input type="text" formControlName="businessName" placeholder="Naziv preduzeća">
-                        <div *ngIf="getControl('businessName')?.touched && getControl('businessName')?.invalid"
-                            class="error">
-                            Obavezno polje
-                        </div>
+                        @if (getControl('businessName')?.touched && getControl('businessName')?.invalid) {
+                            <div class="error">Obavezno polje</div>
+                        }
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label>PIB *</label>
                             <input type="text" formControlName="PIB" placeholder="123456789">
-                            <div *ngIf="getControl('PIB')?.touched && getControl('PIB')?.invalid" class="error">
-                                Obavezno polje
-                            </div>
+                            @if (getControl('PIB')?.touched && getControl('PIB')?.invalid) {
+                                <div class="error">Obavezno polje</div>
+                            }
                         </div>
 
                         <div class="form-group">
@@ -225,14 +228,15 @@
                         <label>Šifra delatnosti *</label>
                         <select formControlName="activityCodeId">
                             <option value="">Izaberite šifru delatnosti</option>
-                            <option *ngFor="let code of activityCodes()" [value]="code.id">
-                                {{ code.code }} - {{ code.description }}
-                            </option>
+                            @for (code of activityCodes(); track code.id) {
+                                <option [value]="code.id">
+                                    {{ code.code }} - {{ code.description }}
+                                </option>
+                            }
                         </select>
-                        <div *ngIf="getControl('activityCodeId')?.touched && getControl('activityCodeId')?.invalid"
-                            class="error">
-                            Obavezno polje
-                        </div>
+                        @if (getControl('activityCodeId')?.touched && getControl('activityCodeId')?.invalid) {
+                            <div class="error">Obavezno polje</div>
+                        }
                     </div>
 
                     <div class="form-row">
@@ -242,27 +246,27 @@
                                 (input)="onCityInput($event, 'business')" (focus)="showBusinessCityDropdown.set(true)"
                                 (blur)="closeDropdown('business')" autocomplete="off">
 
-                            <div class="suggestions-list"
-                                *ngIf="showBusinessCityDropdown() && filteredBusinessCities().length > 0">
-                                <div class="suggestion-item" *ngFor="let city of filteredBusinessCities()"
-                                    (mousedown)="selectCity(city, 'business')">
-                                    {{ city.name }}
+                            @if (showBusinessCityDropdown() && filteredBusinessCities().length > 0) {
+                                <div class="suggestions-list">
+                                    @for (city of filteredBusinessCities(); track city.name) {
+                                        <div class="suggestion-item" (mousedown)="selectCity(city, 'business')">
+                                            {{ city.name }}
+                                        </div>
+                                    }
                                 </div>
-                            </div>
+                            }
 
-                            <div *ngIf="getControl('businessCity')?.touched && getControl('businessCity')?.invalid"
-                                class="error">
-                                Obavezno polje
-                            </div>
+                            @if (getControl('businessCity')?.touched && getControl('businessCity')?.invalid) {
+                                <div class="error">Obavezno polje</div>
+                            }
                         </div>
 
                         <div class="form-group">
                             <label>Adresa *</label>
                             <input type="text" formControlName="businessAddress" placeholder="Ulica i broj">
-                            <div *ngIf="getControl('businessAddress')?.touched && getControl('businessAddress')?.invalid"
-                                class="error">
-                                Obavezno polje
-                            </div>
+                            @if (getControl('businessAddress')?.touched && getControl('businessAddress')?.invalid) {
+                                <div class="error">Obavezno polje</div>
+                            }
                         </div>
                     </div>
 
@@ -270,15 +274,14 @@
                         <div class="form-group">
                             <label>Email firme *</label>
                             <input type="email" formControlName="businessEmail" placeholder="firma@email.com">
-                            <div *ngIf="getControl('businessEmail')?.touched && getControl('businessEmail')?.invalid"
-                                class="error">
-                                Neispravan email
-                            </div>
+                            @if (getControl('businessEmail')?.touched && getControl('businessEmail')?.invalid) {
+                                <div class="error">Neispravan email</div>
+                            }
                         </div>
 
                         <div class="form-group">
                             <label>Telefon firme</label>
-                            <input type="tel" formControlName="businessPhone" placeholder="+381...">
+                            <input type="tel" formControlName="businessPhone" placeholder="06...">
                         </div>
                     </div>
 
@@ -303,19 +306,19 @@
                                 {{ companyLogoFile() ? companyLogoFile()!.name : 'Izaberite logo' }}
                             </label>
                         </div>
-                        <div *ngIf="companyLogoPreview()" class="image-preview">
-                            <img [src]="companyLogoPreview()" alt="Logo Preview">
-                        </div>
+                        @if (companyLogoPreview()) {
+                            <div class="image-preview">
+                                <img [src]="companyLogoPreview()" alt="Logo Preview">
+                            </div>
+                        }
                     </div>
                 </div>
-            </ng-container>
-
-
-
-
+            }
 
             <button type="submit" class="btn-primary" [disabled]="activeForm.invalid || isLoading()">
-                <span *ngIf="isLoading()" class="spinner"></span>
+                @if (isLoading()) {
+                    <span class="spinner"></span>
+                }
                 <span>{{ isLoading() ? 'Učitavanje...' : 'Registruj se' }}</span>
             </button>
         </form>

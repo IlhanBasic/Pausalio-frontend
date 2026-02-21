@@ -24,126 +24,125 @@
     </app-data-table>
 
     <!-- Add/Edit Modal -->
-    <div class="modal-overlay" *ngIf="showModal()" (click)="closeModal()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>{{ editingPayment() ? 'Izmeni plaćanje' : 'Dodaj novo plaćanje' }}</h2>
-                <button class="close-btn" (click)="closeModal()">✕</button>
-            </div>
+    @if (showModal()) {
+        <div class="modal-overlay" (click)="closeModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ editingPayment() ? 'Izmeni plaćanje' : 'Dodaj novo plaćanje' }}</h2>
+                    <button class="close-btn" (click)="closeModal()">✕</button>
+                </div>
 
-            <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
-                <div class="modal-body">
+                <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+                    <div class="modal-body">
 
-                    <div class="form-group" *ngIf="!editingPayment()">
-                        <label>Tip plaćanja *</label>
-                        <select formControlName="paymentType">
-                            <option [ngValue]="PaymentType.InvoicePayment">Plaćanje fakture</option>
-                            <option [ngValue]="PaymentType.TaxPayment">Plaćanje poreza</option>
-                            <option [ngValue]="PaymentType.ExpensePayment">Plaćanje troška</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group" *ngIf="!editingPayment()">
-                        <label>Izaberite entitet *</label>
-                        <select formControlName="entityId">
-                            <option value="">-- Izaberite --</option>
-                            <option *ngFor="let entity of getAvailableEntities()" [value]="entity.id">
-                                {{ getEntityLabel(entity) }}
-                            </option>
-                        </select>
-                        <div *ngIf="paymentForm.get('entityId')?.touched && paymentForm.get('entityId')?.invalid"
-                            class="error">
-                            Entitet je obavezan
-                        </div>
-                    </div>
-
-                    <div class="form-row" *ngIf="!editingPayment()">
-                        <div class="form-group">
-                            <label>Iznos *</label>
-                            <input type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0">
-                            <small class="form-hint"
-                                *ngIf="paymentForm.get('paymentType')?.value !== PaymentType.InvoicePayment && paymentForm.get('entityId')?.value">
-                                Iznos je automatski preuzet iz odabranog entiteta
-                            </small>
-                            <div *ngIf="paymentForm.get('amount')?.touched && paymentForm.get('amount')?.invalid"
-                                class="error">
-                                Iznos je obavezan i mora biti veći od 0
+                        @if (!editingPayment()) {
+                            <div class="form-group">
+                                <label>Tip plaćanja *</label>
+                                <select formControlName="paymentType">
+                                    <option [ngValue]="PaymentType.InvoicePayment">Plaćanje fakture</option>
+                                    <option [ngValue]="PaymentType.TaxPayment">Plaćanje poreza</option>
+                                    <option [ngValue]="PaymentType.ExpensePayment">Plaćanje troška</option>
+                                </select>
                             </div>
+
+                            <div class="form-group">
+                                <label>Izaberite entitet *</label>
+                                <select formControlName="entityId">
+                                    <option value="">-- Izaberite --</option>
+                                    @for (entity of getAvailableEntities(); track entity.id) {
+                                        <option [value]="entity.id">{{ getEntityLabel(entity) }}</option>
+                                    }
+                                </select>
+                                @if (paymentForm.get('entityId')?.touched && paymentForm.get('entityId')?.invalid) {
+                                    <div class="error">Entitet je obavezan</div>
+                                }
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Iznos *</label>
+                                    <input type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0">
+                                    @if (paymentForm.get('paymentType')?.value !== PaymentType.InvoicePayment && paymentForm.get('entityId')?.value) {
+                                        <small class="form-hint">Iznos je automatski preuzet iz odabranog entiteta</small>
+                                    }
+                                    @if (paymentForm.get('amount')?.touched && paymentForm.get('amount')?.invalid) {
+                                        <div class="error">Iznos je obavezan i mora biti veći od 0</div>
+                                    }
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Valuta *</label>
+                                    <select formControlName="currency">
+                                        <option [ngValue]="Currency.RSD">RSD</option>
+                                        <option [ngValue]="Currency.USD">USD</option>
+                                        <option [ngValue]="Currency.EUR">EUR</option>
+                                        <option [ngValue]="Currency.GBP">GBP</option>
+                                        <option [ngValue]="Currency.CHF">CHF</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Bankovni račun</label>
+                                <select formControlName="bankAccountId">
+                                    <option value="">-- Bez računa --</option>
+                                    @for (account of bankAccounts(); track account.id) {
+                                        <option [value]="account.id">
+                                            {{ account.bankName }} - {{ account.accountNumber }} ({{ getCurrencyLabel(account.currency) }})
+                                        </option>
+                                    }
+                                </select>
+                                @if (bankAccounts().length === 0) {
+                                    <small class="form-hint">
+                                        Nemate aktivnih bankovnih računa. Dodajte račun u podešavanjima.
+                                    </small>
+                                }
+                            </div>
+                        }
+
+                        <div class="form-group">
+                            <label>Poziv na broj</label>
+                            <input type="text" formControlName="referenceNumber" placeholder="123-456-789">
                         </div>
 
                         <div class="form-group">
-                            <label>Valuta *</label>
-                            <select formControlName="currency">
-                                <option [ngValue]="Currency.RSD">RSD</option>
-                                <option [ngValue]="Currency.USD">USD</option>
-                                <option [ngValue]="Currency.EUR">EUR</option>
-                                <option [ngValue]="Currency.GBP">GBP</option>
-                                <option [ngValue]="Currency.CHF">CHF</option>
-                            </select>
+                            <label>Opis</label>
+                            <textarea formControlName="description" rows="3"
+                                placeholder="Dodatne napomene o plaćanju..."></textarea>
                         </div>
+
                     </div>
 
-                    <div class="form-group" *ngIf="!editingPayment()">
-                        <label>Bankovni račun</label>
-                        <select formControlName="bankAccountId">
-                            <option value="">-- Bez računa --</option>
-                            <option *ngFor="let account of bankAccounts()" [value]="account.id">
-                                {{ account.bankName }} - {{ account.accountNumber }} ({{ getCurrencyLabel(account.currency) }})
-                            </option>
-                        </select>
-                        <small class="form-hint" *ngIf="bankAccounts().length === 0">
-                            Nemate aktivnih bankovnih računa. Dodajte račun u podešavanjima.
-                        </small>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="submit" class="btn-primary" [disabled]="paymentForm.invalid">
+                            {{ editingPayment() ? 'Sačuvaj izmene' : 'Dodaj plaćanje' }}
+                        </button>
                     </div>
+                </form>
+            </div>
+        </div>
+    }
 
-                    <div class="form-group">
-                        <label>Poziv na broj</label>
-                        <input type="text" formControlName="referenceNumber" placeholder="123-456-789">
-                    </div>
+    <!-- Delete Confirmation Modal -->
+    @if (showDeleteConfirm()) {
+        <div class="modal-overlay" (click)="closeDeleteConfirm()">
+            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>Potvrda brisanja</h2>
+                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+                </div>
 
-                    <div class="form-group">
-                        <label>Opis</label>
-                        <textarea formControlName="description" rows="3"
-                            placeholder="Dodatne napomene o plaćanju..."></textarea>
-                    </div>
-
+                <div class="modal-body">
+                    <p class="confirm-message">Da li ste sigurni da želite da obrišete ovo plaćanje?</p>
+                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeModal()">
-                        Otkaži
-                    </button>
-                    <button type="submit" class="btn-primary" [disabled]="paymentForm.invalid">
-                        {{ editingPayment() ? 'Sačuvaj izmene' : 'Dodaj plaćanje' }}
-                    </button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" *ngIf="showDeleteConfirm()" (click)="closeDeleteConfirm()">
-        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h2>Potvrda brisanja</h2>
-                <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-            </div>
-
-            <div class="modal-body">
-                <p class="confirm-message">
-                    Da li ste sigurni da želite da obrišete ovo plaćanje?
-                </p>
-                <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
-                    Otkaži
-                </button>
-                <button type="button" class="btn-danger" (click)="confirmDelete()">
-                    Obriši
-                </button>
             </div>
         </div>
-    </div>
+    }
 </div>
