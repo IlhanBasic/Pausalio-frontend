@@ -55,7 +55,7 @@ export class ClientsComponent implements OnInit {
         address: [''],
         city: [''],
         email: ['', Validators.email],
-        phone: [''],
+        phone: ['', Validators.pattern(/^[0-9+ ]*$/)],
         countryId: [''],
         countrySearch: ['']
     });

@@ -4,7 +4,7 @@ export interface AddReminderDto {
   title: string;
   description?: string;
   reminderType?: ReminderType;
-  dueDate: Date;
+  dueDate: string;
 }
 
 export interface ReminderToReturnDto {

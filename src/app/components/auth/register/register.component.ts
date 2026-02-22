@@ -55,7 +55,7 @@ export class RegisterComponent implements OnInit {
         lastName: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
         password: ['', this.passwordValidators],
-        phone: [''],
+        phone: ['',Validators.pattern(/^[0-9+ ]*$/)],
         city: ['', Validators.required],
         address: ['', Validators.required],
         // Business fields
@@ -66,7 +66,7 @@ export class RegisterComponent implements OnInit {
         businessCity: ['', Validators.required],
         businessAddress: ['', Validators.required],
         businessEmail: ['', [Validators.required, Validators.email]],
-        businessPhone: [''],
+        businessPhone: ['',Validators.pattern(/^[0-9+ ]*$/)],
         website: ['']
     });
 
@@ -166,26 +166,57 @@ export class RegisterComponent implements OnInit {
 
     onProfilePictureSelect(event: any) {
         const file = event.target.files[0];
-        if (file) {
-            this.profilePictureFile.set(file);
-            const reader = new FileReader();
-            reader.onload = (e: any) => {
-                this.profilePicturePreview.set(e.target.result);
-            };
-            reader.readAsDataURL(file);
+
+        if (!file) return;
+
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (!file.type.startsWith('image/')) {
+            this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
+            return;
         }
+        if (file.size > maxSize) {
+            this.toastr.error('Fajl ne sme biti veći od 10MB');
+            event.target.value = ''; // reset input
+            this.profilePictureFile.set(null);
+            this.profilePicturePreview.set(null);
+            return;
+        }
+
+        this.profilePictureFile.set(file);
+
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+            this.profilePicturePreview.set(e.target.result);
+        };
+
+        reader.readAsDataURL(file);
     }
 
     onCompanyLogoSelect(event: any) {
         const file = event.target.files[0];
-        if (file) {
-            this.companyLogoFile.set(file);
-            const reader = new FileReader();
-            reader.onload = (e: any) => {
-                this.companyLogoPreview.set(e.target.result);
-            };
-            reader.readAsDataURL(file);
+
+        if (!file) return;
+
+        const maxSize = 10 * 1024 * 1024;
+        if (!file.type.startsWith('image/')) {
+            this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
+            return;
         }
+        if (file.size > maxSize) {
+             this.toastr.error('Fajl ne sme biti veći od 10MB');
+            event.target.value = '';
+            this.companyLogoFile.set(null);
+            this.companyLogoPreview.set(null);
+            return;
+        }
+
+        this.companyLogoFile.set(file);
+
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+            this.companyLogoPreview.set(e.target.result);
+        };
+        reader.readAsDataURL(file);
     }
 
     onSubmit() {

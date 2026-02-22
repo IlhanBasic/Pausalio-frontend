@@ -64,7 +64,7 @@
                                 <div class="error">Naziv je obavezan</div>
                             }
                         </div>
-
+                        @if(!editingClient()){
                         <div class="form-group">
                             <label>Tip klijenta *</label>
                             <select formControlName="clientType">
@@ -73,6 +73,8 @@
                                 <option [ngValue]="3">Strano pravno lice</option>
                             </select>
                         </div>
+                        }
+                       
 
                         <!-- Country field -->
                         @if (isForeignClient()) {
@@ -151,7 +153,7 @@
 
                             <div class="form-group">
                                 <label>Telefon</label>
-                                <input type="tel" formControlName="phone" placeholder="+381...">
+                                <input type="tel" inputmode="numeric"  pattern="[0-9+ ]*" formControlName="phone" placeholder="+381...">
                             </div>
                         </div>
                     </div>

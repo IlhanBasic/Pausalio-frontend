@@ -201,7 +201,7 @@ export class RemindersComponent implements OnInit {
                 title: formValue.title!,
                 description: formValue.description || undefined,
                 reminderType: formValue.reminderType!,
-                dueDate: new Date(formValue.dueDate!)
+                dueDate: formValue.dueDate!
             };
 
             this.reminderService.create(dto).subscribe({

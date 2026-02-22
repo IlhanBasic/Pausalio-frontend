@@ -67,7 +67,7 @@ export class ProfileComponent implements OnInit {
     userProfileForm = this.fb.group({
         firstName: ['', Validators.required],
         lastName: ['', Validators.required],
-        phone: [''],
+        phone: ['',Validators.pattern(/^[0-9+ ]*$/)],
         city: [''],
         address: [''],
     });
@@ -197,14 +197,26 @@ export class ProfileComponent implements OnInit {
 
     onProfilePictureSelect(event: any) {
         const file = event.target.files[0];
-        if (file) {
-            this.profilePictureFile.set(file);
-            const reader = new FileReader();
-            reader.onload = (e: any) => {
-                this.profilePicturePreview.set(e.target.result);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+       const maxSize = 25 * 1024 * 1024;
+        if (!file.type.startsWith('image/')) {
+            this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
+            return;
         }
+        if (file.size > maxSize) {
+             this.toastr.error('Fajl ne sme biti veći od 10MB');
+            event.target.value = '';
+            this.profilePictureFile.set(null);
+            this.profilePicturePreview.set(null);
+            return;
+        }
+        this.profilePictureFile.set(file);
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+            this.profilePicturePreview.set(e.target.result);
+        };
+        reader.readAsDataURL(file);
+        
     }
 
     deleteProfilePicture() {
@@ -306,14 +318,27 @@ export class ProfileComponent implements OnInit {
 
     onCompanyLogoSelect(event: any) {
         const file = event.target.files[0];
-        if (file) {
-            this.companyLogoFile.set(file);
-            const reader = new FileReader();
-            reader.onload = (e: any) => {
-                this.companyLogoPreview.set(e.target.result);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+        const maxSize = 25 * 1024 * 1024;
+        if (!file.type.startsWith('image/')) {
+            this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
+            return;
         }
+
+        if (file.size > maxSize) {
+                this.toastr.error('Fajl ne sme biti veći od 10MB');
+                event.target.value = '';
+                this.companyLogoFile.set(null);
+                this.companyLogoPreview.set(null);
+                return;
+        }
+        this.companyLogoFile.set(file);
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+            this.companyLogoPreview.set(e.target.result);
+        };
+        reader.readAsDataURL(file);
+        
     }
 
     deleteCompanyLogo() {
