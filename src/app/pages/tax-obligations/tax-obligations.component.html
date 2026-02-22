@@ -196,7 +196,7 @@
                                 <option value="">Izaberite račun</option>
                                 @for (account of bankAccounts(); track account.id) {
                                     <option [value]="account.id">
-                                        {{ account.bankName }} - {{ account.accountNumber }}
+                                        {{ account.bankName }} - {{ account.accountNumber }} (RSD)
                                     </option>
                                 }
                             </select>

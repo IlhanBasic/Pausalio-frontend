@@ -27,24 +27,24 @@ export class NavbarComponent implements OnInit {
   showBusinessDropdown = signal(false);
 
   constructor() {
-    // Reaktivno sluša store - automatski se poziva kad se store promeni
     effect(() => {
-      const profile = this.userProfileStore.Profile();
-      if (profile && this.store.isOwner()) {
-        this.currentBusiness.set(profile.businessProfile);
-      }
-    });
-  }
+        const profile = this.userProfileStore.Profile();
+        if (!profile) return;
 
-  ngOnInit() {
-    // Samo za asistente jer oni ne koriste userProfileStore za businesses
-    if (this.store.isAssistant()) {
-      this.loadAssistantBusinesses();
-    } else if (this.store.isAdmin()) {
-      this.currentBusiness.set(null);
-      this.availableBusinesses.set([]);
+        if (this.store.isOwner()) {
+            this.currentBusiness.set(profile.businessProfile);
+        } else if (this.store.isAssistant()) {
+            this.loadAssistantBusinesses();
+        }
+    });
+}
+
+ngOnInit() {
+    if (this.store.isAdmin()) {
+        this.currentBusiness.set(null);
+        this.availableBusinesses.set([]);
     }
-  }
+}
 
   private loadAssistantBusinesses() {
     this.businessService.getUserCompanies().subscribe({

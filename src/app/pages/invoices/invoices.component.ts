@@ -186,7 +186,7 @@ export class InvoicesComponent implements OnInit {
     loadBankAccounts() {
         this.bankAccountService.getAll().subscribe({
             next: (accounts) => {
-                this.bankAccounts.set(accounts.filter(a => a.isActive && a.currency !== Currency.RSD));
+                this.bankAccounts.set(accounts.filter(a => a.isActive));
             },
             error: (err) => console.error('Error loading bank accounts:', err)
         });
@@ -460,6 +460,21 @@ export class InvoicesComponent implements OnInit {
             bankAccountIdControl?.clearValidators();
         }
         bankAccountIdControl?.updateValueAndValidity();
+
+        this.bankAccountService.getAll().subscribe({
+        next: (accounts) => {
+        const filtered = accounts.filter(a => {
+            if (!a.isActive) return false;
+            if (clientType === ClientType.foreign) {
+            return a.currency !== Currency.RSD;
+            } else {
+            return a.currency === Currency.RSD;
+            }
+        });
+        this.bankAccounts.set(filtered);
+        },
+        error: (err) => console.error('Error loading bank accounts:', err)
+        });
 
         this.paymentForm.reset({
             amount: invoice.amountToPay,

@@ -30,6 +30,8 @@ export class UsersComponent implements OnInit {
     ];
 
     actions: TableAction[] = [
+        { label: 'Aktiviraj', icon: '✅', type: 'custom', showCondition: (user: UserProfileToReturnDto) => !user.isActive },
+        { label: 'Deaktiviraj', icon: '⛔', type: 'custom', showCondition: (user: UserProfileToReturnDto) => user.isActive },
         { label: 'Obriši', icon: '🗑️', type: 'delete' }
     ];
 
@@ -58,6 +60,44 @@ export class UsersComponent implements OnInit {
         });
     }
 
+    handleActivate(user: UserProfileToReturnDto) {
+        this.userProfileService.activateUser(user.id).subscribe({
+            next: () => {
+                this.toastr.success('Korisnik aktiviran', 'Uspeh');
+                this.loadUsers();
+            },
+            error: (err) => {
+                this.toastr.error(err.error?.message || 'Greška pri aktivaciji', 'Greška');
+            }
+        });
+    }
+
+    handleDeactivate(user: UserProfileToReturnDto) {
+        this.userProfileService.deactivateUser(user.id).subscribe({
+            next: () => {
+                this.toastr.success('Korisnik deaktiviran', 'Uspeh');
+                this.loadUsers();
+            },
+            error: (err) => {
+                this.toastr.error(err.error?.message || 'Greška pri deaktivaciji', 'Greška');
+            }
+        });
+    }
+
+    onAction(event: { action: string, item: UserProfileToReturnDto }){
+        switch (event.action) {
+            case 'Aktiviraj':
+                this.handleActivate(event.item);
+                break;
+            case 'Deaktiviraj':
+                this.handleDeactivate(event.item);
+                break;
+            case 'Obriši':
+                this.openDeleteConfirm(event.item);
+                break;
+        }
+    }
+
     openDeleteConfirm(user: UserProfileToReturnDto) {
         this.deletingUser.set(user);
         this.showDeleteConfirm.set(true);
@@ -79,7 +119,6 @@ export class UsersComponent implements OnInit {
                 this.closeDeleteConfirm();
             },
             error: (err) => {
-                console.error('Error deleting user:', err);
                 this.toastr.error(err.error?.message || 'Greška pri brisanju korisnika', 'Greška');
                 this.closeDeleteConfirm();
             }
@@ -88,10 +127,8 @@ export class UsersComponent implements OnInit {
 
     getRoleDisplay(role: UserRole): string {
         switch (role) {
-            case UserRole.Owner:
-                return 'Vlasnik';
-            case UserRole.Assistant:
-                return 'Asistent';
+            case UserRole.RegularUser:
+                return 'Korisnik';
             case UserRole.Admin:
                 return 'Administrator';
             default:

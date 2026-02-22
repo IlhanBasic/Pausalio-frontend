@@ -1,5 +1,4 @@
 <div class="users-page">
-    <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
             <h1>Korisnici</h1>
@@ -7,12 +6,17 @@
         </div>
     </div>
 
-    <!-- Data Table -->
-    <app-data-table [columns]="columns" [data]="users()" [actions]="actions" searchPlaceholder="Pretraži korisnike..."
-        emptyMessage="Nema korisnika za prikaz." (onDelete)="openDeleteConfirm($event)">
+    <app-data-table
+        [columns]="columns"
+        [data]="users()"
+        [actions]="actions"
+        searchPlaceholder="Pretraži korisnike..."
+        emptyMessage="Nema korisnika za prikaz."
+        (onCustomAction)="onAction($event)"
+        (onDelete)="openDeleteConfirm($event)"
+    >
     </app-data-table>
 
-    <!-- Delete Confirmation Modal -->
     @if (showDeleteConfirm()) {
         <div class="modal-overlay" (click)="closeDeleteConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">

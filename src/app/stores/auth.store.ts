@@ -1,6 +1,6 @@
 import { computed, effect, Injectable, signal } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
-import { UserRole } from '../enums/user-role';
+import { UserRoleJwt } from '../enums/user-role';
 
 export interface DecodedToken {
   sub: string;
@@ -71,11 +71,11 @@ export class AuthStore {
   });
 
   readonly isAssistant = computed(() =>
-    this.user()?.roles.includes(UserRole.Assistant.toString()) ?? false
+    this.user()?.roles.includes(UserRoleJwt.Assistant.toString()) ?? false
   );
 
   readonly isOwner = computed(() =>
-    this.user()?.roles.includes(UserRole.Owner.toString()) ?? false
+    this.user()?.roles.includes(UserRoleJwt.Owner.toString()) ?? false
   );
 
   constructor() {
@@ -116,11 +116,9 @@ export class AuthStore {
   }
 
   setBusinessContext(businessId: string) {
-    if (this.user()?.availableBusinesses.includes(businessId)) {
       this._currentBusinessId.set(businessId);
-    }
   }
   readonly isAdmin = computed(() =>
-    this.user()?.roles.includes(UserRole.Admin.toString()) ?? false
+    this.user()?.roles.includes(UserRoleJwt.Admin.toString()) ?? false
   );
 }

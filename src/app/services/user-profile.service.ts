@@ -32,4 +32,19 @@ export class UserProfileService {
             withCredentials: true
         });
     }
+    activateUser(id: string): Observable<ApiResponse> {
+    return this.http.patch<ApiResponse>(
+        `${this.baseUrl}/${id}/activate`,
+        {},
+        { withCredentials: true }
+    );
+    }
+
+    deactivateUser(id: string): Observable<ApiResponse> {
+    return this.http.patch<ApiResponse>(
+        `${this.baseUrl}/${id}/deactivate`,
+        {},
+        { withCredentials: true }
+    );
+    }
 }

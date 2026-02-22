@@ -429,29 +429,42 @@ export class ProfileComponent implements OnInit {
         this.acceptInviteForm.reset();
     }
 
-    onSubmitAcceptInvite() {
-        if (this.acceptInviteForm.invalid) return;
+onSubmitAcceptInvite() {
+    if (this.acceptInviteForm.invalid) return;
 
-        this.isLoading.set(true);
+    this.isLoading.set(true);
 
-        const dto = {
-            inviteToken: this.acceptInviteForm.value.inviteToken!
-        };
+    const dto = {
+        inviteToken: this.acceptInviteForm.value.inviteToken!
+    };
 
-        this.authService.acceptInvite(dto).subscribe({
-            next: (response) => {
-                this.toastr.success('Uspešno ste se pridružili kompaniji: ' + response.businessName, 'Uspeh');
-                this.closeAcceptInviteModal();
-                this.loadProfileData();
-                this.isLoading.set(false);
-            },
-            error: (err) => {
-                this.toastr.error(err.error?.message || 'Greška pri prihvatanju pozivnice', 'Greška');
-                this.isLoading.set(false);
-            }
-        });
-    }
-
+    this.authService.acceptInvite(dto).subscribe({
+        next: (response) => {
+            this.authService.refreshToken().subscribe({
+                next: (tokenResponse) => {
+                    this.store.login(tokenResponse.token!);
+                    if (response.businessId) {
+                        this.store.setBusinessContext(response.businessId);
+                    } else {
+                        console.warn('response.businessId ne postoji!');
+                    }
+                    this.closeAcceptInviteModal();
+                    this.loadProfileData();
+                    this.isLoading.set(false);
+                    window.location.reload();
+                },
+                error: (err) => {
+                    this.isLoading.set(false);
+                }
+            });
+        },
+        error: (err) => {
+            console.error('AcceptInvite greška:', err);
+            this.toastr.error(err.error?.message || 'Greška pri prihvatanju pozivnice', 'Greška');
+            this.isLoading.set(false);
+        }
+    });
+}
     getUserFullName(): string {
         const user = this.userProfile();
         return user ? `${user.firstName} ${user.lastName}` : '';

@@ -85,6 +85,13 @@ export class AuthService {
       dto
     );
   }
+  refreshToken(): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(
+        `${this.baseUrl}/refresh-token`,
+        {},
+        { withCredentials: true }
+    );
+  }
 
   verifyEmail(token: string, email: string): Observable<any> {
     return this.http.get(
