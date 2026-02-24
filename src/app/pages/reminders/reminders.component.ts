@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventClickArg } from '@fullcalendar/core';
+import { DateClickArg } from '@fullcalendar/interaction';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -35,6 +36,10 @@ export class RemindersComponent implements OnInit {
 
     ReminderType = ReminderType;
 
+    // Track double-click logic
+    private lastClickedDate: string | null = null;
+    private lastClickTime: number = 0;
+
     reminderForm = this.fb.group({
         title: ['', Validators.required],
         description: [''],
@@ -63,6 +68,7 @@ export class RemindersComponent implements OnInit {
         weekends: true,
         events: [],
         eventClick: this.handleEventClick.bind(this),
+        dateClick: this.handleDateClick.bind(this),
         height: 'auto'
     };
 
@@ -105,21 +111,14 @@ export class RemindersComponent implements OnInit {
     }
 
     getEventColor(reminder: ReminderToReturnDto): string {
-        if (reminder.isCompleted) {
-            return '#68d391';
-        }
+        if (reminder.isCompleted) return '#68d391';
 
         switch (reminder.reminderType) {
-            case ReminderType.Tax:
-                return '#f56565';
-            case ReminderType.Expense:
-                return '#ed8936';
-            case ReminderType.Meeting:
-                return '#4299e1';
-            case ReminderType.Other:
-                return '#9f7aea';
-            default:
-                return '#718096';
+            case ReminderType.Tax:     return '#f56565';
+            case ReminderType.Expense: return '#ed8936';
+            case ReminderType.Meeting: return '#4299e1';
+            case ReminderType.Other:   return '#9f7aea';
+            default:                   return '#718096';
         }
     }
 
@@ -127,6 +126,42 @@ export class RemindersComponent implements OnInit {
         const reminder = clickInfo.event.extendedProps['reminder'] as ReminderToReturnDto;
         this.selectedReminder.set(reminder);
         this.showDetailsModal.set(true);
+    }
+
+    handleDateClick(arg: DateClickArg) {
+        const now = Date.now();
+        const sameDate = this.lastClickedDate === arg.dateStr;
+        const isDoubleClick = sameDate && (now - this.lastClickTime) < 400;
+
+        this.lastClickedDate = arg.dateStr;
+        this.lastClickTime = now;
+
+        if (!isDoubleClick) return;
+
+        // Pre-fill date: use clicked date at current time, or 09:00 as default
+        const clickedDate = new Date(arg.date);
+        const now2 = new Date();
+
+        // If clicked date is today, use current time rounded up to next 5min; otherwise 09:00
+        const isToday = clickedDate.toDateString() === now2.toDateString();
+        if (isToday) {
+            clickedDate.setHours(now2.getHours(), Math.ceil(now2.getMinutes() / 5) * 5, 0, 0);
+        } else {
+            clickedDate.setHours(9, 0, 0, 0);
+        }
+
+        const formatted = new Date(clickedDate.getTime() - (clickedDate.getTimezoneOffset() * 60000))
+            .toISOString()
+            .slice(0, 16);
+
+        this.editingReminder.set(null);
+        this.reminderForm.reset({
+            title: '',
+            description: '',
+            reminderType: ReminderType.Other,
+            dueDate: formatted
+        });
+        this.showModal.set(true);
     }
 
     openAddModal() {
@@ -176,7 +211,6 @@ export class RemindersComponent implements OnInit {
         const editing = this.editingReminder();
 
         if (editing) {
-            // Update existing reminder
             const dto: UpdateReminderDto = {
                 title: formValue.title!,
                 description: formValue.description || undefined,
@@ -196,7 +230,6 @@ export class RemindersComponent implements OnInit {
                 }
             });
         } else {
-            // Create new reminder
             const dto: AddReminderDto = {
                 title: formValue.title!,
                 description: formValue.description || undefined,
@@ -263,16 +296,11 @@ export class RemindersComponent implements OnInit {
 
     getReminderTypeName(type: ReminderType): string {
         switch (type) {
-            case ReminderType.Tax:
-                return 'Porez';
-            case ReminderType.Expense:
-                return 'Trošak';
-            case ReminderType.Meeting:
-                return 'Sastanak';
-            case ReminderType.Other:
-                return 'Ostalo';
-            default:
-                return 'Nepoznato';
+            case ReminderType.Tax:     return 'Porez';
+            case ReminderType.Expense: return 'Trošak';
+            case ReminderType.Meeting: return 'Sastanak';
+            case ReminderType.Other:   return 'Ostalo';
+            default:                   return 'Nepoznato';
         }
     }
 

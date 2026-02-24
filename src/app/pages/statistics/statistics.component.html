@@ -94,7 +94,7 @@
                 </div>
             </div>
 
-            <!-- Charts Row -->
+            <!-- Charts Row: Line + Pie -->
             <div class="charts-row">
                 <div class="chart-container">
                     <h3>Prihodi i troškovi po mesecima</h3>
@@ -111,6 +111,64 @@
                         </canvas>
                     </div>
                 </div>
+            </div>
+
+            <!-- Charts Row: Top 5 Cities (horizontal) + Top 5 Countries (vertical) -->
+            <div class="charts-row">
+
+                <!-- Horizontal Bar: Top 5 Cities -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Top 5 gradova po ukupnom prihodu</h3>
+                        <span class="chart-subtitle">Ukupan iznos svih faktura po gradu klijenta</span>
+                    </div>
+                    <div class="chart-wrapper chart-wrapper-bar">
+                        @if (barChartData.labels && barChartData.labels.length > 0) {
+                            <canvas baseChart
+                                [data]="barChartData"
+                                [options]="barChartOptions"
+                                [type]="barChartType">
+                            </canvas>
+                        } @else {
+                            <div class="empty-state">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none"
+                                    stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                                </svg>
+                                <p>Nema podataka o gradovima klijenata</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Vertical Bar: Top 5 Countries (foreign clients) -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Top 5 zemalja stranih klijenata</h3>
+                        <span class="chart-subtitle">Ukupan iznos faktura po zemlji porekla stranog klijenta</span>
+                    </div>
+                    <div class="chart-wrapper chart-wrapper-bar">
+                        @if (countryChartData.labels && countryChartData.labels.length > 0) {
+                            <canvas baseChart
+                                [data]="countryChartData"
+                                [options]="countryChartOptions"
+                                [type]="countryChartType">
+                            </canvas>
+                        } @else {
+                            <div class="empty-state">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none"
+                                    stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                </svg>
+                                <p>Nema podataka o stranim klijentima</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
             </div>
 
             <!-- Upcoming Tax Obligations -->
@@ -154,6 +212,7 @@
                     </div>
                 }
             </div>
+
         </div>
     }
 </div>

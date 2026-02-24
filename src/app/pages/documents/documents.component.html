@@ -1,0 +1,223 @@
+<div class="documents-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Dokumentacija</h1>
+      <p class="subtitle">Upravljajte dokumentima koje koristite</p>
+    </div>
+    <button class="btn-primary" (click)="openAddModal()">
+      <span class="btn-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </span>
+      Dodaj dokument
+    </button>
+  </div>
+
+  <app-data-table
+    [columns]="columns"
+    [data]="documents()"
+    [actions]="actions"
+    searchPlaceholder="Pretraži dokumente..."
+    emptyMessage="Nema dokumenata za prikaz. Dodajte prvi dokument!"
+    (onEdit)="openEditModal($event)"
+    (onDelete)="openDeleteConfirm($event)"
+  >
+  </app-data-table>
+
+  <!-- Add/Edit Modal -->
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ editingDocument() ? 'Izmeni dokument' : 'Dodaj novi dokument' }}</h2>
+          <button class="close-btn" (click)="closeModal()">✕</button>
+        </div>
+
+        <form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Tip dokumenta *</label>
+              <select formControlName="documentType">
+                <option value="">Izaberite tip</option>
+                <option [value]="DocumentType.tax">Poreski</option>
+                <option [value]="DocumentType.expense">Trošak</option>
+                <option [value]="DocumentType.invoice">Faktura</option>
+                <option [value]="DocumentType.payment">Plaćanje</option>
+                <option [value]="DocumentType.other">Ostalo</option>
+              </select>
+              @if (
+                documentForm.get('documentType')?.touched &&
+                documentForm.get('documentType')?.invalid
+              ) {
+                <div class="error">Tip dokumenta je obavezan</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Broj dokumenta *</label>
+              <input type="text" formControlName="documentNumber" placeholder="npr. DOC-2024-001" />
+              @if (
+                documentForm.get('documentNumber')?.touched &&
+                documentForm.get('documentNumber')?.invalid
+              ) {
+                <div class="error">Broj dokumenta je obavezan</div>
+              }
+            </div>
+
+            <div class="form-group file-upload">
+              <label
+                >Fajl {{ editingDocument() ? '(ostavi prazno da zadržiš postojeći)' : '*' }}</label
+              >
+              <div class="file-input-wrapper">
+                <input type="file" id="documentFile" (change)="onFileSelect($event)" />
+                <label for="documentFile" class="file-label">
+                  <svg
+                    class="icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  @if (selectedFile()) {
+                    {{ selectedFile()!.name }}
+                  } @else if (editingDocument()?.filePath) {
+                    Izaberi novi fajl
+                  } @else {
+                    Izaberite fajl
+                  }
+                </label>
+              </div>
+
+              <!-- Preview link za postojeći fajl -->
+              @if (editingDocument()?.filePath && !selectedFile()) {
+                <a
+                  [href]="editingDocument()!.filePath"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="file-preview-link"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                  </svg>
+                  Pogledaj trenutni fajl
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                </a>
+              }
+
+              @if (!editingDocument() && !selectedFile() && documentForm.touched) {
+                <div class="error">Fajl je obavezan</div>
+              }
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="
+                documentForm.invalid || (!editingDocument() && !selectedFile()) || isLoading()
+              "
+            >
+              @if (isLoading()) {
+                <span class="btn-spinner"></span>
+              }
+              {{ editingDocument() ? 'Sačuvaj izmene' : 'Dodaj dokument' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteConfirm()) {
+    <div class="modal-overlay" (click)="closeDeleteConfirm()">
+      <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Potvrda brisanja</h2>
+          <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="confirm-message">
+            Da li ste sigurni da želite da obrišete dokument
+            <strong>{{ deletingDocument()?.documentNumber }}</strong
+            >?
+          </p>
+          <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+          <button type="button" class="btn-danger" (click)="confirmDelete()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+              <path d="M10 11v6"></path>
+              <path d="M14 11v6"></path>
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            </svg>
+            Obriši
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

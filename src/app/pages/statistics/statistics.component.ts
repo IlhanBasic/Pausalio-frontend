@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
@@ -7,9 +7,10 @@ import { InvoiceService } from '../../services/invoice.service';
 import { ExpenseService } from '../../services/expense.service';
 import { PaymentService } from '../../services/payment.service';
 import { TaxObligationService } from '../../services/tax-obligation.service';
+import { ClientService } from '../../services/client.service';
+import { ClientType } from '../../enums/client-type';
 import { forkJoin } from 'rxjs';
 
-// Register Chart.js components
 Chart.register(...registerables);
 
 @Component({
@@ -24,6 +25,7 @@ export class StatisticsComponent implements OnInit {
     expenseService = inject(ExpenseService);
     paymentService = inject(PaymentService);
     taxObligationService = inject(TaxObligationService);
+    clientService = inject(ClientService);
     toastr = inject(ToastrService);
 
     isLoading = signal(true);
@@ -38,23 +40,14 @@ export class StatisticsComponent implements OnInit {
     upcomingTaxes = signal<any[]>([]);
 
     // Line Chart - Monthly Trends
-    lineChartData: ChartData<'line'> = {
-        labels: [],
-        datasets: []
-    };
+    lineChartData: ChartData<'line'> = { labels: [], datasets: [] };
 
     lineChartOptions: ChartConfiguration['options'] = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: {
-                display: true,
-                position: 'top'
-            },
-            title: {
-                display: true,
-                text: 'Mesečni trend prihoda i troškova'
-            }
+            legend: { display: true, position: 'top' },
+            title: { display: true, text: 'Mesečni trend prihoda i troškova' }
         },
         scales: {
             y: {
@@ -71,27 +64,106 @@ export class StatisticsComponent implements OnInit {
     lineChartType: ChartType = 'line';
 
     // Pie Chart - Payment Status Distribution
-    pieChartData: ChartData<'pie'> = {
-        labels: [],
-        datasets: []
-    };
+    pieChartData: ChartData<'pie'> = { labels: [], datasets: [] };
 
     pieChartOptions: ChartConfiguration['options'] = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-            legend: {
-                display: true,
-                position: 'right'
-            },
-            title: {
-                display: true,
-                text: 'Raspodela faktura po statusu plaćanja'
-            }
+            legend: { display: true, position: 'right' },
+            title: { display: true, text: 'Raspodela faktura po statusu plaćanja' }
         }
     };
 
     pieChartType: ChartType = 'pie';
+
+    // Horizontal Bar Chart - Top 5 Cities (bars go left→right, indexAxis: 'y')
+    barChartData: ChartData<'bar'> = { labels: [], datasets: [] };
+
+    barChartOptions: ChartConfiguration['options'] = {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Top 5 gradova po ukupnom prihodu' },
+            tooltip: {
+                callbacks: {
+                    label: (context) => {
+                        const value = context.parsed.x as number;
+                        return ' ' + new Intl.NumberFormat('sr-Latn-RS', {
+                            style: 'currency',
+                            currency: 'RSD',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        }).format(value);
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function (value) {
+                        const num = value as number;
+                        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M RSD';
+                        if (num >= 1000) return (num / 1000).toFixed(0) + 'K RSD';
+                        return num.toLocaleString('sr-Latn-RS') + ' RSD';
+                    }
+                }
+            },
+            y: {
+                ticks: { font: { size: 13 } }
+            }
+        }
+    };
+
+    barChartType: ChartType = 'bar';
+
+    // Vertical Bar Chart - Top 5 Countries for foreign clients (bars go bottom→up, indexAxis: 'x')
+    countryChartData: ChartData<'bar'> = { labels: [], datasets: [] };
+
+    countryChartOptions: ChartConfiguration['options'] = {
+        indexAxis: 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Top 5 zemalja stranih klijenata po ukupnom prihodu' },
+            tooltip: {
+                callbacks: {
+                    label: (context) => {
+                        const value = context.parsed.y as number;
+                        return ' ' + new Intl.NumberFormat('sr-Latn-RS', {
+                            style: 'currency',
+                            currency: 'RSD',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                        }).format(value);
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function (value) {
+                        const num = value as number;
+                        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M RSD';
+                        if (num >= 1000) return (num / 1000).toFixed(0) + 'K RSD';
+                        return num.toLocaleString('sr-Latn-RS') + ' RSD';
+                    }
+                }
+            },
+            x: {
+                ticks: { font: { size: 13 } }
+            }
+        }
+    };
+
+    countryChartType: ChartType = 'bar';
 
     ngOnInit() {
         this.loadStatistics();
@@ -107,7 +179,8 @@ export class StatisticsComponent implements OnInit {
             taxSummary: this.taxObligationService.getSummary(),
             invoices: this.invoiceService.getAll(),
             expenses: this.expenseService.getAll(),
-            taxes: this.taxObligationService.getAll()
+            taxes: this.taxObligationService.getAll(),
+            clients: this.clientService.getAll()
         }).subscribe({
             next: (data) => {
                 this.totalRevenue.set(data.invoiceSummary.data?.totalPaid || 0);
@@ -116,16 +189,16 @@ export class StatisticsComponent implements OnInit {
                 this.taxObligations.set(data.taxSummary.data?.totalPending || 0);
 
                 this.prepareLineChartData(data.invoices.data || [], data.expenses.data || []);
-
                 this.preparePieChartData(data.invoiceSummary.data);
+                this.prepareCityBarChartData(data.invoices.data || [], data.clients.data || []);
+                this.prepareCountryBarChartData(data.invoices.data || [], data.clients.data || []);
 
                 const pendingTaxes = (data.taxes.data || [])
-                    .filter(tax => tax.status === 1)
-                    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+                    .filter((tax: any) => tax.status === 1)
+                    .sort((a: any, b: any) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
                     .slice(0, 5);
 
                 this.upcomingTaxes.set(pendingTaxes);
-
                 this.isLoading.set(false);
             },
             error: (err) => {
@@ -138,7 +211,6 @@ export class StatisticsComponent implements OnInit {
 
     prepareLineChartData(invoices: any[], expenses: any[]) {
         const monthlyData: { [key: string]: { revenue: number, expenses: number } } = {};
-        const currentYear = new Date().getFullYear();
 
         for (let i = 11; i >= 0; i--) {
             const date = new Date();
@@ -147,40 +219,33 @@ export class StatisticsComponent implements OnInit {
             monthlyData[key] = { revenue: 0, expenses: 0 };
         }
 
-        invoices.forEach(invoice => {
+        invoices.forEach((invoice: any) => {
             if (invoice.paymentStatus === 2) {
                 const date = new Date(invoice.issueDate);
                 const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                if (monthlyData[key]) {
-                    monthlyData[key].revenue += invoice.totalAmountRSD || 0;
-                }
+                if (monthlyData[key]) monthlyData[key].revenue += invoice.totalAmountRSD || 0;
             }
         });
 
-        expenses.forEach(expense => {
+        expenses.forEach((expense: any) => {
             if (expense.status === 2) {
                 const date = new Date(expense.createdAt);
                 const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                if (monthlyData[key]) {
-                    monthlyData[key].expenses += expense.amount || 0;
-                }
+                if (monthlyData[key]) monthlyData[key].expenses += expense.amount || 0;
             }
         });
 
         const labels = Object.keys(monthlyData).map(key => {
-            const [year, month] = key.split('-');
+            const [, month] = key.split('-');
             return this.getMonthName(parseInt(month));
         });
 
-        const revenueData = Object.values(monthlyData).map(d => d.revenue);
-        const expenseData = Object.values(monthlyData).map(d => d.expenses);
-
         this.lineChartData = {
-            labels: labels,
+            labels,
             datasets: [
                 {
                     label: 'Prihodi',
-                    data: revenueData,
+                    data: Object.values(monthlyData).map(d => d.revenue),
                     borderColor: '#48bb78',
                     backgroundColor: 'rgba(72, 187, 120, 0.1)',
                     tension: 0.4,
@@ -188,7 +253,7 @@ export class StatisticsComponent implements OnInit {
                 },
                 {
                     label: 'Troškovi',
-                    data: expenseData,
+                    data: Object.values(monthlyData).map(d => d.expenses),
                     borderColor: '#f56565',
                     backgroundColor: 'rgba(245, 101, 101, 0.1)',
                     tension: 0.4,
@@ -201,24 +266,110 @@ export class StatisticsComponent implements OnInit {
     preparePieChartData(invoiceSummary: any) {
         if (!invoiceSummary) return;
 
-        const paid = invoiceSummary.totalPaid || 0;
-        const unpaid = invoiceSummary.totalUnpaid || 0;
-        const overdue = invoiceSummary.totalOverdue || 0;
-
         this.pieChartData = {
             labels: ['Plaćeno', 'Neplaćeno', 'Prekoračeno'],
             datasets: [{
-                data: [paid, unpaid, overdue],
-                backgroundColor: [
-                    '#48bb78',
-                    '#ed8936',
-                    '#f56565'
+                data: [
+                    invoiceSummary.totalPaid || 0,
+                    invoiceSummary.totalUnpaid || 0,
+                    invoiceSummary.totalOverdue || 0
                 ],
-                hoverBackgroundColor: [
-                    '#38a169',
-                    '#dd6b20',
-                    '#e53e3e'
-                ]
+                backgroundColor: ['#48bb78', '#ed8936', '#f56565'],
+                hoverBackgroundColor: ['#38a169', '#dd6b20', '#e53e3e']
+            }]
+        };
+    }
+
+    prepareCityBarChartData(invoices: any[], clients: any[]) {
+        const clientCityMap: { [clientId: string]: string } = {};
+        clients.forEach((client: any) => {
+            if (client.city) clientCityMap[client.id] = client.city;
+        });
+
+        const cityRevenue: { [city: string]: number } = {};
+        invoices.forEach((invoice: any) => {
+            const clientId = invoice.client?.id;
+            const city = clientId ? clientCityMap[clientId] : invoice.client?.city;
+            if (!city) return;
+            if (!cityRevenue[city]) cityRevenue[city] = 0;
+            cityRevenue[city] += invoice.totalAmountRSD || 0;
+        });
+
+        const top5 = Object.entries(cityRevenue)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5);
+
+        this.barChartData = {
+            labels: top5.map(([city]) => city),
+            datasets: [{
+                label: 'Ukupan prihod (RSD)',
+                data: top5.map(([, revenue]) => revenue),
+                backgroundColor: [
+                    'rgba(102, 126, 234, 0.85)',
+                    'rgba(102, 126, 234, 0.70)',
+                    'rgba(102, 126, 234, 0.55)',
+                    'rgba(102, 126, 234, 0.42)',
+                    'rgba(102, 126, 234, 0.30)',
+                ].slice(0, top5.length),
+                borderColor: [
+                    'rgba(102, 126, 234, 1)',
+                    'rgba(102, 126, 234, 0.9)',
+                    'rgba(102, 126, 234, 0.75)',
+                    'rgba(102, 126, 234, 0.6)',
+                    'rgba(102, 126, 234, 0.5)',
+                ].slice(0, top5.length),
+                borderWidth: 2,
+                borderRadius: 6,
+            }]
+        };
+    }
+
+    prepareCountryBarChartData(invoices: any[], clients: any[]) {
+        // Build map clientId -> country, only for foreign clients
+        const foreignClientCountryMap: { [clientId: string]: string } = {};
+        clients.forEach((client: any) => {
+            if (client.clientType === ClientType.foreign && client.country) {
+                foreignClientCountryMap[client.id] = client.country;
+            }
+        });
+
+        const countryRevenue: { [country: string]: number } = {};
+        invoices.forEach((invoice: any) => {
+            const clientId = invoice.client?.id;
+            // Primary: lookup from clients list; fallback: inline client on invoice
+            const country = clientId
+                ? foreignClientCountryMap[clientId]
+                : (invoice.client?.clientType === ClientType.foreign ? invoice.client?.country : null);
+            if (!country) return;
+            if (!countryRevenue[country]) countryRevenue[country] = 0;
+            countryRevenue[country] += invoice.totalAmountRSD || 0;
+        });
+
+        const top5 = Object.entries(countryRevenue)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5);
+
+        this.countryChartData = {
+            labels: top5.map(([country]) => country),
+            datasets: [{
+                label: 'Ukupan prihod (RSD)',
+                data: top5.map(([, revenue]) => revenue),
+                backgroundColor: [
+                    'rgba(237, 137, 54, 0.85)',
+                    'rgba(237, 137, 54, 0.70)',
+                    'rgba(237, 137, 54, 0.55)',
+                    'rgba(237, 137, 54, 0.42)',
+                    'rgba(237, 137, 54, 0.30)',
+                ].slice(0, top5.length),
+                borderColor: [
+                    'rgba(237, 137, 54, 1)',
+                    'rgba(237, 137, 54, 0.9)',
+                    'rgba(237, 137, 54, 0.75)',
+                    'rgba(237, 137, 54, 0.6)',
+                    'rgba(237, 137, 54, 0.5)',
+                ].slice(0, top5.length),
+                borderWidth: 2,
+                borderRadius: 6,
             }]
         };
     }
@@ -247,12 +398,9 @@ export class StatisticsComponent implements OnInit {
 
     getTaxTypeName(type: number): string {
         switch (type) {
-            case 1:
-                return 'Porez na dohodak';
-            case 2:
-                return 'Doprinosi';
-            default:
-                return 'Ostalo';
+            case 1: return 'Porez na dohodak';
+            case 2: return 'Doprinosi';
+            default: return 'Ostalo';
         }
     }
 }

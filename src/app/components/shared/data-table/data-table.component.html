@@ -32,10 +32,26 @@
                         @for (column of columns; track column.key) {
                             <td>
                                 @if (column.type === 'badge') {
-                                    <span [innerHTML]="item[column.key]"></span>
-                                }
-                                @if (column.type !== 'badge') {
-                                    <span>{{ formatValue(item[column.key], column.type) }}</span>
+                                    <span [innerHTML]="$any(item)[column.key]"></span>
+                                } @else if (column.type === 'link') {
+                                    @if ($any(item)[column.key]) {
+                                        <a [href]="getSafeUrl($any(item)[column.key])"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="table-link">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                            </svg>
+                                            Otvori fajl
+                                        </a>
+                                    } @else {
+                                        <span class="table-no-value">—</span>
+                                    }
+                                } @else {
+                                    <span>{{ formatValue($any(item)[column.key], column.type) }}</span>
                                 }
                             </td>
                         }
@@ -48,9 +64,9 @@
                                             [class.edit-btn]="action.type === 'edit'"
                                             [class.delete-btn]="action.type === 'delete'"
                                             [style.color]="action.color"
-                                            (click)="handleAction(action, item)"
+                                            (click)="handleAction(action, $any(item))"
                                             [title]="action.label"
-                                            [hidden]="action.showCondition && !action.showCondition(item)">
+                                            [hidden]="action.showCondition && !action.showCondition($any(item))">
                                             <span class="action-icon">{{ action.icon }}</span>
                                         </button>
                                     }

@@ -1,11 +1,13 @@
 import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { inject } from '@angular/core';
 
 export interface TableColumn {
     key: string;
     label: string;
-    type?: 'text' | 'number' | 'currency' | 'date' | 'badge';
+    type?: 'text' | 'number' | 'currency' | 'date' | 'badge' | 'link';
     sortable?: boolean;
 }
 
@@ -25,6 +27,8 @@ export interface TableAction {
     styleUrl: './data-table.component.css'
 })
 export class DataTableComponent {
+    private sanitizer = inject(DomSanitizer);
+
     @Input() columns: TableColumn[] = [];
     @Input() set data(value: any[]) {
         this.dataSignal.set(value);
@@ -83,6 +87,10 @@ export class DataTableComponent {
         }
     }
 
+    getSafeUrl(url: string): SafeUrl {
+        return this.sanitizer.bypassSecurityTrustUrl(url);
+    }
+
     formatValue(value: any, type?: string): string {
         if (value === null || value === undefined) return '-';
         switch (type) {
@@ -101,7 +109,6 @@ export class DataTableComponent {
         } else if (action.type === 'delete') {
             this.onDelete.emit(item);
         } else {
-            // custom - emituj label kao action identifikator
             this.onCustomAction.emit({ action: action.label, item });
         }
     }

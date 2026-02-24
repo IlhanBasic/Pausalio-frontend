@@ -42,6 +42,11 @@ export const routes: Routes = [
                 canActivate: [nonAdminGuard]
             },
             {
+                path: 'documents',
+                loadComponent: () => import('./pages/documents/documents.component').then(m => m.DocumentsComponent),
+                canActivate: [nonAdminGuard]
+            },
+            {
                 path: 'clients',
                 loadComponent: () => import('./pages/clients/clients.component').then(m => m.ClientsComponent),
                 canActivate: [nonAdminGuard]
