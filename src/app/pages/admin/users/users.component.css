@@ -49,22 +49,23 @@
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .modal-content {
     background: white;
     border-radius: 20px;
     width: 100%;
-    max-width: 480px;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
     animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-content.modal-small {
+    max-width: 440px;
 }
 
 @keyframes slideUp {
@@ -72,7 +73,6 @@
         opacity: 0;
         transform: translateY(40px) scale(0.95);
     }
-
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -155,6 +155,35 @@
     border-radius: 0 0 20px 20px;
 }
 
+/* Buttons */
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 26px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 .btn-secondary {
     padding: 13px 26px;
     background: white;
@@ -189,4 +218,94 @@
 .btn-danger:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
+}
+
+.btn-icon {
+    display: flex;
+    align-items: center;
+}
+
+/* Form */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-group input {
+    padding: 11px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #1e293b;
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: #667eea;
+}
+
+.error {
+    font-size: 13px;
+    color: #ef4444;
+    font-weight: 500;
+}
+
+/* Password Toggle */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 48px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: #1e293b;
+}
+
+/* Spinner */
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

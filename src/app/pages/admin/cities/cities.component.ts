@@ -16,14 +16,15 @@ import { DataTableComponent, TableColumn, TableAction } from '../../../component
 export class CitiesComponent implements OnInit {
     cityService = inject(CityService);
     fb = inject(FormBuilder);
+    toastr = inject(ToastrService);
 
     cities = signal<CityToReturnDto[]>([]);
     isLoading = signal(false);
+    isSubmitting = signal(false);
     showModal = signal(false);
     showDeleteConfirm = signal(false);
     editingCity = signal<CityToReturnDto | null>(null);
     deletingCity = signal<CityToReturnDto | null>(null);
-    toastr = inject(ToastrService);
 
     cityForm = this.fb.group({
         name: ['', Validators.required],
@@ -67,10 +68,7 @@ export class CitiesComponent implements OnInit {
 
     openEditModal(city: CityToReturnDto) {
         this.editingCity.set(city);
-        this.cityForm.patchValue({
-            name: city.name,
-            postalCode: city.postalCode
-        });
+        this.cityForm.patchValue({ name: city.name, postalCode: city.postalCode });
         this.showModal.set(true);
     }
 
@@ -86,41 +84,36 @@ export class CitiesComponent implements OnInit {
             return;
         }
 
+        this.isSubmitting.set(true);
         const formValue = this.cityForm.value;
         const editing = this.editingCity();
 
         if (editing) {
-            const dto: UpdateCityDto = {
-                name: formValue.name!,
-                postalCode: formValue.postalCode!
-            };
-
+            const dto: UpdateCityDto = { name: formValue.name!, postalCode: formValue.postalCode! };
             this.cityService.update(editing.id, dto).subscribe({
                 next: () => {
                     this.toastr.success('Grad uspešno ažuriran', 'Uspeh');
                     this.loadCities();
                     this.closeModal();
+                    this.isSubmitting.set(false);
                 },
                 error: (err) => {
-                    console.error('Error updating city:', err);
                     this.toastr.error(err.error?.message || 'Greška pri ažuriranju grada', 'Greška');
+                    this.isSubmitting.set(false);
                 }
             });
         } else {
-            const dto: AddCityDto = {
-                name: formValue.name!,
-                postalCode: formValue.postalCode!
-            };
-
+            const dto: AddCityDto = { name: formValue.name!, postalCode: formValue.postalCode! };
             this.cityService.create(dto).subscribe({
                 next: () => {
                     this.toastr.success('Grad uspešno dodat', 'Uspeh');
                     this.loadCities();
                     this.closeModal();
+                    this.isSubmitting.set(false);
                 },
                 error: (err) => {
-                    console.error('Error creating city:', err);
                     this.toastr.error(err.error?.message || 'Greška pri dodavanju grada', 'Greška');
+                    this.isSubmitting.set(false);
                 }
             });
         }
@@ -140,19 +133,19 @@ export class CitiesComponent implements OnInit {
         const city = this.deletingCity();
         if (!city) return;
 
+        this.isSubmitting.set(true);
         this.cityService.delete(city.id).subscribe({
             next: () => {
                 this.toastr.success('Grad uspešno obrisan', 'Uspeh');
                 this.loadCities();
                 this.closeDeleteConfirm();
+                this.isSubmitting.set(false);
             },
             error: (err) => {
-                console.error('Error deleting city:', err);
                 this.toastr.error(err.error?.message || 'Greška pri brisanju grada', 'Greška');
                 this.closeDeleteConfirm();
+                this.isSubmitting.set(false);
             }
         });
     }
 }
-
-

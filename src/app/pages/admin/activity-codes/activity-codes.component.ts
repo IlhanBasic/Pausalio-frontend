@@ -16,14 +16,15 @@ import { DataTableComponent, TableColumn, TableAction } from '../../../component
 export class ActivityCodesComponent implements OnInit {
     activityCodeService = inject(ActivityCodeService);
     fb = inject(FormBuilder);
+    toastr = inject(ToastrService);
 
     activityCodes = signal<ActivityCodeToReturnDto[]>([]);
     isLoading = signal(false);
+    isSubmitting = signal(false);
     showModal = signal(false);
     showDeleteConfirm = signal(false);
     editingCode = signal<ActivityCodeToReturnDto | null>(null);
     deletingCode = signal<ActivityCodeToReturnDto | null>(null);
-    toastr = inject(ToastrService);
 
     codeForm = this.fb.group({
         code: ['', Validators.required],
@@ -52,7 +53,6 @@ export class ActivityCodesComponent implements OnInit {
                 this.isLoading.set(false);
             },
             error: (err) => {
-                console.error('Error loading activity codes:', err);
                 this.toastr.error(err.error?.message || 'Greška pri učitavanju šifara delatnosti', 'Greška');
                 this.isLoading.set(false);
             }
@@ -67,10 +67,7 @@ export class ActivityCodesComponent implements OnInit {
 
     openEditModal(code: ActivityCodeToReturnDto) {
         this.editingCode.set(code);
-        this.codeForm.patchValue({
-            code: code.code,
-            description: code.description
-        });
+        this.codeForm.patchValue({ code: code.code, description: code.description });
         this.showModal.set(true);
     }
 
@@ -86,41 +83,36 @@ export class ActivityCodesComponent implements OnInit {
             return;
         }
 
+        this.isSubmitting.set(true);
         const formValue = this.codeForm.value;
         const editing = this.editingCode();
 
         if (editing) {
-            const dto: UpdateActivityCodeDto = {
-                code: formValue.code!,
-                description: formValue.description!
-            };
-
+            const dto: UpdateActivityCodeDto = { code: formValue.code!, description: formValue.description! };
             this.activityCodeService.update(editing.id.toString(), dto).subscribe({
                 next: () => {
                     this.toastr.success('Šifra delatnosti uspešno ažurirana', 'Uspeh');
                     this.loadCodes();
                     this.closeModal();
+                    this.isSubmitting.set(false);
                 },
                 error: (err) => {
-                    console.error('Error updating activity code:', err);
                     this.toastr.error(err.error?.message || 'Greška pri ažuriranju šifre delatnosti', 'Greška');
+                    this.isSubmitting.set(false);
                 }
             });
         } else {
-            const dto: AddActivityCodeDto = {
-                code: formValue.code!,
-                description: formValue.description!
-            };
-
+            const dto: AddActivityCodeDto = { code: formValue.code!, description: formValue.description! };
             this.activityCodeService.create(dto).subscribe({
                 next: () => {
                     this.toastr.success('Šifra delatnosti uspešno dodata', 'Uspeh');
                     this.loadCodes();
                     this.closeModal();
+                    this.isSubmitting.set(false);
                 },
                 error: (err) => {
-                    console.error('Error creating activity code:', err);
                     this.toastr.error(err.error?.message || 'Greška pri dodavanju šifre delatnosti', 'Greška');
+                    this.isSubmitting.set(false);
                 }
             });
         }
@@ -140,19 +132,19 @@ export class ActivityCodesComponent implements OnInit {
         const code = this.deletingCode();
         if (!code) return;
 
+        this.isSubmitting.set(true);
         this.activityCodeService.delete(code.id.toString()).subscribe({
             next: () => {
                 this.toastr.success('Šifra delatnosti uspešno obrisana', 'Uspeh');
                 this.loadCodes();
                 this.closeDeleteConfirm();
+                this.isSubmitting.set(false);
             },
             error: (err) => {
-                console.error('Error deleting activity code:', err);
                 this.toastr.error(err.error?.message || 'Greška pri brisanju šifre delatnosti', 'Greška');
                 this.closeDeleteConfirm();
+                this.isSubmitting.set(false);
             }
         });
     }
 }
-
-

@@ -1,47 +1,197 @@
 <div class="users-page">
-    <div class="page-header">
-        <div class="header-content">
-            <h1>Korisnici</h1>
-            <p class="subtitle">Upravljajte korisnicima sistema</p>
-        </div>
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Korisnici</h1>
+      <p class="subtitle">Upravljajte korisnicima sistema</p>
     </div>
+    <button class="btn-primary" (click)="openAddModal()">
+      <span class="btn-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </span>
+      Dodaj admina
+    </button>
+  </div>
 
-    <app-data-table
-        [columns]="columns"
-        [data]="users()"
-        [actions]="actions"
-        searchPlaceholder="Pretraži korisnike..."
-        emptyMessage="Nema korisnika za prikaz."
-        (onCustomAction)="onAction($event)"
-        (onDelete)="openDeleteConfirm($event)"
-    >
-    </app-data-table>
+  <app-data-table
+    [columns]="columns"
+    [data]="users()"
+    [actions]="actions"
+    searchPlaceholder="Pretraži korisnike..."
+    emptyMessage="Nema korisnika za prikaz."
+    (onCustomAction)="onAction($event)"
+    (onDelete)="openDeleteConfirm($event)"
+  >
+  </app-data-table>
 
-    @if (showDeleteConfirm()) {
-        <div class="modal-overlay" (click)="closeDeleteConfirm()">
-            <div class="modal-content modal-small" (click)="$event.stopPropagation()">
-                <div class="modal-header">
-                    <h2>Potvrda brisanja</h2>
-                    <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
-                </div>
-
-                <div class="modal-body">
-                    <p class="confirm-message">
-                        Da li ste sigurni da želite da obrišete korisnika
-                        <strong>{{ deletingUser()?.firstName }} {{ deletingUser()?.lastName }}</strong>?
-                    </p>
-                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">
-                        Otkaži
-                    </button>
-                    <button type="button" class="btn-danger" (click)="confirmDelete()">
-                        Obriši
-                    </button>
-                </div>
-            </div>
+  <!-- Add Admin Modal -->
+  @if (showAddModal()) {
+    <div class="modal-overlay" (click)="closeAddModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Dodaj administratora</h2>
+          <button class="close-btn" (click)="closeAddModal()">✕</button>
         </div>
-    }
+
+        <form [formGroup]="addAdminForm" (ngSubmit)="onSubmitAdmin()">
+          <div class="modal-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Ime *</label>
+                <input type="text" formControlName="firstName" placeholder="Ime" />
+                @if (
+                  addAdminForm.get('firstName')?.touched && addAdminForm.get('firstName')?.invalid
+                ) {
+                  <div class="error">Ime je obavezno</div>
+                }
+              </div>
+              <div class="form-group">
+                <label>Prezime *</label>
+                <input type="text" formControlName="lastName" placeholder="Prezime" />
+                @if (
+                  addAdminForm.get('lastName')?.touched && addAdminForm.get('lastName')?.invalid
+                ) {
+                  <div class="error">Prezime je obavezno</div>
+                }
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" formControlName="email" placeholder="admin@email.com" />
+              @if (addAdminForm.get('email')?.touched && addAdminForm.get('email')?.invalid) {
+                <div class="error">
+                  @if (addAdminForm.get('email')?.hasError('required')) {
+                    <span>Email je obavezan</span>
+                  }
+                  @if (addAdminForm.get('email')?.hasError('email')) {
+                    <span>Unesite ispravan email</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Lozinka *</label>
+              <div class="password-input-wrapper">
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  placeholder="Minimalno 6 karaktera"
+                />
+                <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
+                  @if (!showPassword()) {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  }
+                  @if (showPassword()) {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                      ></path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                  }
+                </button>
+              </div>
+              @if (addAdminForm.get('password')?.touched && addAdminForm.get('password')?.invalid) {
+                <div class="error">
+                  @if (addAdminForm.get('password')?.hasError('required')) {
+                    <span>Lozinka je obavezna</span>
+                  }
+                  @if (addAdminForm.get('password')?.hasError('minlength')) {
+                    <span>Lozinka mora imati najmanje 6 karaktera</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Telefon</label>
+              <input type="text" formControlName="phone" placeholder="+381..." />
+            </div>
+
+            <div class="form-group">
+              <label>Adresa</label>
+              <input type="text" formControlName="address" placeholder="Ulica i broj" />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeAddModal()">Otkaži</button>
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="addAdminForm.invalid || isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                <span class="spinner"></span>
+              }
+              <span>{{ isSubmitting() ? 'Učitavanje...' : 'Dodaj administratora' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteConfirm()) {
+    <div class="modal-overlay" (click)="closeDeleteConfirm()">
+      <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Potvrda brisanja</h2>
+          <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="confirm-message">
+            Da li ste sigurni da želite da obrišete korisnika
+            <strong>{{ deletingUser()?.firstName }} {{ deletingUser()?.lastName }}</strong
+            >?
+          </p>
+          <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+          <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
