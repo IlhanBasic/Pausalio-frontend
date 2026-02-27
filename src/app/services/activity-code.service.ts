@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ActivityCodeToReturnDto, AddActivityCodeDto, UpdateActivityCodeDto } from "../models/activity-code";
 import { ApiResponse } from "../models/api-response";
-
+import { environment } from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
@@ -11,7 +11,7 @@ export class ActivityCodeService {
 
   private http = inject(HttpClient);
 
-  private baseUrl = 'https://localhost:7272/api/ActivityCode';
+  private baseUrl = `${environment.apiUrl}/ActivityCode`;
 
   getAll(): Observable<ActivityCodeToReturnDto[]> {
     return this.http.get<ActivityCodeToReturnDto[]>(this.baseUrl);

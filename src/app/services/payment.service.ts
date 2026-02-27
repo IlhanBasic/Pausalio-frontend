@@ -4,13 +4,14 @@ import { Observable } from "rxjs";
 import { ApiResponse } from "../models/api-response";
 import { AddPaymentDto, PaymentToReturnDto, UpdatePaymentDto, PaymentSummaryDto } from "../models/payment";
 import { PaymentType } from "../enums/payment-type";
+import { environment } from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PaymentService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/Payment';
+  private baseUrl = `${environment.apiUrl}/Payment`;
 
   getAll(): Observable<ApiResponse<PaymentToReturnDto[]>> {
     return this.http.get<ApiResponse<PaymentToReturnDto[]>>(`${this.baseUrl}`);

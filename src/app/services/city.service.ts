@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ApiResponse } from "../models/api-response";
 import { AddCityDto, CityToReturnDto, UpdateCityDto } from "../models/city";
-
+import { environment } from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
@@ -11,7 +11,7 @@ export class CityService {
 
   private http = inject(HttpClient);
 
-  private baseUrl = 'https://localhost:7272/api/City';
+  private baseUrl = `${environment.apiUrl}/City`;
 
   getAll(): Observable<CityToReturnDto[]> {
     return this.http.get<CityToReturnDto[]>(this.baseUrl);

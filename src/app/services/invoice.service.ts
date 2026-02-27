@@ -5,13 +5,14 @@ import { ApiResponse } from "../models/api-response";
 import { AddInvoiceDto, InvoiceToReturnDto, UpdateInvoiceDto, InvoiceSummaryDto } from "../models/invoice";
 import { InvoiceStatus } from "../enums/invoice-status";
 import { PaymentStatus } from "../enums/payment-status";
+import { environment } from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class InvoiceService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/Invoice';
+  private baseUrl = `${environment.apiUrl}/Invoice`;
 
   getAll(): Observable<ApiResponse<InvoiceToReturnDto[]>> {
     return this.http.get<ApiResponse<InvoiceToReturnDto[]>>(`${this.baseUrl}`);

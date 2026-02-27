@@ -4,15 +4,15 @@ import { AddUserProfileDto, ChangePasswordDto, ForgotPasswordDto, LoginDto, Regi
 import { Observable } from "rxjs";
 import { AcceptInviteResponse, ApiResponse, LoginResponse } from "../models/api-response";
 import { AcceptInviteDto } from "../models/business-invite";
-
+import { environment } from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/Auth';
-
+  private baseUrl = `${environment.apiUrl}/Auth`;
+  
   login(dto: LoginDto): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
       `${this.baseUrl}/login`,

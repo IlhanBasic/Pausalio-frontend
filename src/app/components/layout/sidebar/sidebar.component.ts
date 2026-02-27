@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthStore } from '../../../stores/auth.store';
+import { SidebarService } from '../../../shared/sidebar.service';
+
 
 @Component({
   selector: 'app-sidebar',
@@ -12,20 +14,23 @@ import { AuthStore } from '../../../stores/auth.store';
 })
 export class SidebarComponent {
   store = inject(AuthStore);
-  isSidebarOpen = false;
+  sidebarService = inject(SidebarService);
+
+  get isSidebarOpen() {
+    return this.sidebarService.isOpen();
+  }
 
   toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
+    this.sidebarService.toggle();
   }
 
   closeSidebar() {
-    this.isSidebarOpen = false;
+    this.sidebarService.close();
   }
 
   closeSidebarOnMobile() {
     if (window.innerWidth <= 768) {
-      this.closeSidebar();
+      this.sidebarService.close();
     }
   }
-
 }

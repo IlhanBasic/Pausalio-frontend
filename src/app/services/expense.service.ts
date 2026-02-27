@@ -4,13 +4,14 @@ import { Observable } from "rxjs";
 import { ApiResponse } from "../models/api-response";
 import { AddExpenseDto, ExpenseToReturnDto, UpdateExpenseDto, ExpenseSummaryDto } from "../models/expense";
 import { ExpenseStatus } from "../enums/expense-status";
+import { environment } from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExpenseService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/Expense';
+  private baseUrl = `${environment.apiUrl}/Expense`;
 
   getAll(): Observable<ApiResponse<ExpenseToReturnDto[]>> {
     return this.http.get<ApiResponse<ExpenseToReturnDto[]>>(`${this.baseUrl}`);

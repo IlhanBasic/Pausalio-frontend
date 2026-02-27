@@ -3,13 +3,13 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ApiResponse, SendInviteResponse  } from "../models/api-response";
 import { AddBusinessInviteDto } from "../models/business-invite";
-
+import { environment } from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
 export class BusinessInviteService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/BusinessInvite';
+  private baseUrl = `${environment.apiUrl}/BusinessInvite`;
 
   sendInvite(dto: AddBusinessInviteDto): Observable<SendInviteResponse> {
     return this.http.post<SendInviteResponse>(`${this.baseUrl}`, dto);

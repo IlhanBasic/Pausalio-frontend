@@ -3,13 +3,13 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ApiResponse } from "../models/api-response";
 import { AddDocumentDto, DocumentToReturnDto, UpdateDocumentDto } from "../models/document";
-
+import { environment } from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/Document';
+  private baseUrl = `${environment.apiUrl}/Document`;
 
   getAll(): Observable<DocumentToReturnDto[]> {
     return this.http.get<DocumentToReturnDto[]>(`${this.baseUrl}`);

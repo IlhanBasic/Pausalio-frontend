@@ -3,13 +3,14 @@ import { inject, Injectable } from "@angular/core";
 import { ProfileToReturnDto, UpdateUserProfileDto, UserProfileToReturnDto } from "../models/user-profile";
 import { ApiResponse } from "../models/api-response";
 import { Observable } from "rxjs";
+import { environment } from "../../environments/environment";
 
 @Injectable({
     providedIn: 'root'
 })
 export class UserProfileService {
     private http = inject(HttpClient);
-    private baseUrl = 'https://localhost:7272/api/UserProfile';
+    private baseUrl = `${environment.apiUrl}/UserProfile`;
     updateProfile(id: string, user: UpdateUserProfileDto): Observable<ApiResponse> {
         return this.http.put<ApiResponse>(`${this.baseUrl}/${id}`, user, {
             withCredentials: true

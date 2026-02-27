@@ -3,13 +3,14 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ApiResponse } from "../models/api-response";
 import { AddReminderDto, ReminderToReturnDto, UpdateReminderDto } from "../models/reminder";
+import { environment } from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReminderService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/Reminder';
+  private baseUrl = `${environment.apiUrl}/Reminder`;
 
   getAll(): Observable<ReminderToReturnDto[]> {
     return this.http.get<ReminderToReturnDto[]>(`${this.baseUrl}`);

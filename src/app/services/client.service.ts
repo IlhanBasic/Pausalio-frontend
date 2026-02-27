@@ -4,13 +4,13 @@ import { Observable } from "rxjs";
 import { ApiResponse } from "../models/api-response";
 import { AddClientDto, ClientToReturnDto, UpdateClientDto } from "../models/client";
 import { ClientType } from "../enums/client-type";
-
+import { environment } from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
 export class ClientService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/Client';
+  private baseUrl = `${environment.apiUrl}/Client`;
 
   getAll(): Observable<ApiResponse<ClientToReturnDto[]>> {
     return this.http.get<ApiResponse<ClientToReturnDto[]>>(`${this.baseUrl}`);

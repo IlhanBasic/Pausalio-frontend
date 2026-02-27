@@ -10,13 +10,14 @@ import {
   TaxObligationSummaryDto 
 } from "../models/tax-obligation";
 import { TaxObligationStatus } from "../enums/tax-obligation-status";
+import { environment } from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaxObligationService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/TaxObligation';
+  private baseUrl = `${environment.apiUrl}/TaxObligation`;
 
   getAll(): Observable<ApiResponse<TaxObligationToReturnDto[]>> {
     return this.http.get<ApiResponse<TaxObligationToReturnDto[]>>(`${this.baseUrl}`);

@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { Currency } from "../enums/currency";
 import { ApiResponse } from "../models/api-response";
-
+import { environment } from "../../environments/environment";
 export interface ExchangeRateDto {
     currency: string;
     rate: number;
@@ -31,7 +31,7 @@ export interface AllRatesDto {
 })
 export class ExchangeRateService {
     private http = inject(HttpClient);
-    private baseUrl = 'https://localhost:7272/api/ExchangeRate';
+    private baseUrl = `${environment.apiUrl}/ExchangeRate`;
 
     getRate(currency: Currency): Observable<ApiResponse<ExchangeRateDto>> {
         return this.http.get<ApiResponse<ExchangeRateDto>>(`${this.baseUrl}/rate/${currency}`);

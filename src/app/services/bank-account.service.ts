@@ -3,13 +3,13 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { AddBankAccountDto, BankAccountToReturnDto, UpdateBankAccountDto } from "../models/bank-account";
 import { ApiResponse } from "../models/api-response";
-
+import { environment } from "../../environments/environment";
 @Injectable({
     providedIn:"root"
 })
 export class BankAccountService {
     private http = inject(HttpClient);
-    private baseUrl = 'https://localhost:7272/api/BankAccount';
+    private baseUrl = `${environment.apiUrl}/BankAccount`;
     getAll() : Observable<BankAccountToReturnDto[]>{
         return this.http.get<BankAccountToReturnDto[]>(`${this.baseUrl}`);
     }

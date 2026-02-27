@@ -6,6 +6,7 @@ import { BusinessProfileService } from '../../../services/business-profile.servi
 import { Router } from '@angular/router';
 import { BusinessProfileToReturnDto } from '../../../models/business-profile';
 import { UserProfileStore } from '../../../stores/user-profile.store';
+import { SidebarService } from '../../../shared/sidebar.service';
 
 @Component({
   selector: 'app-navbar',
@@ -25,7 +26,7 @@ export class NavbarComponent implements OnInit {
   availableBusinesses = signal<BusinessProfileToReturnDto[]>([]);
   showUserDropdown = signal(false);
   showBusinessDropdown = signal(false);
-
+sidebarService = inject(SidebarService);
   constructor() {
     effect(() => {
         const profile = this.userProfileStore.Profile();

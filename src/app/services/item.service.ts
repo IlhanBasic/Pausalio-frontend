@@ -3,13 +3,14 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ApiResponse } from "../models/api-response";
 import { AddItemDto, ItemToReturnDto, UpdateItemDto } from "../models/item";
+import { environment } from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class ItemService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/Item';
+  private baseUrl = `${environment.apiUrl}/Item`;
 
   getAll(): Observable<ItemToReturnDto[]> {
     return this.http.get<ItemToReturnDto[]>(`${this.baseUrl}`);

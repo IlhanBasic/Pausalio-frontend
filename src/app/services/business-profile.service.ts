@@ -3,13 +3,13 @@ import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ApiResponse } from "../models/api-response";
 import { BusinessProfileToReturnDto, UpdateBusinessProfileDto } from "../models/business-profile";
-
+import { environment } from "../../environments/environment";
 @Injectable({
   providedIn: 'root'
 })
 export class BusinessProfileService {
   private http = inject(HttpClient);
-  private baseUrl = 'https://localhost:7272/api/BusinessProfile';
+  private baseUrl = `${environment.apiUrl}/BusinessProfile`;
 
   getUserCompany(): Observable<ApiResponse<BusinessProfileToReturnDto>> {
     return this.http.get<ApiResponse<BusinessProfileToReturnDto>>(`${this.baseUrl}`);
