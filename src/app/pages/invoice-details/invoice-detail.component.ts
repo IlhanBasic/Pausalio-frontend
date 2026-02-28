@@ -28,7 +28,6 @@ export class InvoiceDetailComponent implements OnInit {
     isSending = signal(false);
     showSendPanel = signal(false);
 
-    // Email chip input
     emailInput = signal<string>('');
     emails = signal<string[]>([]);
 
@@ -46,7 +45,12 @@ export class InvoiceDetailComponent implements OnInit {
         this.isLoadingPreview.set(true);
         this.invoiceService.getPreview(this.invoiceId()).subscribe({
             next: (response) => {
-                const safe = this.sanitizer.bypassSecurityTrustHtml(response.data || '');
+                // Ukloni overflow:hidden sa .invoice-wrapper koji seče tabelu na mobilnom
+                const fixed = (response.data || '').replace(
+                    '.invoice-wrapper {',
+                    '.invoice-wrapper { overflow-x: auto !important; overflow-y: visible !important;'
+                );
+                const safe = this.sanitizer.bypassSecurityTrustHtml(fixed);
                 this.previewHtml.set(safe);
                 this.isLoadingPreview.set(false);
             },
@@ -99,7 +103,6 @@ export class InvoiceDetailComponent implements OnInit {
     }
 
     openSendPanel() {
-        // Učitaj email klijenta iz preview podataka — dodajemo ga pri otvaranju
         this.invoiceService.getById(this.invoiceId()).subscribe({
             next: (response) => {
                 const clientEmail = response.data?.client?.email;

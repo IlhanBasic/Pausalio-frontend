@@ -40,6 +40,8 @@ nav {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 24px 16px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 nav::-webkit-scrollbar { width: 6px; }
@@ -150,7 +152,10 @@ a.active svg { color: #4facd3; }
 /* ===================== RESPONSIVE ===================== */
 
 @media (max-width: 1024px) {
-    .sidebar { width: 260px; }
+    .sidebar {
+        width: 260px;
+    }
+
     .logo h2 { font-size: 28px; }
     a { font-size: 14px; padding: 11px 14px; }
     .section-title { font-size: 10px; }
@@ -160,7 +165,7 @@ a.active svg { color: #4facd3; }
     /* Overlay vidljiv na mobilnom */
     .sidebar-overlay { display: block; }
 
-    /* Sidebar se sakriva van ekrana, ispod navbara */
+    /* Sidebar iste širine, sakriven van ekrana ispod navbara */
     .sidebar {
         top: 65px;
         height: calc(100vh - 65px);

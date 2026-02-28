@@ -3,6 +3,9 @@ import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { InvoiceService } from '../../services/invoice.service';
 import { InvoiceToReturnDto } from '../../models/invoice';
+import { Currency } from '../../enums/currency';
+import { PaymentStatus } from '../../enums/payment-status';
+import { InvoiceStatus } from '../../enums/invoice-status';
 
 interface TopClient {
     id: string;
@@ -65,20 +68,13 @@ export class HomeComponent implements OnInit {
 
     processInvoices(invoices: InvoiceToReturnDto[]) {
 
-        const getAmount = (inv: any): number => {
-            return inv.totalAmountRSD
-                || inv.totalAmount
-                || inv.amount
-                || inv.total
-                || 0;
+        const isPaid = (inv: InvoiceToReturnDto): boolean => {
+            return inv.paymentStatus === PaymentStatus.paid || inv.invoiceStatus === InvoiceStatus.finished;
         };
 
-        const isPaid = (inv: any): boolean => {
-            return inv.paymentStatus === 2 || inv.invoiceStatus === 3
-        };
-
+        // Uvek koristimo RSD za sumiranje (totalAmountRSD je uvek u dinarima bez obzira na valutu fakture)
         const paidInvoices = invoices.filter(inv => isPaid(inv));
-        let totalRev = paidInvoices.reduce((sum, inv) => sum + getAmount(inv), 0);
+        const totalRev = paidInvoices.reduce((sum, inv) => sum + (inv.totalAmountRSD || 0), 0);
 
         const count = invoices.length;
         const avg = count > 0 ? totalRev / count : 0;
@@ -91,9 +87,10 @@ export class HomeComponent implements OnInit {
         this.animateValue(this.displayedCount, count, 1000);
         this.animateValue(this.displayedAvg, avg, 1500);
 
+        // Top klijenti — poredimo po RSD vrednosti
         const clientMap = new Map<string, TopClient>();
 
-        invoices.forEach((inv: any) => {
+        invoices.forEach((inv: InvoiceToReturnDto) => {
             const clientId = inv.client?.id;
             if (!clientId) return;
 
@@ -107,7 +104,7 @@ export class HomeComponent implements OnInit {
                 });
             }
             const client = clientMap.get(clientId)!;
-            client.totalAmount += getAmount(inv);
+            client.totalAmount += inv.totalAmountRSD || 0;
             client.invoiceCount++;
         });
 
@@ -122,9 +119,10 @@ export class HomeComponent implements OnInit {
 
         this.topClients.set(sortedClients);
 
+        // Najprodavanije usluge — konvertujemo u RSD koristeći exchange rate sa fakture
         const itemMap = new Map<string, BestSellingItem>();
 
-        invoices.forEach((inv: any) => {
+        invoices.forEach((inv: InvoiceToReturnDto) => {
             if (inv.items) {
                 inv.items.forEach((item: any) => {
                     const key = (item.name || '').trim();
@@ -139,7 +137,11 @@ export class HomeComponent implements OnInit {
                     }
                     const existing = itemMap.get(key)!;
                     existing.quantity += item.quantity || 0;
-                    existing.revenue += item.totalPrice || item.total || (item.quantity * item.unitPrice) || 0;
+
+                    const itemTotal = item.totalPrice || item.total || ((item.quantity || 0) * (item.unitPrice || 0)) || 0;
+                    const exchangeRate = inv.exchangeRate && inv.exchangeRate > 0 ? inv.exchangeRate : 1;
+                    // Ako je valuta RSD, koristi direktno; inače konvertuj u RSD
+                    existing.revenue += inv.currency === Currency.RSD ? itemTotal : itemTotal * exchangeRate;
                 });
             }
         });

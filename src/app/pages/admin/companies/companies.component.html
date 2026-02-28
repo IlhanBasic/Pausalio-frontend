@@ -1,0 +1,163 @@
+<div class="companies-page">
+    <div class="page-header">
+      <div class="header-content">
+        <h1>Kompanije</h1>
+        <p class="subtitle">Upravljanje kompanijama sistema</p>
+      </div>
+    </div>
+  
+    <app-data-table
+      [data]="companies()"
+      [columns]="columns"
+      [actions]="actions"
+      (onCustomAction)="onCustomAction($event)"
+      (onDelete)="openDeleteConfirm($event)"
+    >
+    </app-data-table>
+  
+    <!-- Detail Modal -->
+    @if (showDetailModal()) {
+      <div class="modal-overlay" (click)="closeDetailModal()">
+        <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <div class="modal-title-group">
+              <span class="company-logo-placeholder">
+                @if (selectedCompany()?.companyLogo) {
+                  <img [src]="selectedCompany()?.companyLogo" alt="Logo" class="company-logo" />
+                } @else {
+                  🏢
+                }
+              </span>
+              <div>
+                <h2>{{ selectedCompany()?.businessName }}</h2>
+                <span class="status-badge" [class.active]="selectedCompany()?.isActive" [class.inactive]="!selectedCompany()?.isActive">
+                  {{ selectedCompany()?.isActive ? 'Aktivna' : 'Neaktivna' }}
+                </span>
+              </div>
+            </div>
+            <button class="close-btn" (click)="closeDetailModal()">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">PIB</span>
+                <span class="detail-value">{{ selectedCompany()?.pib || '—' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Matični broj</span>
+                <span class="detail-value">{{ selectedCompany()?.mb || '—' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ selectedCompany()?.email || '—' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Telefon</span>
+                <span class="detail-value">{{ selectedCompany()?.phone || '—' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Grad</span>
+                <span class="detail-value">{{ selectedCompany()?.city || '—' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Adresa</span>
+                <span class="detail-value">{{ selectedCompany()?.address || '—' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Šifra delatnosti</span>
+                <span class="detail-value">{{ selectedCompany()?.activityCode || '—' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Website</span>
+                <span class="detail-value">
+                  @if (selectedCompany()?.website) {
+                    <a [href]="selectedCompany()?.website" target="_blank" class="website-link">
+                      {{ selectedCompany()?.website }}
+                    </a>
+                  } @else {
+                    —
+                  }
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Kreirana</span>
+                <span class="detail-value">{{ selectedCompany()?.createdAt | date: 'dd.MM.yyyy' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Poslednja izmena</span>
+                <span class="detail-value">
+                  {{ selectedCompany()?.updatedAt ? (selectedCompany()?.updatedAt | date: 'dd.MM.yyyy') : '—' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeDetailModal()">Zatvori</button>
+            <button
+              type="button"
+              [class]="selectedCompany()?.isActive ? 'btn-warning' : 'btn-success'"
+              (click)="toggleCompanyStatus(selectedCompany()!); closeDetailModal()"
+              [disabled]="isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                <span class="spinner"></span>
+              }
+              <span>{{ selectedCompany()?.isActive ? '⛔ Deaktiviraj' : '✅ Aktiviraj' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  
+    <!-- Delete Confirm Modal -->
+    @if (showDeleteConfirm()) {
+      <div class="modal-overlay" (click)="closeDeleteConfirm()">
+        <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Potvrda brisanja</h2>
+            <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="confirm-message">
+              Da li ste sigurni da želite da obrišete kompaniju
+              <strong>{{ deletingCompany()?.businessName }}</strong>?
+            </p>
+            <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+            <button
+              type="button"
+              class="btn-danger"
+              (click)="confirmDelete()"
+              [disabled]="isSubmitting()"
+            >
+              @if (isSubmitting()) {
+                <span class="spinner"></span>
+              }
+              @if (!isSubmitting()) {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                  <path d="M10 11v6"></path>
+                  <path d="M14 11v6"></path>
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                </svg>
+              }
+              <span>{{ isSubmitting() ? 'Brisanje...' : 'Obriši' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>

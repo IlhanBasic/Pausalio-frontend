@@ -214,7 +214,7 @@
                             <label>PIB *</label>
                             <input type="text" formControlName="PIB" placeholder="123456789">
                             @if (getControl('PIB')?.touched && getControl('PIB')?.invalid) {
-                                <div class="error">Obavezno polje</div>
+                                <div class="error">Obavezno polje maksimalno 9 brojeva</div>
                             }
                         </div>
 

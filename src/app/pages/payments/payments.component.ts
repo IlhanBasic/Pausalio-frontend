@@ -17,6 +17,8 @@ import { Currency } from '../../enums/currency';
 import { DataTableComponent, TableColumn, TableAction } from '../../components/shared/data-table/data-table.component';
 import { ClientType } from '../../enums/client-type';
 import { TaxObligationType } from '../../enums/tax-obligation-type';
+import { InvoiceStatus } from '../../enums/invoice-status';
+import { PaymentStatus } from '../../enums/payment-status';
 
 @Component({
     selector: 'app-payments',
@@ -198,7 +200,7 @@ export class PaymentsComponent implements OnInit {
                 this.invoiceService.getAll().subscribe({
                     next: (response) => {
                         const unpaidInvoices = (response.data || []).filter(invoice =>
-                            invoice.paymentStatus === 1 || invoice.paymentStatus === 3
+                            (invoice.paymentStatus === PaymentStatus.unpaid || invoice.paymentStatus === PaymentStatus.partiallyPaid) && invoice.invoiceStatus != InvoiceStatus.cancelled 
                         );
                         this.invoices.set(unpaidInvoices);
                     },

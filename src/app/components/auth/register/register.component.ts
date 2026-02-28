@@ -46,40 +46,60 @@ export class RegisterComponent implements OnInit {
     passwordValidators = [
         Validators.required,
         Validators.minLength(8),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-+={}[\];:'"<>.,?/\\|])/)
     ];
 
     ownerForm = this.fb.group({
         // User fields
-        firstName: ['', Validators.required],
-        lastName: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
+        firstName: ['', [Validators.required, Validators.maxLength(50)]],
+        lastName: ['', [Validators.required, Validators.maxLength(50)]],
+        email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
         password: ['', this.passwordValidators],
-        phone: ['',Validators.pattern(/^[0-9+ ]*$/)],
+        phone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{6,15}$/)]],
         city: ['', Validators.required],
-        address: ['', Validators.required],
+        address: ['', [Validators.required, Validators.maxLength(200)]],
         // Business fields
-        businessName: ['', Validators.required],
-        PIB: ['', Validators.required],
-        MB: ['', Validators.required, Validators.pattern(/^\d{8}$/)],
+        businessName: ['', [Validators.required, Validators.maxLength(200)]],
+        PIB: ['', [Validators.required, Validators.pattern(/^\d{9}$/)]],
+        MB: ['', [Validators.pattern(/^\d{8}$/)]],
         activityCodeId: ['', Validators.required],
         businessCity: ['', Validators.required],
-        businessAddress: ['', Validators.required],
-        businessEmail: ['', [Validators.required, Validators.email]],
-        businessPhone: ['',Validators.pattern(/^[0-9+ ]*$/)],
-        website: ['']
+        businessAddress: ['', [Validators.required, Validators.maxLength(200)]],
+        businessEmail: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
+        businessPhone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{6,15}$/)]],
+        website: ['', [Validators.pattern(/^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/)]]
     });
 
     assistantForm = this.fb.group({
-        firstName: ['', Validators.required],
-        lastName: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
+        firstName: ['', [Validators.required, Validators.maxLength(50)]],
+        lastName: ['', [Validators.required, Validators.maxLength(50)]],
+        email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
         password: ['', this.passwordValidators],
-        phone: [''],
+        phone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{6,15}$/)]],
         city: ['', Validators.required],
-        address: ['', Validators.required],
+        address: ['', [Validators.required, Validators.maxLength(200)]],
         inviteToken: ['', Validators.required]
     });
+
+    // Mapiranje backend polja na srpske poruke
+    private fieldMessages: Record<string, string> = {
+        'User.FirstName': 'Ime',
+        'User.LastName': 'Prezime',
+        'User.Email': 'Email adresa',
+        'User.Password': 'Lozinka',
+        'User.Phone': 'Telefon',
+        'User.City': 'Grad',
+        'User.Address': 'Adresa',
+        'Business.BusinessName': 'Naziv firme',
+        'Business.PIB': 'PIB',
+        'Business.MB': 'Matični broj',
+        'Business.Email': 'Email firme',
+        'Business.Phone': 'Telefon firme',
+        'Business.Website': 'Website',
+        'Business.Address': 'Adresa firme',
+        'Business.ActivityCodeId': 'Šifra delatnosti',
+        'InviteToken': 'Token za pozivnicu',
+    };
 
     get activeForm(): FormGroup {
         return this.isOwner() ? this.ownerForm : this.assistantForm;
@@ -96,9 +116,7 @@ export class RegisterComponent implements OnInit {
 
     loadActivityCodes() {
         this.activityService.getAll().subscribe({
-            next: (res) => {
-                this.activityCodes.set(res || []);
-            },
+            next: (res) => this.activityCodes.set(res || []),
             error: (err) => {
                 console.error('Error loading activity codes:', err);
                 this.toastr.error('Greška pri učitavanju šifara delatnosti', 'Greška');
@@ -126,12 +144,10 @@ export class RegisterComponent implements OnInit {
 
         if (type === 'user') {
             this.showCityDropdown.set(true);
-            const filtered = this.cities().filter(c => c.name.toLowerCase().includes(value));
-            this.filteredCities.set(filtered);
+            this.filteredCities.set(this.cities().filter(c => c.name.toLowerCase().includes(value)));
         } else {
             this.showBusinessCityDropdown.set(true);
-            const filtered = this.cities().filter(c => c.name.toLowerCase().includes(value));
-            this.filteredBusinessCities.set(filtered);
+            this.filteredBusinessCities.set(this.cities().filter(c => c.name.toLowerCase().includes(value)));
         }
     }
 
@@ -145,14 +161,10 @@ export class RegisterComponent implements OnInit {
         }
     }
 
-    // Close dropdowns when clicking outside (handled via blur with delay or overlay click)
     closeDropdown(type: 'user' | 'business') {
         setTimeout(() => {
-            if (type === 'user') {
-                this.showCityDropdown.set(false);
-            } else {
-                this.showBusinessCityDropdown.set(false);
-            }
+            if (type === 'user') this.showCityDropdown.set(false);
+            else this.showBusinessCityDropdown.set(false);
         }, 200);
     }
 
@@ -166,62 +178,75 @@ export class RegisterComponent implements OnInit {
 
     onProfilePictureSelect(event: any) {
         const file = event.target.files[0];
-
         if (!file) return;
-
-        const maxSize = 10 * 1024 * 1024; // 10MB
         if (!file.type.startsWith('image/')) {
             this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
             return;
         }
-        if (file.size > maxSize) {
-            this.toastr.error('Fajl ne sme biti veći od 10MB');
-            event.target.value = ''; // reset input
+        if (file.size > 10 * 1024 * 1024) {
+            this.toastr.error('Fajl ne sme biti veći od 10MB', 'Greška');
+            event.target.value = '';
             this.profilePictureFile.set(null);
             this.profilePicturePreview.set(null);
             return;
         }
-
         this.profilePictureFile.set(file);
-
         const reader = new FileReader();
-        reader.onload = (e: any) => {
-            this.profilePicturePreview.set(e.target.result);
-        };
-
+        reader.onload = (e: any) => this.profilePicturePreview.set(e.target.result);
         reader.readAsDataURL(file);
     }
 
     onCompanyLogoSelect(event: any) {
         const file = event.target.files[0];
-
         if (!file) return;
-
-        const maxSize = 10 * 1024 * 1024;
         if (!file.type.startsWith('image/')) {
             this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
             return;
         }
-        if (file.size > maxSize) {
-             this.toastr.error('Fajl ne sme biti veći od 10MB');
+        if (file.size > 10 * 1024 * 1024) {
+            this.toastr.error('Fajl ne sme biti veći od 10MB', 'Greška');
             event.target.value = '';
             this.companyLogoFile.set(null);
             this.companyLogoPreview.set(null);
             return;
         }
-
         this.companyLogoFile.set(file);
-
         const reader = new FileReader();
-        reader.onload = (e: any) => {
-            this.companyLogoPreview.set(e.target.result);
-        };
+        reader.onload = (e: any) => this.companyLogoPreview.set(e.target.result);
         reader.readAsDataURL(file);
+    }
+
+    // Parsira Fluent Validation errors objekat i prikazuje toastr za svaki
+    private handleBackendErrors(err: any): void {
+        const errors = err?.error?.errors;
+
+        if (errors && typeof errors === 'object') {
+            const messages: string[] = [];
+
+            Object.entries(errors).forEach(([field, msgs]) => {
+                const fieldLabel = this.fieldMessages[field] || field;
+                const msgArray = Array.isArray(msgs) ? msgs : [msgs];
+                msgArray.forEach((msg: any) => {
+                    messages.push(`${fieldLabel}: ${msg}`);
+                });
+            });
+
+            if (messages.length > 0) {
+                // Prikaži svaku grešku kao poseban toast
+                messages.forEach(msg => this.toastr.error(msg, 'Greška validacije'));
+                return;
+            }
+        }
+
+        // Fallback na generičku poruku
+        const fallback = err?.error?.message || err?.error?.title || 'Greška pri registraciji.';
+        this.toastr.error(fallback, 'Greška');
     }
 
     onSubmit() {
         if (this.activeForm.invalid) {
             this.activeForm.markAllAsTouched();
+            this.showFrontendValidationErrors();
             return;
         }
 
@@ -234,21 +259,55 @@ export class RegisterComponent implements OnInit {
         }
     }
 
+    // Prikazuje frontend validacione greške kao toastr pre slanja na backend
+    private showFrontendValidationErrors(): void {
+        const form = this.activeForm;
+        const fieldLabels: Record<string, string> = {
+            firstName: 'Ime',
+            lastName: 'Prezime',
+            email: 'Email adresa',
+            password: 'Lozinka',
+            phone: 'Telefon',
+            city: 'Grad',
+            address: 'Adresa',
+            businessName: 'Naziv firme',
+            PIB: 'PIB (mora biti 9 cifara)',
+            MB: 'Matični broj (mora biti 8 cifara)',
+            activityCodeId: 'Šifra delatnosti',
+            businessCity: 'Grad firme',
+            businessAddress: 'Adresa firme',
+            businessEmail: 'Email firme',
+            businessPhone: 'Telefon firme',
+            website: 'Website (mora biti validan URL, npr. https://example.com)',
+            inviteToken: 'Token za pozivnicu',
+        };
+
+        Object.keys(form.controls).forEach(key => {
+            const control = form.get(key);
+            if (control?.invalid) {
+                const label = fieldLabels[key] || key;
+                if (control.errors?.['required']) {
+                    this.toastr.warning(`${label} je obavezno polje`, 'Nepotpuna forma');
+                } else if (control.errors?.['pattern']) {
+                    this.toastr.warning(`${label} nije u ispravnom formatu`, 'Nepotpuna forma');
+                } else if (control.errors?.['email']) {
+                    this.toastr.warning(`${label} nije ispravna email adresa`, 'Nepotpuna forma');
+                } else if (control.errors?.['maxlength']) {
+                    this.toastr.warning(`${label} je predugačko`, 'Nepotpuna forma');
+                } else if (control.errors?.['minlength']) {
+                    this.toastr.warning(`${label} je prekratko`, 'Nepotpuna forma');
+                }
+            }
+        });
+    }
+
     private registerOwner() {
         const val = this.ownerForm.value;
-
-        // Prepare upload observables
         const uploads: any[] = [];
 
-        if (this.profilePictureFile()) {
-            uploads.push(this.fileService.uploadFile(this.profilePictureFile()!));
-        }
+        if (this.profilePictureFile()) uploads.push(this.fileService.uploadFile(this.profilePictureFile()!));
+        if (this.companyLogoFile()) uploads.push(this.fileService.uploadFile(this.companyLogoFile()!));
 
-        if (this.companyLogoFile()) {
-            uploads.push(this.fileService.uploadFile(this.companyLogoFile()!));
-        }
-
-        // If there are files to upload, upload them first
         if (uploads.length > 0) {
             forkJoin(uploads).subscribe({
                 next: (responses: any[]) => {
@@ -304,11 +363,11 @@ export class RegisterComponent implements OnInit {
 
         this.authService.registerOwner(dto).subscribe({
             next: () => {
-                this.toastr.success('Registracija uspešna! Preusmeravanje...', 'Uspeh');
+                this.toastr.success('Registracija uspešna! Proverite email za verifikaciju.', 'Uspeh');
                 setTimeout(() => this.router.navigate(['/login']), 1500);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Greška pri registraciji.', 'Greška');
+                this.handleBackendErrors(err);
                 this.isLoading.set(false);
             }
         });
@@ -331,11 +390,11 @@ export class RegisterComponent implements OnInit {
 
         this.authService.registerAssistant(dto).subscribe({
             next: () => {
-                this.toastr.success('Registracija uspešna! Preusmeravanje...', 'Uspeh');
+                this.toastr.success('Registracija uspešna! Proverite email za verifikaciju.', 'Uspeh');
                 setTimeout(() => this.router.navigate(['/login']), 1500);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Greška pri registraciji.', 'Greška');
+                this.handleBackendErrors(err);
                 this.isLoading.set(false);
             }
         });

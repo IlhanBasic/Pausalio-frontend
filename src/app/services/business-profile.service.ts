@@ -39,4 +39,8 @@ export class BusinessProfileService {
   activateCompany(id: string): Observable<ApiResponse> {
     return this.http.patch<ApiResponse>(`${this.baseUrl}/admin/${id}/activate`, {});
   }
+
+  deleteCompany(id: string): Observable<ApiResponse> {
+    return this.http.delete<ApiResponse>(`${this.baseUrl}/admin/${id}`);
+  }
 }

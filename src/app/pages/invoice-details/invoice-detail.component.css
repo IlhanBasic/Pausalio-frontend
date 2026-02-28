@@ -10,6 +10,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .btn-back {
@@ -24,6 +26,8 @@
     padding: 8px 12px;
     border-radius: 6px;
     transition: background 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .btn-back:hover { background: #f3f4f6; color: #111827; }
@@ -31,6 +35,9 @@
 .toolbar-actions {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex: 1;
 }
 
 .btn-action {
@@ -46,6 +53,7 @@
     background: #fff;
     color: #374151;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .btn-action:hover { background: #f9fafb; border-color: #d1d5db; }
@@ -64,7 +72,13 @@
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    overflow: hidden;
+}
+
+#invoice-preview-content {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
 }
 
 .loading-state {
@@ -96,7 +110,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999;
+    padding: 16px;
 }
 
 .modal-content {
@@ -235,6 +250,7 @@
     font-size: 13px;
     outline: none;
     transition: border-color 0.2s;
+    min-width: 0;
 }
 
 .email-input:focus { border-color: #4f46e5; }
@@ -247,6 +263,8 @@
     font-size: 13px;
     cursor: pointer;
     transition: background 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .btn-add-email:hover { background: #e5e7eb; }
@@ -262,6 +280,54 @@
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .invoice-detail-page {
+        padding: 16px 12px;
+    }
+
+    .detail-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-back {
+        align-self: flex-start;
+    }
+
+    .toolbar-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        justify-content: stretch;
+    }
+
+    .toolbar-actions .btn-action {
+        justify-content: center;
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    /* "Pošalji" zauzima ceo red */
+    .toolbar-actions .btn-send {
+        grid-column: 1 / -1;
+    }
+
+    .modal-body {
+        padding: 16px;
+    }
+
+    .modal-footer {
+        padding: 12px 16px;
+        flex-direction: column-reverse;
+    }
+
+    .modal-footer .btn-primary,
+    .modal-footer .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 @media print {
