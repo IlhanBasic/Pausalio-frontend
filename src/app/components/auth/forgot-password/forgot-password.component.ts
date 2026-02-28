@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { PASSWORD_REGEX } from '../../shared/constants/password-regex';
 
 @Component({
     selector: 'app-forgot-password',
@@ -30,7 +31,7 @@ export class ForgotPasswordComponent {
     resetForm = this.fb.group({
         email: [''], // Hidden, carries over from step 1
         pin: ['', Validators.required],
-        newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)]],
+        newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(PASSWORD_REGEX)]],
         confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
 

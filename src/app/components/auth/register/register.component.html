@@ -221,6 +221,9 @@
                         <div class="form-group">
                             <label>Matični broj (MB)</label>
                             <input type="text" formControlName="MB" placeholder="12345678">
+                            @if (getControl('MB')?.touched && getControl('MB')?.invalid) {
+                                <div class="error">Matični broj mora imati 8 karaktera</div>
+                            }
                         </div>
                     </div>
 

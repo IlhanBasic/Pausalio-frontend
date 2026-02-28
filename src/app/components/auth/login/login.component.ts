@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { AuthStore } from '../../../stores/auth.store';
 import { CommonModule } from '@angular/common';
+import { PASSWORD_REGEX } from '../../shared/constants/password-regex';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +23,7 @@ export class LoginComponent {
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required]
+    password: ['', Validators.required, Validators.pattern(PASSWORD_REGEX)]
   });
 
   isLoading = signal(false);

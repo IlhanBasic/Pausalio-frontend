@@ -14,6 +14,7 @@ import { BusinessProfileToReturnDto, UpdateBusinessProfileDto } from '../../mode
 import { ActivityCodeToReturnDto } from '../../models/activity-code';
 import { AddBusinessInviteDto } from '../../models/business-invite';
 import { UserProfileStore } from '../../stores/user-profile.store';
+import { PASSWORD_REGEX } from '../../components/shared/constants/password-regex';
 
 @Component({
     selector: 'app-profile',
@@ -60,7 +61,7 @@ export class ProfileComponent implements OnInit {
 
     changePasswordForm = this.fb.group({
         oldPassword: ['', Validators.required],
-        newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)]],
+        newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(PASSWORD_REGEX)]],
         confirmPassword: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
 

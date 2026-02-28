@@ -11,6 +11,7 @@ import { RegisterOwnerDto, RegisterAssistantDto } from '../../../models/user-pro
 import { CityService } from '../../../services/city.service';
 import { CityToReturnDto } from '../../../models/city';
 import { forkJoin } from 'rxjs';
+import { PASSWORD_REGEX } from '../../shared/constants/password-regex';
 
 @Component({
     selector: 'app-register',
@@ -46,7 +47,7 @@ export class RegisterComponent implements OnInit {
     passwordValidators = [
         Validators.required,
         Validators.minLength(8),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-+={}[\];:'"<>.,?/\\|])/)
+        Validators.pattern(PASSWORD_REGEX)
     ];
 
     ownerForm = this.fb.group({
@@ -56,14 +57,14 @@ export class RegisterComponent implements OnInit {
         email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
         password: ['', this.passwordValidators],
         phone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{6,15}$/)]],
-        city: ['', Validators.required],
+        city: ['', Validators.required, Validators.maxLength(100)],
         address: ['', [Validators.required, Validators.maxLength(200)]],
         // Business fields
         businessName: ['', [Validators.required, Validators.maxLength(200)]],
         PIB: ['', [Validators.required, Validators.pattern(/^\d{9}$/)]],
         MB: ['', [Validators.pattern(/^\d{8}$/)]],
         activityCodeId: ['', Validators.required],
-        businessCity: ['', Validators.required],
+        businessCity: ['', Validators.required, Validators.maxLength(100)],
         businessAddress: ['', [Validators.required, Validators.maxLength(200)]],
         businessEmail: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
         businessPhone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{6,15}$/)]],
@@ -76,9 +77,9 @@ export class RegisterComponent implements OnInit {
         email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
         password: ['', this.passwordValidators],
         phone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{6,15}$/)]],
-        city: ['', Validators.required],
+        city: ['', Validators.required, Validators.maxLength(100)],
         address: ['', [Validators.required, Validators.maxLength(200)]],
-        inviteToken: ['', Validators.required]
+        inviteToken: ['', Validators.required, Validators.maxLength(10)]
     });
 
     // Mapiranje backend polja na srpske poruke
