@@ -56,18 +56,18 @@ export class RegisterComponent implements OnInit {
         lastName: ['', [Validators.required, Validators.maxLength(50)]],
         email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
         password: ['', this.passwordValidators],
-        phone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{6,15}$/)]],
-        city: ['', Validators.required, Validators.maxLength(100)],
+        phone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{10,15}$/)]],
+        city: ['', [Validators.required, Validators.maxLength(100)]],
         address: ['', [Validators.required, Validators.maxLength(200)]],
         // Business fields
         businessName: ['', [Validators.required, Validators.maxLength(200)]],
         PIB: ['', [Validators.required, Validators.pattern(/^\d{9}$/)]],
         MB: ['', [Validators.pattern(/^\d{8}$/)]],
         activityCodeId: ['', Validators.required],
-        businessCity: ['', Validators.required, Validators.maxLength(100)],
+        businessCity: ['', [Validators.required, Validators.maxLength(100)]],
         businessAddress: ['', [Validators.required, Validators.maxLength(200)]],
         businessEmail: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
-        businessPhone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{6,15}$/)]],
+        businessPhone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{10,15}$/)]],
         website: ['', [Validators.pattern(/^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/)]]
     });
 
@@ -76,10 +76,10 @@ export class RegisterComponent implements OnInit {
         lastName: ['', [Validators.required, Validators.maxLength(50)]],
         email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
         password: ['', this.passwordValidators],
-        phone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{6,15}$/)]],
-        city: ['', Validators.required, Validators.maxLength(100)],
+        phone: ['', [Validators.pattern(/^[\+]?[0-9\s\-\(\)]{10,15}$/)]],
+        city: ['', [Validators.required, Validators.maxLength(100)]],
         address: ['', [Validators.required, Validators.maxLength(200)]],
-        inviteToken: ['', Validators.required, Validators.maxLength(10)]
+        inviteToken: ['', [Validators.required, Validators.maxLength(10)]]
     });
 
     // Mapiranje backend polja na srpske poruke

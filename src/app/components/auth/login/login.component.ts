@@ -23,7 +23,7 @@ export class LoginComponent {
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required, Validators.pattern(PASSWORD_REGEX)]
+    password: ['', [Validators.required, Validators.pattern(PASSWORD_REGEX)]]
   });
 
   isLoading = signal(false);

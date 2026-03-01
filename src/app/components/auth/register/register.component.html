@@ -129,6 +129,9 @@
                     <div class="form-group">
                         <label>Telefon</label>
                         <input type="tel" inputmode="numeric"  pattern="[0-9+ ]*" formControlName="phone" placeholder="06...">
+                        @if (getControl('phone')?.touched && getControl('phone')?.errors?.['pattern']) {
+                            <div class="error">Telefon mora imati 10-15 cifara</div>
+                        }
                     </div>
 
                     <div class="form-group autocomplete-wrapper">
@@ -285,6 +288,9 @@
                         <div class="form-group">
                             <label>Telefon firme</label>
                             <input type="tel" inputmode="numeric" pattern="[0-9+ ]*" formControlName="businessPhone" placeholder="06...">
+                            @if (getControl('businessPhone')?.touched && getControl('businessPhone')?.errors?.['pattern']) {
+                                <div class="error">Telefon firme mora imati 10-15 cifara</div>
+                            }
                         </div>
                     </div>
 
