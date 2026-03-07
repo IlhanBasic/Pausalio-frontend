@@ -42,6 +42,7 @@ nav {
     padding: 24px 16px;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom)); 
 }
 
 nav::-webkit-scrollbar { width: 6px; }
