@@ -1,0 +1,138 @@
+<div class="chat-widget">
+  <!-- Toggle Button -->
+  <button class="chat-toggle" (click)="toggleWidget()" [class.active]="isOpen">
+    @if (!isOpen) {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      @if (unreadCount > 0) {
+        <span class="unread-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+      }
+    } @else {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    }
+  </button>
+
+  <!-- Chat Panel -->
+  @if (isOpen) {
+    <div class="chat-panel">
+
+      <!-- Members List -->
+      @if (!selectedMember) {
+        <div class="panel-header">
+          <div class="panel-header__info">
+            <h3>Poruke</h3>
+            <span>Tim u firmi</span>
+          </div>
+        </div>
+
+        <div class="members-list">
+          @if (members.length === 0) {
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <p>Nema članova u timu</p>
+            </div>
+          }
+          @for (member of members; track member.userId) {
+            <button class="member-item" (click)="selectMember(member)">
+              <div class="member-avatar">
+                @if (member.profilePicture) {
+                  <img [src]="member.profilePicture" [alt]="member.fullName" />
+                } @else {
+                  {{ getInitials(member.fullName) }}
+                }
+              </div>
+              <div class="member-info">
+                <span class="member-name">{{ member.fullName }}</span>
+                <span class="member-role">{{ member.role }}</span>
+              </div>
+              <svg class="member-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Chat View -->
+      @if (selectedMember) {
+        <div class="panel-header">
+          <button class="back-btn" (click)="backToMembers()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <div class="member-avatar small">
+            @if (selectedMember.profilePicture) {
+              <img [src]="selectedMember.profilePicture" [alt]="selectedMember.fullName" />
+            } @else {
+              {{ getInitials(selectedMember.fullName) }}
+            }
+          </div>
+          <div class="panel-header__info">
+            <h3>{{ selectedMember.fullName }}</h3>
+            <span>{{ selectedMember.role }}</span>
+          </div>
+        </div>
+
+        <div class="messages-container" #messagesContainer>
+          @if (isLoadingHistory) {
+            <div class="loading-state">
+              <div class="spinner"></div>
+            </div>
+          }
+
+          @for (msg of messages; track msg.id) {
+            <div class="message" [class.message--mine]="isMyMessage(msg)" [class.message--theirs]="!isMyMessage(msg)">
+              <div class="message__bubble">
+                <p>{{ msg.content }}</p>
+              </div>
+              <div class="message__meta">
+                <span>{{ formatTime(msg.sentAt) }}</span>
+                @if (isMyMessage(msg)) {
+                  <span class="status-icon" [class.read]="msg.status === 3">
+                    {{ getStatusIcon(msg.status) }}
+                  </span>
+                }
+              </div>
+            </div>
+          }
+
+          @if (messages.length === 0 && !isLoadingHistory) {
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <p>Započni razgovor!</p>
+            </div>
+          }
+        </div>
+
+        <div class="chat-input">
+          <textarea
+            [(ngModel)]="inputText"
+            (keydown)="onKeyDown($event)"
+            placeholder="Napiši poruku..."
+            rows="1"
+            class="chat-input__field"
+          ></textarea>
+          <button class="chat-input__send" (click)="sendMessage()" [disabled]="!inputText.trim()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      }
+
+    </div>
+  }
+</div>

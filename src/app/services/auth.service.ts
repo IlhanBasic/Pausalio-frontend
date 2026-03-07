@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { AddUserProfileDto, ChangePasswordDto, ForgotPasswordDto, LoginDto, RegisterAssistantDto, RegisterOwnerDto, ResetPasswordDto } from "../models/user-profile";
+import { AddUserProfileDto, ChangePasswordDto, ForgotPasswordDto, LoginDto, RegisterAssistantDto, RegisterOwnerDto, ResendVerificationDto, ResetPasswordDto } from "../models/user-profile";
 import { Observable } from "rxjs";
 import { AcceptInviteResponse, ApiResponse, LoginResponse } from "../models/api-response";
 import { AcceptInviteDto } from "../models/business-invite";
@@ -50,9 +50,10 @@ export class AuthService {
     );
   }
 
-  resendVerification(email: string): Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(
-      `${this.baseUrl}/resend-verification?email=${email}`
+  resendVerification(resendVerificationDto: ResendVerificationDto): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(
+      `${this.baseUrl}/resend-verification`,
+      resendVerificationDto
     );
   }
 
