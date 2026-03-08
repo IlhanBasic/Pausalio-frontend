@@ -15,7 +15,7 @@ interface ChatMessage {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './ai-assistant.component.html',
-  styleUrl: './ai-assistant.component.css'
+  styleUrl: './ai-assistant.component.css',
 })
 export class AiAssistantComponent implements AfterViewChecked {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
@@ -25,9 +25,10 @@ export class AiAssistantComponent implements AfterViewChecked {
   messages: ChatMessage[] = [
     {
       role: 'assistant',
-      content: 'Zdravo! Ja sam tvoj Pausalio asistent. 👋\n\nTu sam da ti pomognem sa svim pitanjima vezanim za tvoje poslovanje — fakture, troškove, poreze, paušalni limit i slično.\n\nŠta te zanima?',
-      timestamp: new Date()
-    }
+      content:
+        'Zdravo! Ja sam tvoj Pausalio asistent. 👋\n\nTu sam da ti pomognem sa svim pitanjima vezanim za tvoje poslovanje — fakture, troškove, poreze, paušalni limit i slično.\n\nŠta te zanima?',
+      timestamp: new Date(),
+    },
   ];
 
   inputText = '';
@@ -52,8 +53,8 @@ export class AiAssistantComponent implements AfterViewChecked {
 
     const history: ChatHistoryItem[] = this.messages
       .slice(1, -1) // preskoči welcome poruku i poslednju korisnikovu
-      .slice(-10)   // max 10 poruka istorije
-      .map(m => ({ role: m.role, content: m.content }));
+      .slice(-10) // max 10 poruka istorije
+      .map((m) => ({ role: m.role, content: m.content }));
 
     const payload: UserChatMessage = { message: text, history };
 
@@ -62,7 +63,7 @@ export class AiAssistantComponent implements AfterViewChecked {
         this.messages.push({
           role: 'assistant',
           content: response.message ?? 'Nema odgovora.',
-          timestamp: new Date()
+          timestamp: new Date(),
         });
         this.isLoading = false;
         this.shouldScroll = true;
@@ -71,11 +72,11 @@ export class AiAssistantComponent implements AfterViewChecked {
         this.messages.push({
           role: 'assistant',
           content: '⚠️ Došlo je do greške. Pokušaj ponovo.',
-          timestamp: new Date()
+          timestamp: new Date(),
         });
         this.isLoading = false;
         this.shouldScroll = true;
-      }
+      },
     });
   }
 
@@ -102,6 +103,6 @@ export class AiAssistantComponent implements AfterViewChecked {
   }
 
   formatContent(content: string): string {
-    return content.replace(/\n/g, '<br>');
+    return content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
   }
 }
