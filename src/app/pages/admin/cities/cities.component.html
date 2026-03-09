@@ -1,8 +1,8 @@
 <div class="cities-page">
     <div class="page-header">
         <div class="header-content">
-            <h1>Gradovi</h1>
-            <p class="subtitle">Upravljanje gradovima sistema</p>
+            <h1>{{ 'CITIES.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'CITIES.SUBTITLE' | translate }}</p>
         </div>
         <button class="btn-primary" (click)="openAddModal()">
             <span class="btn-icon">
@@ -12,11 +12,17 @@
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </span>
-            Dodaj grad
+            {{ 'CITIES.ADD_BTN' | translate }}
         </button>
     </div>
 
-    <app-data-table [data]="cities()" [columns]="columns" [actions]="actions" (onEdit)="openEditModal($event)"
+    <app-data-table 
+        [data]="cities()" 
+        [columns]="columns" 
+        [actions]="actions"
+        [searchPlaceholder]="'CITIES.SEARCH_PLACEHOLDER' | translate"
+        [emptyMessage]="'CITIES.EMPTY_MESSAGE' | translate"
+        (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)">
     </app-data-table>
 
@@ -24,33 +30,39 @@
         <div class="modal-overlay" (click)="closeModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>{{ editingCity() ? 'Izmeni grad' : 'Novi grad' }}</h2>
+                    <h2>{{ editingCity() ? ('CITIES.MODAL_EDIT_TITLE' | translate) : ('CITIES.MODAL_ADD_TITLE' | translate) }}</h2>
                     <button class="close-btn" (click)="closeModal()">✕</button>
                 </div>
                 <form [formGroup]="cityForm" (ngSubmit)="onSubmit()">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Naziv *</label>
-                            <input type="text" formControlName="name" placeholder="npr. Beograd">
+                            <label>{{ 'CITIES.FIELD_NAME' | translate }}</label>
+                            <input type="text" formControlName="name" [placeholder]="'CITIES.FIELD_NAME_PLACEHOLDER' | translate">
                             @if (cityForm.get('name')?.touched && cityForm.get('name')?.invalid) {
-                                <div class="error">Naziv je obavezan</div>
+                                <div class="error">{{ 'CITIES.FIELD_NAME_ERROR' | translate }}</div>
                             }
                         </div>
                         <div class="form-group">
-                            <label>Poštanski broj *</label>
-                            <input type="text" formControlName="postalCode" placeholder="npr. 11000">
+                            <label>{{ 'CITIES.FIELD_POSTAL_CODE' | translate }}</label>
+                            <input type="text" formControlName="postalCode" [placeholder]="'CITIES.FIELD_POSTAL_CODE_PLACEHOLDER' | translate">
                             @if (cityForm.get('postalCode')?.touched && cityForm.get('postalCode')?.invalid) {
-                                <div class="error">Poštanski broj je obavezan</div>
+                                <div class="error">{{ 'CITIES.FIELD_POSTAL_CODE_ERROR' | translate }}</div>
                             }
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'CITIES.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="cityForm.invalid || isSubmitting()">
                             @if (isSubmitting()) {
                                 <span class="spinner"></span>
                             }
-                            <span>{{ isSubmitting() ? 'Učitavanje...' : (editingCity() ? 'Sačuvaj izmene' : 'Dodaj grad') }}</span>
+                            <span>{{ 
+                                isSubmitting() 
+                                    ? ('CITIES.BTN_SAVING' | translate) 
+                                    : (editingCity() 
+                                        ? ('CITIES.BTN_SAVE' | translate) 
+                                        : ('CITIES.BTN_ADD' | translate)) 
+                            }}</span>
                         </button>
                     </div>
                 </form>
@@ -62,18 +74,18 @@
         <div class="modal-overlay" (click)="closeDeleteConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda brisanja</h2>
+                    <h2>{{ 'CITIES.MODAL_DELETE_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
                 </div>
                 <div class="modal-body">
                     <p class="confirm-message">
-                        Da li ste sigurni da želite da obrišete grad
+                        {{ 'CITIES.DELETE_CONFIRM_MSG' | translate }}
                         <strong>{{ deletingCity()?.name }}</strong>?
                     </p>
-                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+                    <p class="confirm-warning">{{ 'CITIES.DELETE_CONFIRM_WARNING' | translate }}</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'CITIES.BTN_CANCEL' | translate }}</button>
                     <button type="button" class="btn-danger" (click)="confirmDelete()" [disabled]="isSubmitting()">
                         @if (isSubmitting()) {
                             <span class="spinner"></span>
@@ -88,7 +100,7 @@
                                 <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
                             </svg>
                         }
-                        <span>{{ isSubmitting() ? 'Brisanje...' : 'Obriši' }}</span>
+                        <span>{{ isSubmitting() ? ('CITIES.BTN_DELETING' | translate) : ('CITIES.BTN_DELETE' | translate) }}</span>
                     </button>
                 </div>
             </div>

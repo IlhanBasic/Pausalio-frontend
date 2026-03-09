@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core'; // DODATO
 import { InvoiceService } from '../../services/invoice.service';
 import { ClientService } from '../../services/client.service';
 import { ItemService } from '../../services/item.service';
@@ -25,7 +26,7 @@ import { Router } from '@angular/router';
 @Component({
     selector: 'app-invoices',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+    imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule], // DODATO TranslateModule
     templateUrl: './invoices.component.html',
     styleUrl: './invoices.component.css'
 })
@@ -39,6 +40,8 @@ export class InvoicesComponent implements OnInit {
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
     private router = inject(Router);
+    private translate = inject(TranslateService); // DODATO
+
     invoices = signal<InvoiceToReturnDto[]>([]);
     clients = signal<ClientToReturnDto[]>([]);
     availableItems = signal<ItemToReturnDto[]>([]);
@@ -77,21 +80,19 @@ export class InvoicesComponent implements OnInit {
     });
 
     columns: TableColumn[] = [
-        { key: 'invoiceNumber', label: 'Broj Fakture', sortable: true },
-        { key: 'clientName', label: 'Klijent', sortable: true },
-        { key: 'totalAmount', label: 'Iznos', sortable: true },
-        { key: 'amountToPay', label: 'Preostalo još', sortable: true },
-        { key: 'currencyDisplay', label: 'Valuta', sortable: true },
-        { key: 'statusBadge', label: 'Status', type: 'badge', sortable: false },
-        { key: 'issueDate', label: 'Datum Izdavanja', type: 'date', sortable: true },
-        { key: 'dueDate', label: 'Rok Plaćanja', type: 'date', sortable: true }
+        { key: 'invoiceNumber', label: 'INVOICES.COLUMN_INVOICE_NUMBER', sortable: true },
+        { key: 'clientName', label: 'INVOICES.COLUMN_CLIENT', sortable: true },
+        { key: 'totalAmount', label: 'INVOICES.COLUMN_AMOUNT', sortable: true },
+        { key: 'amountToPay', label: 'INVOICES.COLUMN_REMAINING', sortable: true },
+        { key: 'currencyDisplay', label: 'INVOICES.COLUMN_CURRENCY', sortable: true },
+        { key: 'statusBadge', label: 'INVOICES.COLUMN_STATUS', type: 'badge', sortable: false },
+        { key: 'issueDate', label: 'INVOICES.COLUMN_ISSUE_DATE', type: 'date', sortable: true },
+        { key: 'dueDate', label: 'INVOICES.COLUMN_DUE_DATE', type: 'date', sortable: true }
     ];
 
     actions: TableAction[] = [
-
-        // IZMENI — samo neplaćene
         {
-            label: 'Izmeni',
+            label: this.translate.instant('INVOICES.ACTION_EDIT'),
             icon: '✏️',
             type: 'edit',
             showCondition: (item) =>
@@ -99,10 +100,8 @@ export class InvoicesComponent implements OnInit {
                 item.invoiceStatus !== InvoiceStatus.cancelled &&
                 item.invoiceStatus !== InvoiceStatus.archived
         },
-
-        // PLATI — samo ako nije plaćena
         {
-            label: 'Plati',
+            label: this.translate.instant('INVOICES.ACTION_PAY'),
             icon: '💳',
             type: 'custom',
             showCondition: (item) =>
@@ -110,36 +109,30 @@ export class InvoicesComponent implements OnInit {
                 item.invoiceStatus !== InvoiceStatus.cancelled &&
                 item.invoiceStatus !== InvoiceStatus.archived
         },
-
-        // ARHIVIRAJ — samo završene
         {
-            label: 'Arhiviraj',
+            label: this.translate.instant('INVOICES.ACTION_ARCHIVE'),
             icon: '📦',
             type: 'custom',
             showCondition: (item) =>
                 item.invoiceStatus === InvoiceStatus.finished
         },
-
-        // PONIŠTI — ne može ako je arhivirana
         {
-            label: 'Poništi',
+            label: this.translate.instant('INVOICES.ACTION_CANCEL'),
             icon: '❌',
             type: 'custom',
             showCondition: (item) =>
                 item.invoiceStatus !== InvoiceStatus.archived &&
                 item.invoiceStatus !== InvoiceStatus.cancelled
         },
-
-        // OBRIŠI — sve osim arhiviranih
         {
-            label: 'Obriši',
+            label: this.translate.instant('INVOICES.ACTION_DELETE'),
             icon: '🗑️',
             type: 'delete',
             showCondition: (item) =>
                 item.invoiceStatus !== InvoiceStatus.archived
         },
         {
-            label: 'Detalji',
+            label: this.translate.instant('INVOICES.ACTION_DETAILS'),
             icon: '👁️',
             type: 'custom',
             showCondition: () => true
@@ -151,16 +144,16 @@ export class InvoicesComponent implements OnInit {
         const invoice = event.item;
 
         switch (event.action) {
-            case 'Plati':
+            case this.translate.instant('INVOICES.ACTION_PAY'):
                 this.openPaymentModal(invoice);
                 break;
-            case 'Arhiviraj':
+            case this.translate.instant('INVOICES.ACTION_ARCHIVE'):
                 this.openArchiveConfirm(invoice);
                 break;
-            case 'Poništi':
+            case this.translate.instant('INVOICES.ACTION_CANCEL'):
                 this.openCancelConfirm(invoice);
                 break;
-            case 'Detalji':
+            case this.translate.instant('INVOICES.ACTION_DETAILS'):
                 this.router.navigate(['/invoices', invoice.id]);
                 break;
             default:
@@ -194,10 +187,13 @@ export class InvoicesComponent implements OnInit {
 
     getClientTypeLabel(clientType: ClientType): string {
         switch (clientType) {
-            case ClientType.individual: return 'Domaći';
-            case ClientType.domestic: return 'Domaći';
-            case ClientType.foreign: return 'Strani';
-            default: return 'Nepoznato';
+            case ClientType.individual:
+            case ClientType.domestic:
+                return this.translate.instant('INVOICES.FIELD_CLIENT_DOMESTIC');
+            case ClientType.foreign:
+                return this.translate.instant('INVOICES.FIELD_CLIENT_FOREIGN');
+            default:
+                return this.translate.instant('INVOICES.FIELD_CLIENT_UNKNOWN');
         }
     }
 
@@ -221,13 +217,22 @@ export class InvoicesComponent implements OnInit {
                 next: (response) => {
                     if (response.success && response.data) {
                         itemGroup.patchValue({ unitPrice: response.data.convertedAmount });
-                        this.toastr.info(`Stavka ${index + 1}: ${response.data.calculation}`, 'Konverzija valute');
+                        this.toastr.info(
+                            this.translate.instant('INVOICES.TOAST_CONVERT_INFO', {
+                                index: index + 1,
+                                calculation: response.data.calculation
+                            }),
+                            this.translate.instant('INVOICES.TOAST_INFO_TITLE')
+                        );
                     }
                     this.convertingItemIndex.set(null);
                 },
                 error: (err) => {
                     console.error('Error converting currency:', err);
-                    this.toastr.warning(`Nije moguće konvertovati cenu za stavku ${index + 1}`, 'Upozorenje');
+                    this.toastr.warning(
+                        this.translate.instant('INVOICES.TOAST_CONVERT_WARNING', { index: index + 1 }),
+                        this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+                    );
                     this.convertingItemIndex.set(null);
                 }
             });
@@ -278,13 +283,21 @@ export class InvoicesComponent implements OnInit {
                 next: (response) => {
                     if (response.success && response.data) {
                         itemGroup.patchValue({ unitPrice: response.data.convertedAmount });
-                        this.toastr.info(`Cena konvertovana: ${response.data.calculation}`, 'Konverzija valute');
+                        this.toastr.info(
+                            this.translate.instant('INVOICES.TOAST_CONVERT_CURRENCY', {
+                                calculation: response.data.calculation
+                            }),
+                            this.translate.instant('INVOICES.TOAST_INFO_TITLE')
+                        );
                     }
                     this.convertingItemIndex.set(null);
                 },
                 error: (err) => {
                     console.error('Error converting currency:', err);
-                    this.toastr.warning(err.error?.message || 'Nije moguće konvertovati valutu, unesite cenu ručno', 'Upozorenje');
+                    this.toastr.warning(
+                        err.error?.message || this.translate.instant('INVOICES.TOAST_CONVERT_WARNING', { index: index + 1 }),
+                        this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+                    );
                     this.convertingItemIndex.set(null);
                 }
             });
@@ -327,7 +340,10 @@ export class InvoicesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading invoices:', err);
-                this.toastr.error(err.error?.message || 'Greška pri učitavanju faktura', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('INVOICES.TOAST_LOAD_ERROR'),
+                    this.translate.instant('INVOICES.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -383,16 +399,25 @@ export class InvoicesComponent implements OnInit {
     openEditModal(invoice: InvoiceToReturnDto) {
         // Arhivirane i otkazane fakture se ne mogu menjati
         if (invoice.invoiceStatus === InvoiceStatus.archived) {
-            this.toastr.warning('Arhivirane fakture se ne mogu menjati', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICES.WARNING_CANNOT_EDIT_ARCHIVED'),
+                this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
         if (invoice.invoiceStatus === InvoiceStatus.cancelled) {
-            this.toastr.warning('Otkazane fakture se ne mogu menjati', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICES.WARNING_CANNOT_EDIT_CANCELLED'),
+                this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+            );
             return;
         }
         if (invoice.paymentStatus === PaymentStatus.paid) {
-            this.toastr.warning('Plaćene fakture se ne mogu menjati');
+            this.toastr.warning(
+                this.translate.instant('INVOICES.WARNING_CANNOT_EDIT_PAID'),
+                this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
@@ -434,17 +459,26 @@ export class InvoicesComponent implements OnInit {
     // --- Payment Modal ---
     openPaymentModal(invoice: InvoiceToReturnDto) {
         if (invoice.invoiceStatus === InvoiceStatus.archived) {
-            this.toastr.warning('Arhivirane fakture se ne mogu platiti', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICES.WARNING_CANNOT_PAY_ARCHIVED'),
+                this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
         if (invoice.invoiceStatus === InvoiceStatus.cancelled) {
-            this.toastr.warning('Otkazane fakture se ne mogu platiti', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICES.WARNING_CANNOT_PAY_CANCELLED'),
+                this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
         if (invoice.paymentStatus === PaymentStatus.paid) {
-            this.toastr.info('Faktura je već u potpunosti plaćena', 'Info');
+            this.toastr.info(
+                this.translate.instant('INVOICES.WARNING_ALREADY_PAID'),
+                this.translate.instant('INVOICES.TOAST_INFO_TITLE')
+            );
             return;
         }
 
@@ -513,13 +547,19 @@ export class InvoicesComponent implements OnInit {
 
         this.paymentService.create(dto).subscribe({
             next: () => {
-                this.toastr.success('Plaćanje uspešno dodato', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('INVOICES.TOAST_PAYMENT_SUCCESS'),
+                    this.translate.instant('INVOICES.TOAST_SUCCESS_TITLE')
+                );
                 this.loadInvoices(this.activeStatusFilter());
                 this.closePaymentModal();
             },
             error: (err) => {
                 console.error('Error creating payment:', err);
-                this.toastr.error(err.error?.message || 'Greška pri dodavanju plaćanja', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('INVOICES.TOAST_PAYMENT_ERROR'),
+                    this.translate.instant('INVOICES.TOAST_ERROR_TITLE')
+                );
             }
         });
     }
@@ -531,7 +571,10 @@ export class InvoicesComponent implements OnInit {
     // --- Archive ---
     openArchiveConfirm(invoice: InvoiceToReturnDto) {
         if (invoice.invoiceStatus !== InvoiceStatus.finished) {
-            this.toastr.warning('Faktura mora biti završena (plaćena) da bi se arhivirala', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICES.WARNING_CANNOT_ARCHIVE_NOT_FINISHED'),
+                this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
@@ -550,13 +593,19 @@ export class InvoicesComponent implements OnInit {
 
         this.invoiceService.archiveInvoice(invoice.id).subscribe({
             next: () => {
-                this.toastr.success('Faktura uspešno arhivirana', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('INVOICES.TOAST_ARCHIVE_SUCCESS'),
+                    this.translate.instant('INVOICES.TOAST_SUCCESS_TITLE')
+                );
                 this.loadInvoices(this.activeStatusFilter());
                 this.closeArchiveConfirm();
             },
             error: (err) => {
                 console.error('Error archiving invoice:', err);
-                this.toastr.error(err.error?.message || 'Greška pri arhiviranju fakture', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('INVOICES.TOAST_ARCHIVE_ERROR'),
+                    this.translate.instant('INVOICES.TOAST_ERROR_TITLE')
+                );
                 this.closeArchiveConfirm();
             }
         });
@@ -565,16 +614,18 @@ export class InvoicesComponent implements OnInit {
     // --- Cancel ---
     openCancelConfirm(invoice: InvoiceToReturnDto) {
         if (invoice.invoiceStatus === InvoiceStatus.cancelled) {
-            this.toastr.warning('Faktura je već otkazana', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICES.WARNING_ALREADY_CANCELLED'),
+                this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
-        // if (invoice.invoiceStatus === InvoiceStatus.finished || invoice.invoiceStatus === InvoiceStatus.archived) {
-        //     this.toastr.warning('Završene i arhivirane fakture se ne mogu otkazati', 'Upozorenje');
-        //     return;
-        // }
         if (invoice.invoiceStatus === InvoiceStatus.archived) {
-            this.toastr.warning('Arhivirane fakture se ne mogu poništiti', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICES.WARNING_CANNOT_CANCEL_ARCHIVED'),
+                this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
@@ -593,13 +644,19 @@ export class InvoicesComponent implements OnInit {
 
         this.invoiceService.cancelInvoice(invoice.id).subscribe({
             next: () => {
-                this.toastr.success('Faktura uspešno otkazana', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('INVOICES.TOAST_CANCEL_SUCCESS'),
+                    this.translate.instant('INVOICES.TOAST_SUCCESS_TITLE')
+                );
                 this.loadInvoices(this.activeStatusFilter());
                 this.closeCancelConfirm();
             },
             error: (err) => {
                 console.error('Error cancelling invoice:', err);
-                this.toastr.error(err.error?.message || 'Greška pri otkazivanju fakture', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('INVOICES.TOAST_CANCEL_ERROR'),
+                    this.translate.instant('INVOICES.TOAST_ERROR_TITLE')
+                );
                 this.closeCancelConfirm();
             }
         });
@@ -607,16 +664,17 @@ export class InvoicesComponent implements OnInit {
 
     // --- Delete ---
     openDeleteConfirm(invoice: InvoiceToReturnDto) {
-
         if (invoice.invoiceStatus === InvoiceStatus.archived) {
-            this.toastr.warning('Arhivirane fakture se ne mogu obrisati');
+            this.toastr.warning(
+                this.translate.instant('INVOICES.WARNING_CANNOT_DELETE_ARCHIVED'),
+                this.translate.instant('INVOICES.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
         this.deletingInvoice.set(invoice);
         this.showDeleteConfirm.set(true);
     }
-
 
     closeDeleteConfirm() {
         this.showDeleteConfirm.set(false);
@@ -629,13 +687,19 @@ export class InvoicesComponent implements OnInit {
 
         this.invoiceService.delete(invoice.id).subscribe({
             next: () => {
-                this.toastr.success('Faktura uspešno obrisana', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('INVOICES.TOAST_DELETE_SUCCESS'),
+                    this.translate.instant('INVOICES.TOAST_SUCCESS_TITLE')
+                );
                 this.loadInvoices(this.activeStatusFilter());
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting invoice:', err);
-                this.toastr.error(err.error?.message || 'Greška pri brisanju fakture', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('INVOICES.TOAST_DELETE_ERROR'),
+                    this.translate.instant('INVOICES.TOAST_ERROR_TITLE')
+                );
                 this.closeDeleteConfirm();
             }
         });
@@ -672,13 +736,19 @@ export class InvoicesComponent implements OnInit {
 
             this.invoiceService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.toastr.success('Faktura uspešno ažurirana', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('INVOICES.TOAST_UPDATE_SUCCESS'),
+                        this.translate.instant('INVOICES.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadInvoices();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating invoice:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju fakture', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('INVOICES.TOAST_UPDATE_ERROR'),
+                        this.translate.instant('INVOICES.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         } else {
@@ -692,13 +762,19 @@ export class InvoicesComponent implements OnInit {
 
             this.invoiceService.create(dto).subscribe({
                 next: () => {
-                    this.toastr.success('Faktura uspešno kreirana', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('INVOICES.TOAST_CREATE_SUCCESS'),
+                        this.translate.instant('INVOICES.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadInvoices();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating invoice:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri kreiranju fakture', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('INVOICES.TOAST_CREATE_ERROR'),
+                        this.translate.instant('INVOICES.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         }
@@ -707,29 +783,29 @@ export class InvoicesComponent implements OnInit {
     // --- Helpers ---
     getInvoiceStatusName(status: InvoiceStatus): string {
         switch (status) {
-            case InvoiceStatus.draft: return 'Nacrt';
-            case InvoiceStatus.sent: return 'Poslato';
-            case InvoiceStatus.cancelled: return 'Otkazano';
-            case InvoiceStatus.finished: return 'Završeno';
-            case InvoiceStatus.archived: return 'Arhivirano';
-            default: return 'Nepoznato';
+            case InvoiceStatus.draft: return this.translate.instant('INVOICES.STATUS_DRAFT');
+            case InvoiceStatus.sent: return this.translate.instant('INVOICES.STATUS_SENT');
+            case InvoiceStatus.cancelled: return this.translate.instant('INVOICES.STATUS_CANCELLED');
+            case InvoiceStatus.finished: return this.translate.instant('INVOICES.STATUS_FINISHED');
+            case InvoiceStatus.archived: return this.translate.instant('INVOICES.STATUS_ARCHIVED');
+            default: return this.translate.instant('INVOICES.STATUS_UNKNOWN');
         }
     }
 
     getInvoiceStatusBadge(status: InvoiceStatus): string {
         switch (status) {
             case InvoiceStatus.draft:
-                return '<span class="badge badge-draft">Nacrt</span>';
+                return `<span class="badge badge-draft">${this.translate.instant('INVOICES.STATUS_DRAFT')}</span>`;
             case InvoiceStatus.sent:
-                return '<span class="badge badge-sent">Poslato</span>';
+                return `<span class="badge badge-sent">${this.translate.instant('INVOICES.STATUS_SENT')}</span>`;
             case InvoiceStatus.cancelled:
-                return '<span class="badge badge-cancelled">Otkazano</span>';
+                return `<span class="badge badge-cancelled">${this.translate.instant('INVOICES.STATUS_CANCELLED')}</span>`;
             case InvoiceStatus.finished:
-                return '<span class="badge badge-finished">Završeno</span>';
+                return `<span class="badge badge-finished">${this.translate.instant('INVOICES.STATUS_FINISHED')}</span>`;
             case InvoiceStatus.archived:
-                return '<span class="badge badge-archived">Arhivirano</span>';
+                return `<span class="badge badge-archived">${this.translate.instant('INVOICES.STATUS_ARCHIVED')}</span>`;
             default:
-                return '<span class="badge badge-unknown">Nepoznato</span>';
+                return `<span class="badge badge-unknown">${this.translate.instant('INVOICES.STATUS_UNKNOWN')}</span>`;
         }
     }
 }

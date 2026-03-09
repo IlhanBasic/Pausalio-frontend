@@ -2,35 +2,36 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
-            <h1>Usluge i Proizvodi</h1>
-            <p class="subtitle">Upravljajte uslugama i proizvodima koje nudite</p>
+            <h1>{{ 'SERVICES.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'SERVICES.SUBTITLE' | translate }}</p>
         </div>
         <button class="btn-primary" (click)="openAddModal()">
             <span class="btn-icon">➕</span>
-            Dodaj uslugu
+            {{ 'SERVICES.ADD_BTN' | translate }}
         </button>
     </div>
 
     <!-- Filter Tabs -->
     <div class="filter-tabs">
         <button class="filter-tab" [class.active]="activeItemTypeFilter() === null" (click)="setItemTypeFilter(null)">
-            Sve
+            {{ 'SERVICES.FILTER_ALL' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeItemTypeFilter() === ItemType.service"
             (click)="setItemTypeFilter(ItemType.service)">
             <span class="tab-dot dot-service"></span>
-            Usluga
+            {{ 'SERVICES.FILTER_SERVICE' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeItemTypeFilter() === ItemType.product"
             (click)="setItemTypeFilter(ItemType.product)">
             <span class="tab-dot dot-product"></span>
-            Proizvod
+            {{ 'SERVICES.FILTER_PRODUCT' | translate }}
         </button>
     </div>
 
     <!-- Data Table -->
     <app-data-table [columns]="columns" [data]="filteredServices()" [actions]="actions"
-        searchPlaceholder="Pretraži usluge..." emptyMessage="Nema usluga za prikaz. Dodajte prvu uslugu!"
+        [searchPlaceholder]="'SERVICES.SEARCH_PLACEHOLDER' | translate"
+        [emptyMessage]="'SERVICES.EMPTY_MESSAGE' | translate"
         (onEdit)="openEditModal($event)" (onDelete)="openDeleteConfirm($event)">
     </app-data-table>
 
@@ -39,48 +40,48 @@
         <div class="modal-overlay" (click)="closeModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>{{ editingService() ? 'Izmeni uslugu' : 'Dodaj novu uslugu' }}</h2>
+                    <h2>{{ editingService() ? ('SERVICES.MODAL_EDIT_TITLE' | translate) : ('SERVICES.MODAL_ADD_TITLE' | translate) }}</h2>
                     <button class="close-btn" (click)="closeModal()">✕</button>
                 </div>
 
                 <form [formGroup]="serviceForm" (ngSubmit)="onSubmit()">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Naziv *</label>
-                            <input type="text" formControlName="name" placeholder="Naziv usluge">
+                            <label>{{ 'SERVICES.FIELD_NAME' | translate }}</label>
+                            <input type="text" formControlName="name" [placeholder]="'SERVICES.FIELD_NAME_PLACEHOLDER' | translate">
                             @if (serviceForm.get('name')?.touched && serviceForm.get('name')?.invalid) {
-                                <div class="error">Naziv je obavezan</div>
+                                <div class="error">{{ 'SERVICES.FIELD_NAME_ERROR' | translate }}</div>
                             }
                         </div>
 
                         <div class="form-group">
-                            <label>Opis</label>
-                            <textarea formControlName="description" rows="3" placeholder="Opis usluge"></textarea>
+                            <label>{{ 'SERVICES.FIELD_DESCRIPTION' | translate }}</label>
+                            <textarea formControlName="description" rows="3" [placeholder]="'SERVICES.FIELD_DESCRIPTION_PLACEHOLDER' | translate"></textarea>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Tip *</label>
+                                <label>{{ 'SERVICES.FIELD_TYPE' | translate }}</label>
                                 <select formControlName="itemType">
-                                    <option [ngValue]="2">Usluga</option>
-                                    <option [ngValue]="1">Proizvod</option>
+                                    <option [ngValue]="2">{{ 'SERVICES.FIELD_TYPE_SERVICE' | translate }}</option>
+                                    <option [ngValue]="1">{{ 'SERVICES.FIELD_TYPE_PRODUCT' | translate }}</option>
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label>Cena (RSD) *</label>
-                                <input type="number" formControlName="unitPrice" placeholder="0.00" step="0.01" min="0">
+                                <label>{{ 'SERVICES.FIELD_UNIT_PRICE' | translate }}</label>
+                                <input type="number" formControlName="unitPrice" [placeholder]="'SERVICES.FIELD_UNIT_PRICE_PLACEHOLDER' | translate" step="0.01" min="0">
                                 @if (serviceForm.get('unitPrice')?.touched && serviceForm.get('unitPrice')?.invalid) {
-                                    <div class="error">Cena mora biti pozitivan broj</div>
+                                    <div class="error">{{ 'SERVICES.FIELD_UNIT_PRICE_ERROR' | translate }}</div>
                                 }
                             </div>
                         </div>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'SERVICES.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="serviceForm.invalid">
-                            {{ editingService() ? 'Sačuvaj izmene' : 'Dodaj uslugu' }}
+                            {{ editingService() ? ('SERVICES.BTN_SAVE' | translate) : ('SERVICES.BTN_ADD' | translate) }}
                         </button>
                     </div>
                 </form>
@@ -93,21 +94,21 @@
         <div class="modal-overlay" (click)="closeDeleteConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda brisanja</h2>
+                    <h2>{{ 'SERVICES.MODAL_DELETE_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
                 </div>
 
                 <div class="modal-body">
                     <p class="confirm-message">
-                        Da li ste sigurni da želite da obrišete uslugu
+                        {{ 'SERVICES.DELETE_CONFIRM_MSG' | translate }}
                         <strong>{{ deletingService()?.name }}</strong>?
                     </p>
-                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+                    <p class="confirm-warning">{{ 'SERVICES.DELETE_CONFIRM_WARNING' | translate }}</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
-                    <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'SERVICES.BTN_CANCEL' | translate }}</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">{{ 'SERVICES.BTN_DELETE' | translate }}</button>
                 </div>
             </div>
         </div>

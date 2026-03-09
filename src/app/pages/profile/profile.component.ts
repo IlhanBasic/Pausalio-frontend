@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal, effect } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { AuthStore } from '../../stores/auth.store';
 import { CommonModule } from '@angular/common';
@@ -19,7 +20,7 @@ import { PASSWORD_REGEX } from '../../components/shared/constants/password-regex
 @Component({
     selector: 'app-profile',
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule],
+    imports: [ReactiveFormsModule, CommonModule, TranslateModule],
     templateUrl: './profile.component.html',
     styleUrl: './profile.component.css'
 })
@@ -34,6 +35,7 @@ export class ProfileComponent implements OnInit {
     store = inject(AuthStore);
     userProfileStore = inject(UserProfileStore);
     toastr = inject(ToastrService);
+    translate = inject(TranslateService);
 
     isLoading = signal(false);
     isLoadingProfile = signal(true);
@@ -68,7 +70,7 @@ export class ProfileComponent implements OnInit {
     userProfileForm = this.fb.group({
         firstName: ['', Validators.required],
         lastName: ['', Validators.required],
-        phone: ['',Validators.pattern(/^[0-9+ ]*$/)],
+        phone: ['', Validators.pattern(/^[0-9+ ]*$/)],
         city: [''],
         address: [''],
     });
@@ -114,7 +116,10 @@ export class ProfileComponent implements OnInit {
         this.isLoadingProfile.set(true);
         this.userProfileStore.loadProfile().subscribe({
             error: () => {
-                this.toastr.error('Greška pri učitavanju profila', 'Greška');
+                this.toastr.error(
+                    this.translate.instant('PROFILE.TOAST.LOAD_ERROR'),
+                    this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                );
                 this.isLoadingProfile.set(false);
             }
         });
@@ -163,12 +168,18 @@ export class ProfileComponent implements OnInit {
             newPassword: val.newPassword!
         }).subscribe({
             next: () => {
-                this.toastr.success('Lozinka uspešno promenjena.', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('PROFILE.TOAST.PASSWORD_CHANGE_SUCCESS'),
+                    this.translate.instant('PROFILE.TOAST.SUCCESS_TITLE')
+                );
                 this.closePasswordModal();
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Došlo je do greške prilikom promene lozinke.', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PROFILE.TOAST.PASSWORD_CHANGE_ERROR'),
+                    this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -199,13 +210,19 @@ export class ProfileComponent implements OnInit {
     onProfilePictureSelect(event: any) {
         const file = event.target.files[0];
         if (!file) return;
-       const maxSize = 25 * 1024 * 1024;
+        const maxSize = 25 * 1024 * 1024;
         if (!file.type.startsWith('image/')) {
-            this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
+            this.toastr.error(
+                this.translate.instant('PROFILE.TOAST.IMAGE_TYPE_ERROR'),
+                this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+            );
             return;
         }
         if (file.size > maxSize) {
-             this.toastr.error('Fajl ne sme biti veći od 10MB');
+            this.toastr.error(
+                this.translate.instant('PROFILE.TOAST.IMAGE_SIZE_ERROR'),
+                this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+            );
             event.target.value = '';
             this.profilePictureFile.set(null);
             this.profilePicturePreview.set(null);
@@ -217,7 +234,6 @@ export class ProfileComponent implements OnInit {
             this.profilePicturePreview.set(e.target.result);
         };
         reader.readAsDataURL(file);
-        
     }
 
     deleteProfilePicture() {
@@ -233,11 +249,17 @@ export class ProfileComponent implements OnInit {
             next: () => {
                 this.profilePicturePreview.set(null);
                 this.profilePictureFile.set(null);
-                this.toastr.success('Slika obrisana', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('PROFILE.TOAST.IMAGE_DELETE_SUCCESS'),
+                    this.translate.instant('PROFILE.TOAST.SUCCESS_TITLE')
+                );
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Greška pri brisanju slike', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PROFILE.TOAST.IMAGE_DELETE_ERROR'),
+                    this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -257,7 +279,10 @@ export class ProfileComponent implements OnInit {
                     this.submitUserProfileUpdate(user.id, response.url || null);
                 },
                 error: (err) => {
-                    this.toastr.error(err.error?.message || 'Greška pri upload-u slike', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('PROFILE.TOAST.IMAGE_UPLOAD_ERROR'),
+                        this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                    );
                     this.isLoading.set(false);
                 }
             });
@@ -278,13 +303,19 @@ export class ProfileComponent implements OnInit {
 
         this.userProfileService.updateProfile(userId, dto).subscribe({
             next: () => {
-                this.toastr.success('Profil uspešno ažuriran', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('PROFILE.TOAST.PROFILE_UPDATE_SUCCESS'),
+                    this.translate.instant('PROFILE.TOAST.SUCCESS_TITLE')
+                );
                 this.closeUserEditModal();
                 this.loadProfileData();
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Greška pri ažuriranju profila', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PROFILE.TOAST.PROFILE_UPDATE_ERROR'),
+                    this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -322,16 +353,22 @@ export class ProfileComponent implements OnInit {
         if (!file) return;
         const maxSize = 25 * 1024 * 1024;
         if (!file.type.startsWith('image/')) {
-            this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
+            this.toastr.error(
+                this.translate.instant('PROFILE.TOAST.IMAGE_TYPE_ERROR'),
+                this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+            );
             return;
         }
 
         if (file.size > maxSize) {
-                this.toastr.error('Fajl ne sme biti veći od 10MB');
-                event.target.value = '';
-                this.companyLogoFile.set(null);
-                this.companyLogoPreview.set(null);
-                return;
+            this.toastr.error(
+                this.translate.instant('PROFILE.TOAST.IMAGE_SIZE_ERROR'),
+                this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+            );
+            event.target.value = '';
+            this.companyLogoFile.set(null);
+            this.companyLogoPreview.set(null);
+            return;
         }
         this.companyLogoFile.set(file);
         const reader = new FileReader();
@@ -339,7 +376,6 @@ export class ProfileComponent implements OnInit {
             this.companyLogoPreview.set(e.target.result);
         };
         reader.readAsDataURL(file);
-        
     }
 
     deleteCompanyLogo() {
@@ -355,11 +391,17 @@ export class ProfileComponent implements OnInit {
             next: () => {
                 this.companyLogoPreview.set(null);
                 this.companyLogoFile.set(null);
-                this.toastr.success('Logo obrisan', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('PROFILE.TOAST.IMAGE_DELETE_SUCCESS'),
+                    this.translate.instant('PROFILE.TOAST.SUCCESS_TITLE')
+                );
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Greška pri brisanju loga', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PROFILE.TOAST.IMAGE_DELETE_ERROR'),
+                    this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -378,7 +420,10 @@ export class ProfileComponent implements OnInit {
                     this.submitBusinessProfileUpdate(response.url);
                 },
                 error: (err) => {
-                    this.toastr.error(err.error?.message || 'Greška pri upload-u loga', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('PROFILE.TOAST.IMAGE_UPLOAD_ERROR'),
+                        this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                    );
                     this.isLoading.set(false);
                 }
             });
@@ -403,13 +448,19 @@ export class ProfileComponent implements OnInit {
 
         this.businessProfileService.updateCompany(dto).subscribe({
             next: () => {
-                this.toastr.success('Profil firme uspešno ažuriran', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('PROFILE.TOAST.BUSINESS_UPDATE_SUCCESS'),
+                    this.translate.instant('PROFILE.TOAST.SUCCESS_TITLE')
+                );
                 this.closeBusinessEditModal();
                 this.loadProfileData();
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Greška pri ažuriranju profila firme', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PROFILE.TOAST.BUSINESS_UPDATE_ERROR'),
+                    this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -435,12 +486,18 @@ export class ProfileComponent implements OnInit {
 
         this.businessInviteService.sendInvite(dto).subscribe({
             next: () => {
-                this.toastr.success('Pozivnica uspešno poslata na ' + dto.email, 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('PROFILE.TOAST.INVITE_SEND_SUCCESS', { email: dto.email }),
+                    this.translate.instant('PROFILE.TOAST.SUCCESS_TITLE')
+                );
                 this.closeInviteModal();
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Greška pri slanju pozivnice', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PROFILE.TOAST.INVITE_SEND_ERROR'),
+                    this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -455,42 +512,46 @@ export class ProfileComponent implements OnInit {
         this.acceptInviteForm.reset();
     }
 
-onSubmitAcceptInvite() {
-    if (this.acceptInviteForm.invalid) return;
+    onSubmitAcceptInvite() {
+        if (this.acceptInviteForm.invalid) return;
 
-    this.isLoading.set(true);
+        this.isLoading.set(true);
 
-    const dto = {
-        inviteToken: this.acceptInviteForm.value.inviteToken!
-    };
+        const dto = {
+            inviteToken: this.acceptInviteForm.value.inviteToken!
+        };
 
-    this.authService.acceptInvite(dto).subscribe({
-        next: (response) => {
-            this.authService.refreshToken().subscribe({
-                next: (tokenResponse) => {
-                    this.store.login(tokenResponse.token!);
-                    if (response.businessId) {
-                        this.store.setBusinessContext(response.businessId);
-                    } else {
-                        console.warn('response.businessId ne postoji!');
+        this.authService.acceptInvite(dto).subscribe({
+            next: (response) => {
+                this.authService.refreshToken().subscribe({
+                    next: (tokenResponse) => {
+                        this.store.login(tokenResponse.token!);
+                        if (response.businessId) {
+                            this.store.setBusinessContext(response.businessId);
+                        } else {
+                            console.warn('response.businessId ne postoji!');
+                        }
+                        this.closeAcceptInviteModal();
+                        this.loadProfileData();
+                        this.isLoading.set(false);
+                        window.location.reload();
+                    },
+                    error: (err) => {
+                        this.isLoading.set(false);
                     }
-                    this.closeAcceptInviteModal();
-                    this.loadProfileData();
-                    this.isLoading.set(false);
-                    window.location.reload();
-                },
-                error: (err) => {
-                    this.isLoading.set(false);
-                }
-            });
-        },
-        error: (err) => {
-            console.error('AcceptInvite greška:', err);
-            this.toastr.error(err.error?.message || 'Greška pri prihvatanju pozivnice', 'Greška');
-            this.isLoading.set(false);
-        }
-    });
-}
+                });
+            },
+            error: (err) => {
+                console.error('AcceptInvite greška:', err);
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PROFILE.TOAST.INVITE_ACCEPT_ERROR'),
+                    this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                );
+                this.isLoading.set(false);
+            }
+        });
+    }
+
     getUserFullName(): string {
         const user = this.userProfile();
         return user ? `${user.firstName} ${user.lastName}` : '';
@@ -501,7 +562,13 @@ onSubmitAcceptInvite() {
     }
 
     getUserRole(): string {
-        return this.store.isOwner() ? 'Vlasnik' : this.store.isAdmin() ? 'Administrator' : 'Asistent';
+        if (this.store.isOwner()) {
+            return this.translate.instant('PROFILE.HERO.ROLE_OWNER');
+        } else if (this.store.isAdmin()) {
+            return this.translate.instant('PROFILE.HERO.ROLE_ADMIN');
+        } else {
+            return this.translate.instant('PROFILE.HERO.ROLE_ASSISTANT');
+        }
     }
 
     isOwner(): boolean {

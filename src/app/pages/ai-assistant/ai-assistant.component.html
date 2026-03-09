@@ -9,17 +9,17 @@
         </svg>
       </div>
       <div>
-        <h1 class="ai-header__title">Pausalio Asistent</h1>
-        <span class="ai-header__subtitle">Tvoj poslovni savetnik</span>
+        <h1 class="ai-header__title">{{ 'AI_ASSISTANT.TITLE' | translate }}</h1>
+        <span class="ai-header__subtitle">{{ 'AI_ASSISTANT.SUBTITLE' | translate }}</span>
       </div>
     </div>
-    <button class="btn-clear" (click)="clearChat()" title="Obriši razgovor">
+    <button class="btn-clear" (click)="clearChat()" [title]="'AI_ASSISTANT.CLEAR_BTN' | translate">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="3 6 5 6 21 6"/>
         <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
         <path d="M10 11v6M14 11v6"/>
       </svg>
-      Obriši razgovor
+      {{ 'AI_ASSISTANT.CLEAR_BTN' | translate }}
     </button>
   </div>
 
@@ -73,7 +73,7 @@
       <textarea
         [(ngModel)]="inputText"
         (keydown)="onKeyDown($event)"
-        placeholder="Postavi pitanje o svom poslovanju..."
+        [placeholder]="'AI_ASSISTANT.INPUT_PLACEHOLDER' | translate"
         rows="1"
         [disabled]="isLoading"
         class="ai-input__field"
@@ -89,6 +89,6 @@
         </svg>
       </button>
     </div>
-    <p class="ai-input__hint">Enter za slanje &nbsp;·&nbsp; Shift+Enter za novi red</p>
+    <p class="ai-input__hint">{{ 'AI_ASSISTANT.INPUT_HINT' | translate }}</p>
   </div>
 </div>

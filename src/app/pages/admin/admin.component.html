@@ -1,29 +1,29 @@
 <div class="admin-container">
     <div class="admin-header">
-        <h1>Administracija</h1>
-        <p>Upravljanje šifarnicima i korisnicima sistema</p>
+        <h1>{{ 'ADMIN.TITLE' | translate }}</h1>
+        <p>{{ 'ADMIN.SUBTITLE' | translate }}</p>
     </div>
 
     <div class="admin-tabs">
         <a routerLink="activity-codes" routerLinkActive="active" class="admin-tab">
             <span class="tab-icon">📋</span>
-            Šifre delatnosti
+            {{ 'ADMIN.TABS.ACTIVITY_CODES' | translate }}
         </a>
         <a routerLink="countries" routerLinkActive="active" class="admin-tab">
             <span class="tab-icon">🌍</span>
-            Države
+            {{ 'ADMIN.TABS.COUNTRIES' | translate }}
         </a>
         <a routerLink="cities" routerLinkActive="active" class="admin-tab">
             <span class="tab-icon">🏙️</span>
-            Gradovi
+            {{ 'ADMIN.TABS.CITIES' | translate }}
         </a>
         <a routerLink="users" routerLinkActive="active" class="admin-tab">
             <span class="tab-icon">👥</span>
-            Korisnici
+            {{ 'ADMIN.TABS.USERS' | translate }}
         </a>
         <a routerLink="companies" routerLinkActive="active" class="admin-tab">
             <span class="tab-icon">🏢</span>
-            Kompanije
+            {{ 'ADMIN.TABS.COMPANIES' | translate }}
         </a>
     </div>
 

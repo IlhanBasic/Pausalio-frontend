@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { BusinessProfileToReturnDto } from '../../../models/business-profile';
 import { UserProfileStore } from '../../../stores/user-profile.store';
 import { SidebarService } from '../../../shared/sidebar.service';
+import { LanguageService } from '../../../services/language.service';
 
 @Component({
   selector: 'app-navbar',
@@ -21,31 +22,41 @@ export class NavbarComponent implements OnInit {
   userProfileStore = inject(UserProfileStore);
   businessService = inject(BusinessProfileService);
   router = inject(Router);
+  sidebarService = inject(SidebarService);
+  langService = inject(LanguageService);
 
   currentBusiness = signal<BusinessProfileToReturnDto | null | undefined>(null);
   availableBusinesses = signal<BusinessProfileToReturnDto[]>([]);
   showUserDropdown = signal(false);
   showBusinessDropdown = signal(false);
-sidebarService = inject(SidebarService);
+
   constructor() {
     effect(() => {
-        const profile = this.userProfileStore.Profile();
-        if (!profile) return;
+      const profile = this.userProfileStore.Profile();
+      if (!profile) return;
 
-        if (this.store.isOwner()) {
-            this.currentBusiness.set(profile.businessProfile);
-        } else if (this.store.isAssistant()) {
-            this.loadAssistantBusinesses();
-        }
+      if (this.store.isOwner()) {
+        this.currentBusiness.set(profile.businessProfile);
+      } else if (this.store.isAssistant()) {
+        this.loadAssistantBusinesses();
+      }
     });
-}
+  }
 
-ngOnInit() {
+  ngOnInit() {
     if (this.store.isAdmin()) {
-        this.currentBusiness.set(null);
-        this.availableBusinesses.set([]);
+      this.currentBusiness.set(null);
+      this.availableBusinesses.set([]);
     }
-}
+  }
+
+  switchLanguage(lang: 'sr-Latn' | 'sr-Cyrl') {
+    this.langService.switchLang(lang);
+  }
+
+  isActive(lang: 'sr-Latn' | 'sr-Cyrl'): boolean {
+    return this.langService.currentLang() === lang;
+  }
 
   private loadAssistantBusinesses() {
     this.businessService.getUserCompanies().subscribe({
@@ -57,9 +68,7 @@ ngOnInit() {
           this.currentBusiness.set(current);
         }
       },
-      error: (err) => {
-        console.error('Error loading businesses:', err);
-      }
+      error: (err) => console.error('Error loading businesses:', err)
     });
   }
 
@@ -75,16 +84,12 @@ ngOnInit() {
 
   toggleBusinessDropdown() {
     this.showBusinessDropdown.set(!this.showBusinessDropdown());
-    if (this.showBusinessDropdown()) {
-      this.showUserDropdown.set(false);
-    }
+    if (this.showBusinessDropdown()) this.showUserDropdown.set(false);
   }
 
   toggleUserDropdown() {
     this.showUserDropdown.set(!this.showUserDropdown());
-    if (this.showUserDropdown()) {
-      this.showBusinessDropdown.set(false);
-    }
+    if (this.showUserDropdown()) this.showBusinessDropdown.set(false);
   }
 
   navigateToProfile() {

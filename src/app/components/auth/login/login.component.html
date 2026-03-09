@@ -3,33 +3,33 @@
     <!-- Left Side - Login Form -->
     <div class="auth-form-section">
       <div class="auth-header">
-        <h2>Dobrodošli nazad!</h2>
-        <p class="subtitle">Prijavite se na svoj nalog</p>
+        <h2>{{ 'LOGIN.WELCOME' | translate }}</h2>
+        <p class="subtitle">{{ 'LOGIN.SUBTITLE' | translate }}</p>
       </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label for="email">Email adresa</label>
+          <label for="email">{{ 'LOGIN.EMAIL_LABEL' | translate }}</label>
           <input
             id="email"
             type="email"
             formControlName="email"
-            placeholder="primer@email.com"
+            [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
             autocomplete="email"
           />
           @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
-            <div class="error">Validan email je obavezan</div>
+            <div class="error">{{ 'LOGIN.EMAIL_ERROR' | translate }}</div>
           }
         </div>
 
         <div class="form-group">
-          <label for="password">Lozinka</label>
+          <label for="password">{{ 'LOGIN.PASSWORD_LABEL' | translate }}</label>
           <div class="password-input-wrapper">
             <input
               id="password"
               [type]="showPassword() ? 'text' : 'password'"
               formControlName="password"
-              placeholder="Unesite lozinku"
+              [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate"
               autocomplete="current-password"
             />
             <button
@@ -81,25 +81,24 @@
             </button>
           </div>
           @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
-            <div class="error">
-              Obavezno polje, min 8 karaktera, 1 veliko, 1 malo slovo, 1 broj, 1 spec. znak
-            </div>
+            <div class="error">{{ 'LOGIN.PASSWORD_ERROR' | translate }}</div>
           }
         </div>
 
         <div class="forgot-password-link">
-          <a routerLink="/forgot-password">Zaboravili ste lozinku?</a>
+          <a routerLink="/forgot-password">{{ 'LOGIN.FORGOT_PASSWORD' | translate }}</a>
         </div>
 
         <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || isLoading()">
           @if (isLoading()) {
             <span class="spinner"></span>
           }
-          <span>{{ isLoading() ? 'Učitavanje...' : 'Prijavi se' }}</span>
+          <span>{{ (isLoading() ? 'LOGIN.LOADING_BTN' : 'LOGIN.SUBMIT_BTN') | translate }}</span>
         </button>
       </form>
+
       <div class="divider">
-        <span>ili</span>
+        <span>{{ 'LOGIN.DIVIDER' | translate }}</span>
       </div>
 
       <button type="button" class="btn-google" (click)="googleLogin()">
@@ -121,50 +120,39 @@
             d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
           />
         </svg>
-        Prijavi se sa Google
+        {{ 'LOGIN.GOOGLE_BTN' | translate }}
       </button>
 
-      <p class="auth-footer">Nemaš nalog? <a routerLink="/register">Registruj se</a></p>
+      <p class="auth-footer">
+        {{ 'LOGIN.NO_ACCOUNT' | translate }}
+        <a routerLink="/register">{{ 'LOGIN.REGISTER_LINK' | translate }}</a>
+      </p>
+
       @if (isLoading()) {
         <div class="google-loading">
           <span class="spinner"></span>
-          <span>Prijava u toku...</span>
+          <span>{{ 'LOGIN.GOOGLE_LOADING' | translate }}</span>
         </div>
       }
     </div>
 
     <!-- Right Side - Image/Illustration -->
-    <div class="auth-image-section">
-      <div class="auth-image-content">
-        <svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-          <!-- Laptop illustration -->
-          <rect x="100" y="150" width="300" height="200" rx="10" fill="#ffffff" opacity="0.9" />
-          <rect x="110" y="160" width="280" height="160" rx="5" fill="#667eea" opacity="0.2" />
-          <rect x="80" y="350" width="340" height="20" rx="10" fill="#ffffff" opacity="0.8" />
-          <ellipse cx="250" cy="360" rx="60" ry="10" fill="#ffffff" opacity="0.6" />
-
-          <!-- Lock icon -->
-          <circle cx="250" cy="230" r="30" fill="#ffffff" opacity="0.9" />
-          <rect x="240" y="240" width="20" height="30" rx="3" fill="#667eea" />
-          <path
-            d="M 240 245 Q 240 230 250 230 Q 260 230 260 245"
-            stroke="#667eea"
-            stroke-width="3"
-            fill="none"
-          />
-
-          <!-- Decorative circles -->
-          <circle cx="150" cy="100" r="15" fill="#ffffff" opacity="0.3" />
-          <circle cx="380" cy="120" r="20" fill="#ffffff" opacity="0.25" />
-          <circle cx="120" cy="380" r="18" fill="#ffffff" opacity="0.3" />
-          <circle cx="370" cy="400" r="12" fill="#ffffff" opacity="0.35" />
-        </svg>
-
-        <div class="auth-image-text">
-          <h3 [ngStyle]="{ color: 'white' }">Sigurna prijava</h3>
-          <p>Vaši podaci su zaštićeni end-to-end enkripcijom</p>
-        </div>
-      </div>
+<div class="auth-image-section">
+  <div class="auth-image-content">
+    <!-- Logo sa poboljšanim stilovima -->
+    <div class="logo-wrapper">
+      <img 
+        src="assets/images/logo.png" 
+        alt="Logo" 
+        class="auth-logo"
+      />
     </div>
+
+    <div class="auth-image-text">
+      <h3 [ngStyle]="{ color: 'white' }">{{ 'LOGIN.IMAGE_TITLE' | translate }}</h3>
+      <p>{{ 'LOGIN.IMAGE_SUBTITLE' | translate }}</p>
+    </div>
+  </div>
+</div>
   </div>
 </div>

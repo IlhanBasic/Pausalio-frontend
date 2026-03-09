@@ -1,8 +1,8 @@
 <div class="invoices-page">
     <div class="page-header">
         <div class="header-content">
-            <h1>Fakture</h1>
-            <p class="subtitle">Upravljajte fakturama vaše firme</p>
+            <h1>{{ 'INVOICES.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'INVOICES.SUBTITLE' | translate }}</p>
         </div>
         <button class="btn-primary" (click)="openAddModal()">
             <span class="btn-icon">
@@ -12,38 +12,39 @@
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </span>
-            Nova Faktura
+            {{ 'INVOICES.ADD_BTN' | translate }}
         </button>
     </div>
 
     <div class="filter-tabs">
         <button class="filter-tab" [class.active]="activeStatusFilter() === null" (click)="setStatusFilter(null)">
-            Sve
+            {{ 'INVOICES.FILTER_ALL' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.draft"
             (click)="setStatusFilter(InvoiceStatus.draft)">
-            <span class="tab-dot dot-draft"></span>Nacrt
+            <span class="tab-dot dot-draft"></span>{{ 'INVOICES.FILTER_DRAFT' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.sent"
             (click)="setStatusFilter(InvoiceStatus.sent)">
-            <span class="tab-dot dot-sent"></span>Poslato
+            <span class="tab-dot dot-sent"></span>{{ 'INVOICES.FILTER_SENT' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.cancelled"
             (click)="setStatusFilter(InvoiceStatus.cancelled)">
-            <span class="tab-dot dot-cancelled"></span>Otkazano
+            <span class="tab-dot dot-cancelled"></span>{{ 'INVOICES.FILTER_CANCELLED' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.finished"
             (click)="setStatusFilter(InvoiceStatus.finished)">
-            <span class="tab-dot dot-finished"></span>Završeno
+            <span class="tab-dot dot-finished"></span>{{ 'INVOICES.FILTER_FINISHED' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === InvoiceStatus.archived"
             (click)="setStatusFilter(InvoiceStatus.archived)">
-            <span class="tab-dot dot-archived"></span>Arhivirano
+            <span class="tab-dot dot-archived"></span>{{ 'INVOICES.FILTER_ARCHIVED' | translate }}
         </button>
     </div>
 
-    <app-data-table [data]="invoices()" [columns]="columns" [actions]="actions" searchPlaceholder="Pretraži fakture..."
-        emptyMessage="Nema faktura za prikaz. Kreirajte prvu fakturu!" (onEdit)="openEditModal($event)"
+    <app-data-table [data]="invoices()" [columns]="columns" [actions]="actions"
+        [searchPlaceholder]="'INVOICES.SEARCH_PLACEHOLDER' | translate"
+        [emptyMessage]="'INVOICES.EMPTY_MESSAGE' | translate" (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)" (onCustomAction)="onCustomAction($event)">
     </app-data-table>
 
@@ -52,7 +53,7 @@
         <div class="modal-overlay" (click)="closeModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>{{ editingInvoice() ? 'Izmeni Fakturu' : 'Nova Faktura' }}</h2>
+                    <h2>{{ editingInvoice() ? ('INVOICES.MODAL_EDIT_TITLE' | translate) : ('INVOICES.MODAL_ADD_TITLE' | translate) }}</h2>
                     <button class="close-btn" (click)="closeModal()">✕</button>
                 </div>
 
@@ -60,29 +61,29 @@
                     <div class="modal-body">
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Klijent *</label>
+                                <label>{{ 'INVOICES.FIELD_CLIENT' | translate }}</label>
                                 <select formControlName="clientId">
-                                    <option value="">Izaberite klijenta</option>
+                                    <option value="">{{ 'INVOICES.FIELD_CLIENT_PLACEHOLDER' | translate }}</option>
                                     @for (client of clients(); track client.id) {
                                         <option [value]="client.id">
-                                            {{ client.name }} ({{ getClientTypeLabel(client.clientType) }} klijent)
+                                            {{ client.name }} ({{ getClientTypeLabel(client.clientType) }})
                                         </option>
                                     }
                                 </select>
                                 @if (invoiceForm.get('clientId')?.touched && invoiceForm.get('clientId')?.invalid) {
-                                    <div class="error">Klijent je obavezan</div>
+                                    <div class="error">{{ 'INVOICES.FIELD_CLIENT_ERROR' | translate }}</div>
                                 }
                             </div>
 
                             <div class="form-group">
-                                <label>Rok plaćanja</label>
+                                <label>{{ 'INVOICES.FIELD_DUE_DATE' | translate }}</label>
                                 <input type="date" formControlName="dueDate">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Valuta *</label>
+                                <label>{{ 'INVOICES.FIELD_CURRENCY' | translate }}</label>
                                 <select formControlName="currency">
                                     @if (getSelectedClientType() !== ClientType.foreign) {
                                         <option [ngValue]="Currency.RSD">RSD</option>
@@ -93,19 +94,19 @@
                                     <option [ngValue]="Currency.CHF">CHF</option>
                                 </select>
                                 @if (invoiceForm.get('currency')?.disabled && invoiceForm.get('clientId')?.value) {
-                                    <small class="form-hint">Domaći klijenti plaćaju isključivo u RSD</small>
+                                    <small class="form-hint">{{ 'INVOICES.FIELD_CURRENCY_HINT_DOMESTIC' | translate }}</small>
                                 }
                             </div>
 
                             <div class="form-group">
-                                <label>Napomena</label>
-                                <input type="text" formControlName="notes" placeholder="Napomena za fakturu">
+                                <label>{{ 'INVOICES.FIELD_NOTES' | translate }}</label>
+                                <input type="text" formControlName="notes" [placeholder]="'INVOICES.FIELD_NOTES_PLACEHOLDER' | translate">
                             </div>
                         </div>
 
                         <div class="invoice-items-section">
                             <div class="items-header">
-                                <h3>Stavke fakture</h3>
+                                <h3>{{ 'INVOICES.FIELD_ITEMS_SECTION' | translate }}</h3>
                                 <button type="button" class="btn-link" (click)="addItem()">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
@@ -113,7 +114,7 @@
                                         <line x1="12" y1="5" x2="12" y2="19"></line>
                                         <line x1="5" y1="12" x2="19" y2="12"></line>
                                     </svg>
-                                    Dodaj stavku
+                                    {{ 'INVOICES.FIELD_ADD_ITEM' | translate }}
                                 </button>
                             </div>
 
@@ -121,7 +122,7 @@
                                 @for (item of itemsFormArray.controls; track i; let i = $index) {
                                     <div [formGroupName]="i" class="invoice-item-card">
                                         <button type="button" (click)="removeItem(i)" class="remove-item-btn"
-                                            title="Ukloni stavku">
+                                            [title]="'INVOICES.FIELD_REMOVE_ITEM' | translate">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                                                 stroke-linecap="round" stroke-linejoin="round">
@@ -132,9 +133,9 @@
 
                                         <div class="item-grid">
                                             <div>
-                                                <label>Stavka</label>
+                                                <label>{{ 'INVOICES.FIELD_ITEM_SELECT' | translate }}</label>
                                                 <select formControlName="selectedItemId" (change)="onItemSelect(i, $event)">
-                                                    <option value="">Izaberite stavku</option>
+                                                    <option value="">{{ 'INVOICES.FIELD_ITEM_SELECT_PLACEHOLDER' | translate }}</option>
                                                     @for (availItem of availableItems(); track availItem.id) {
                                                         <option [value]="availItem.id">{{ availItem.name }}</option>
                                                     }
@@ -142,41 +143,42 @@
                                             </div>
 
                                             <div>
-                                                <label>Naziv *</label>
-                                                <input type="text" formControlName="name" placeholder="Usluga/proizvod">
+                                                <label>{{ 'INVOICES.FIELD_ITEM_NAME' | translate }}</label>
+                                                <input type="text" formControlName="name" [placeholder]="'INVOICES.FIELD_ITEM_NAME' | translate">
                                                 @if (item.get('name')?.touched && item.get('name')?.invalid) {
-                                                    <div class="error">Obavezno</div>
+                                                    <div class="error">{{ 'INVOICES.FIELD_ITEM_NAME_ERROR' | translate }}</div>
                                                 }
                                             </div>
 
                                             <div>
-                                                <label>Tip</label>
+                                                <label>{{ 'INVOICES.FIELD_ITEM_TYPE' | translate }}</label>
                                                 <select formControlName="itemType">
-                                                    <option [ngValue]="ItemType.service">Usluga</option>
-                                                    <option [ngValue]="ItemType.product">Proizvod</option>
+                                                    <option [ngValue]="ItemType.service">{{ 'INVOICES.FIELD_ITEM_TYPE_SERVICE' | translate }}</option>
+                                                    <option [ngValue]="ItemType.product">{{ 'INVOICES.FIELD_ITEM_TYPE_PRODUCT' | translate }}</option>
                                                 </select>
                                             </div>
 
                                             <div>
-                                                <label>Količina *</label>
+                                                <label>{{ 'INVOICES.FIELD_ITEM_QUANTITY' | translate }}</label>
                                                 <input type="number" formControlName="quantity" min="0" step="0.01"
-                                                    placeholder="1">
+                                                    [placeholder]="'INVOICES.FIELD_ITEM_QUANTITY_PLACEHOLDER' | translate">
                                             </div>
 
                                             <div>
-                                                <label>Cena *</label>
+                                                <label>{{ 'INVOICES.FIELD_ITEM_UNIT_PRICE' | translate }}</label>
                                                 <input type="number" formControlName="unitPrice" min="0" step="0.01"
-                                                    placeholder="0.00" [class.converting]="convertingItemIndex() === i">
+                                                    [placeholder]="'INVOICES.FIELD_ITEM_UNIT_PRICE_PLACEHOLDER' | translate"
+                                                    [class.converting]="convertingItemIndex() === i">
                                                 @if (convertingItemIndex() === i) {
-                                                    <small class="form-hint">Konverzija u toku...</small>
+                                                    <small class="form-hint">{{ 'INVOICES.FIELD_ITEM_CONVERTING' | translate }}</small>
                                                 }
                                             </div>
                                         </div>
 
                                         <div class="item-description">
-                                            <label>Opis</label>
+                                            <label>{{ 'INVOICES.FIELD_ITEM_DESCRIPTION' | translate }}</label>
                                             <input type="text" formControlName="description"
-                                                placeholder="Opis stavke (opciono)">
+                                                [placeholder]="'INVOICES.FIELD_ITEM_DESCRIPTION_PLACEHOLDER' | translate">
                                         </div>
                                     </div>
                                 }
@@ -185,9 +187,9 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'INVOICES.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="isLoading()">
-                            {{ isLoading() ? 'Čuvanje...' : 'Sačuvaj fakturu' }}
+                            {{ isLoading() ? ('INVOICES.BTN_SAVING' | translate) : ('INVOICES.BTN_SAVE' | translate) }}
                         </button>
                     </div>
                 </form>
@@ -200,36 +202,36 @@
         <div class="modal-overlay" (click)="closePaymentModal()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Plati fakturu {{ payingInvoice()?.invoiceNumber }}</h2>
+                    <h2>{{ 'INVOICES.MODAL_PAYMENT_TITLE' | translate:{ invoiceNumber: payingInvoice()?.invoiceNumber } }}</h2>
                     <button class="close-btn" (click)="closePaymentModal()">✕</button>
                 </div>
 
                 <form [formGroup]="paymentForm" (ngSubmit)="onSubmitPayment()">
                     <div class="modal-body">
                         <div class="payment-info">
-                            <span>Preostalo za plaćanje:</span>
+                            <span>{{ 'INVOICES.FIELD_PAYMENT_REMAINING' | translate }}</span>
                             <strong>{{ payingInvoice()?.amountToPay | number:'1.2-2' }}
                                 {{ payingInvoice() ? Currency[payingInvoice()!.currency] : '' }}</strong>
                         </div>
 
                         <div class="form-group">
-                            <label>Iznos *</label>
+                            <label>{{ 'INVOICES.FIELD_PAYMENT_AMOUNT' | translate }}</label>
                             <input type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0.01">
                             @if (paymentForm.get('amount')?.touched && paymentForm.get('amount')?.invalid) {
-                                <div class="error">Iznos je obavezan i mora biti veći od 0</div>
+                                <div class="error">{{ 'INVOICES.FIELD_PAYMENT_AMOUNT_ERROR' | translate }}</div>
                             }
                         </div>
 
                         <div class="form-group">
                             <label>
-                                Bankovni račun
+                                {{ 'INVOICES.FIELD_PAYMENT_BANK_ACCOUNT' | translate }}
                                 @if (getPayingInvoiceClientType() === ClientType.foreign) {
                                     <span> *</span>
                                 }
                             </label>
                             <select formControlName="bankAccountId">
                                 @if (getPayingInvoiceClientType() !== ClientType.foreign) {
-                                    <option value="">-- Gotovinska uplata --</option>
+                                    <option value="">{{ 'INVOICES.FIELD_PAYMENT_BANK_ACCOUNT_PLACEHOLDER' | translate }}</option>
                                 }
                                 @for (account of bankAccounts(); track account.id) {
                                     <option [value]="account.id">
@@ -238,21 +240,21 @@
                                 }
                             </select>
                             @if (getPayingInvoiceClientType() === ClientType.foreign) {
-                                <small class="form-hint">Strani klijenti moraju platiti na bankovni račun</small>
+                                <small class="form-hint">{{ 'INVOICES.FIELD_PAYMENT_BANK_ACCOUNT_HINT_FOREIGN' | translate }}</small>
                             }
                             @if (getPayingInvoiceClientType() !== ClientType.foreign) {
-                                <small class="form-hint">Ostavite prazno za gotovinsku uplatu</small>
+                                <small class="form-hint">{{ 'INVOICES.FIELD_PAYMENT_BANK_ACCOUNT_HINT_DOMESTIC' | translate }}</small>
                             }
                             @if (paymentForm.get('bankAccountId')?.touched && paymentForm.get('bankAccountId')?.invalid) {
-                                <div class="error">Bankovni račun je obavezan za strane klijente</div>
+                                <div class="error">{{ 'INVOICES.FIELD_PAYMENT_BANK_ACCOUNT_REQUIRED' | translate }}</div>
                             }
                         </div>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closePaymentModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closePaymentModal()">{{ 'INVOICES.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="paymentForm.invalid">
-                            Potvrdi plaćanje
+                            {{ 'INVOICES.BTN_PAY' | translate }}
                         </button>
                     </div>
                 </form>
@@ -265,21 +267,21 @@
         <div class="modal-overlay" (click)="closeArchiveConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda arhiviranja</h2>
+                    <h2>{{ 'INVOICES.MODAL_ARCHIVE_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeArchiveConfirm()">✕</button>
                 </div>
 
                 <div class="modal-body">
                     <p class="confirm-message">
-                        Da li ste sigurni da želite da arhivirate fakturu
+                        {{ 'INVOICES.CONFIRM_ARCHIVE_MSG' | translate }}
                         <strong>{{ archivingInvoice()?.invoiceNumber }}</strong>?
                     </p>
-                    <p class="confirm-warning">Arhivirane fakture se ne mogu menjati niti plaćati.</p>
+                    <p class="confirm-warning">{{ 'INVOICES.ARCHIVE_WARNING' | translate }}</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeArchiveConfirm()">Otkaži</button>
-                    <button type="button" class="btn-primary" (click)="confirmArchive()">Arhiviraj</button>
+                    <button type="button" class="btn-secondary" (click)="closeArchiveConfirm()">{{ 'INVOICES.BTN_CANCEL' | translate }}</button>
+                    <button type="button" class="btn-primary" (click)="confirmArchive()">{{ 'INVOICES.BTN_ARCHIVE' | translate }}</button>
                 </div>
             </div>
         </div>
@@ -290,20 +292,20 @@
         <div class="modal-overlay" (click)="closeCancelConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda otkazivanja</h2>
+                    <h2>{{ 'INVOICES.MODAL_CANCEL_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeCancelConfirm()">✕</button>
                 </div>
 
                 <div class="modal-body">
                     <p class="confirm-message">
-                        Da li ste sigurni da želite da otkažete fakturu
+                        {{ 'INVOICES.CONFIRM_CANCEL_MSG' | translate }}
                         <strong>{{ cancellingInvoice()?.invoiceNumber }}</strong>?
                     </p>
-                    <p class="confirm-warning">Otkazane fakture se ne mogu menjati niti plaćati.</p>
+                    <p class="confirm-warning">{{ 'INVOICES.CANCEL_WARNING' | translate }}</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeCancelConfirm()">Otkaži</button>
+                    <button type="button" class="btn-secondary" (click)="closeCancelConfirm()">{{ 'INVOICES.BTN_CANCEL' | translate }}</button>
                     <button type="button" class="btn-danger" (click)="confirmCancel()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -311,7 +313,7 @@
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
-                        Otkaži fakturu
+                        {{ 'INVOICES.BTN_CANCEL_INVOICE' | translate }}
                     </button>
                 </div>
             </div>
@@ -323,20 +325,20 @@
         <div class="modal-overlay" (click)="closeDeleteConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda brisanja</h2>
+                    <h2>{{ 'INVOICES.MODAL_DELETE_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
                 </div>
 
                 <div class="modal-body">
                     <p class="confirm-message">
-                        Da li ste sigurni da želite da obrišete fakturu
+                        {{ 'INVOICES.CONFIRM_DELETE_MSG' | translate }}
                         <strong>{{ deletingInvoice()?.invoiceNumber }}</strong>?
                     </p>
-                    <p class="confirm-warning">Ova akcija je nepovratna.</p>
+                    <p class="confirm-warning">{{ 'INVOICES.DELETE_WARNING' | translate }}</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'INVOICES.BTN_CANCEL' | translate }}</button>
                     <button type="button" class="btn-danger" (click)="confirmDelete()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -346,7 +348,7 @@
                             <path d="M14 11v6"></path>
                             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
                         </svg>
-                        Obriši
+                        {{ 'INVOICES.BTN_DELETE' | translate }}
                     </button>
                 </div>
             </div>

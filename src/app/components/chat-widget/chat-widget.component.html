@@ -1,12 +1,15 @@
 <div class="chat-widget">
   <!-- Toggle Button -->
-  <button class="chat-toggle" (click)="toggleWidget()" [class.active]="isOpen">
+  <button class="chat-toggle" (click)="toggleWidget()" [class.active]="isOpen"
+    [attr.title]="(isOpen ? 'CHAT.WIDGET.CLOSE_BUTTON' : 'CHAT.WIDGET.TOGGLE_BUTTON') | translate">
     @if (!isOpen) {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
       @if (unreadCount > 0) {
-        <span class="unread-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+        <span class="unread-badge" [attr.title]="'CHAT.WIDGET.UNREAD_BADGE' | translate:{ count: unreadCount }">
+          {{ unreadCount > 9 ? '9+' : unreadCount }}
+        </span>
       }
     } @else {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -24,8 +27,8 @@
       @if (!selectedMember) {
         <div class="panel-header">
           <div class="panel-header__info">
-            <h3>Poruke</h3>
-            <span>Tim u firmi</span>
+            <h3>{{ 'CHAT.PANEL.TITLE' | translate }}</h3>
+            <span>{{ 'CHAT.PANEL.SUBTITLE' | translate }}</span>
           </div>
         </div>
 
@@ -38,7 +41,7 @@
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
-              <p>Nema članova u timu</p>
+              <p>{{ 'CHAT.PANEL.EMPTY_MEMBERS' | translate }}</p>
             </div>
           }
           @for (member of members; track member.userId) {
@@ -65,7 +68,7 @@
       <!-- Chat View -->
       @if (selectedMember) {
         <div class="panel-header">
-          <button class="back-btn" (click)="backToMembers()">
+          <button class="back-btn" (click)="backToMembers()" [attr.title]="'CHAT.ACTIONS.BACK' | translate">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
@@ -87,6 +90,7 @@
           @if (isLoadingHistory) {
             <div class="loading-state">
               <div class="spinner"></div>
+              <p>{{ 'CHAT.PANEL.LOADING' | translate }}</p>
             </div>
           }
 
@@ -111,7 +115,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
-              <p>Započni razgovor!</p>
+              <p>{{ 'CHAT.PANEL.EMPTY_MESSAGES' | translate }}</p>
             </div>
           }
         </div>
@@ -120,11 +124,12 @@
           <textarea
             [(ngModel)]="inputText"
             (keydown)="onKeyDown($event)"
-            placeholder="Napiši poruku..."
+            [placeholder]="'CHAT.MESSAGE.INPUT_PLACEHOLDER' | translate"
             rows="1"
             class="chat-input__field"
           ></textarea>
-          <button class="chat-input__send" (click)="sendMessage()" [disabled]="!inputText.trim()">
+          <button class="chat-input__send" (click)="sendMessage()" [disabled]="!inputText.trim()"
+            [attr.title]="'CHAT.MESSAGE.SEND_BUTTON' | translate">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="22" y1="2" x2="11" y2="13"/>
               <polygon points="22 2 15 22 11 13 2 9 22 2"/>

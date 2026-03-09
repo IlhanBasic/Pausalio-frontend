@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BankAccountService } from '../../services/bank-account.service';
 import { BankAccountToReturnDto, AddBankAccountDto, UpdateBankAccountDto } from '../../models/bank-account';
 import { Currency } from '../../enums/currency';
@@ -10,7 +11,7 @@ import { DataTableComponent, TableColumn, TableAction } from '../../components/s
 @Component({
     selector: 'app-bank-accounts',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+    imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule],
     templateUrl: './bank-accounts.component.html',
     styleUrl: './bank-accounts.component.css'
 })
@@ -18,6 +19,7 @@ export class BankAccountsComponent implements OnInit {
     bankService = inject(BankAccountService);
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
+    translate = inject(TranslateService);
 
     accounts = signal<BankAccountToReturnDto[]>([]);
     isLoading = signal(false);
@@ -35,23 +37,23 @@ export class BankAccountsComponent implements OnInit {
     });
 
     columns: TableColumn[] = [
-        { key: 'bankName', label: 'Banka', sortable: true },
-        { key: 'accountNumber', label: 'Broj računa', sortable: true },
-        { key: 'currencyDisplay', label: 'Valuta', sortable: true },
-        { key: 'details', label: 'Detalji (IBAN/SWIFT)', sortable: false },
+        { key: 'bankName', label: 'BANK_ACCOUNTS.COLUMN_BANK', sortable: true },
+        { key: 'accountNumber', label: 'BANK_ACCOUNTS.COLUMN_ACCOUNT_NUMBER', sortable: true },
+        { key: 'currencyDisplay', label: 'BANK_ACCOUNTS.COLUMN_CURRENCY', sortable: true },
+        { key: 'details', label: 'BANK_ACCOUNTS.COLUMN_DETAILS', sortable: false },
     ];
 
     actions: TableAction[] = [
-        { label: 'Izmeni', icon: '✏️', type: 'edit' },
-        { label: 'Obriši', icon: '🗑️', type: 'delete' }
+        { label: this.translate.instant('BANK_ACCOUNTS.ACTION_EDIT'), icon: '✏️', type: 'edit' },
+        { label: this.translate.instant('BANK_ACCOUNTS.ACTION_DELETE'), icon: '🗑️', type: 'delete' }
     ];
 
     currencyOptions = [
-        { value: Currency.RSD, label: 'RSD' },
-        { value: Currency.EUR, label: 'EUR' },
-        { value: Currency.USD, label: 'USD' },
-        { value: Currency.GBP, label: 'GBP' },
-        { value: Currency.CHF, label: 'CHF' }
+        { value: Currency.RSD, label: this.translate.instant('BANK_ACCOUNTS.CURRENCY_RSD') },
+        { value: Currency.EUR, label: this.translate.instant('BANK_ACCOUNTS.CURRENCY_EUR') },
+        { value: Currency.USD, label: this.translate.instant('BANK_ACCOUNTS.CURRENCY_USD') },
+        { value: Currency.GBP, label: this.translate.instant('BANK_ACCOUNTS.CURRENCY_GBP') },
+        { value: Currency.CHF, label: this.translate.instant('BANK_ACCOUNTS.CURRENCY_CHF') }
     ];
 
     ngOnInit() {
@@ -95,7 +97,10 @@ export class BankAccountsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading accounts:', err);
-                this.toastr.error(err.error?.message || 'Greška pri učitavanju računa', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('BANK_ACCOUNTS.TOAST_LOAD_ERROR'),
+                    this.translate.instant('BANK_ACCOUNTS.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -152,13 +157,19 @@ export class BankAccountsComponent implements OnInit {
 
             this.bankService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.toastr.success('Račun uspešno ažuriran', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('BANK_ACCOUNTS.TOAST_UPDATE_SUCCESS'),
+                        this.translate.instant('BANK_ACCOUNTS.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadAccounts();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating account:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju računa', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('BANK_ACCOUNTS.TOAST_UPDATE_ERROR'),
+                        this.translate.instant('BANK_ACCOUNTS.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         } else {
@@ -173,13 +184,19 @@ export class BankAccountsComponent implements OnInit {
 
             this.bankService.create(dto).subscribe({
                 next: () => {
-                    this.toastr.success('Račun uspešno dodat', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('BANK_ACCOUNTS.TOAST_CREATE_SUCCESS'),
+                        this.translate.instant('BANK_ACCOUNTS.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadAccounts();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating account:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri dodavanju računa', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('BANK_ACCOUNTS.TOAST_CREATE_ERROR'),
+                        this.translate.instant('BANK_ACCOUNTS.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         }
@@ -201,13 +218,19 @@ export class BankAccountsComponent implements OnInit {
 
         this.bankService.delete(account.id).subscribe({
             next: () => {
-                this.toastr.success('Račun uspešno obrisan', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('BANK_ACCOUNTS.TOAST_DELETE_SUCCESS'),
+                    this.translate.instant('BANK_ACCOUNTS.TOAST_SUCCESS_TITLE')
+                );
                 this.loadAccounts();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting account:', err);
-                this.toastr.error(err.error?.message || 'Greška pri brisanju računa', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('BANK_ACCOUNTS.TOAST_DELETE_ERROR'),
+                    this.translate.instant('BANK_ACCOUNTS.TOAST_ERROR_TITLE')
+                );
                 this.closeDeleteConfirm();
             }
         });
@@ -223,10 +246,11 @@ export class BankAccountsComponent implements OnInit {
 
     formatDetails(account: BankAccountToReturnDto): string {
         if (account.currency === Currency.RSD) {
-            return '-';
+            return this.translate.instant('BANK_ACCOUNTS.DETAILS_RSD');
         }
-        return `IBAN: ${account.iban || '-'} / SWIFT: ${account.swift || '-'}`;
+        return this.translate.instant('BANK_ACCOUNTS.DETAILS_FORMAT', {
+            iban: account.iban || '-',
+            swift: account.swift || '-'
+        });
     }
-
-
 }

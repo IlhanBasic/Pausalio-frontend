@@ -1,8 +1,8 @@
 <div class="users-page">
   <div class="page-header">
     <div class="header-content">
-      <h1>Korisnici</h1>
-      <p class="subtitle">Upravljajte korisnicima sistema</p>
+      <h1>{{ 'USERS.TITLE' | translate }}</h1>
+      <p class="subtitle">{{ 'USERS.SUBTITLE' | translate }}</p>
     </div>
     <button class="btn-primary" (click)="openAddModal()">
       <span class="btn-icon">
@@ -21,7 +21,7 @@
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </span>
-      Dodaj admina
+      {{ 'USERS.ADD_BTN' | translate }}
     </button>
   </div>
 
@@ -29,8 +29,8 @@
     [columns]="columns"
     [data]="users()"
     [actions]="actions"
-    searchPlaceholder="Pretraži korisnike..."
-    emptyMessage="Nema korisnika za prikaz."
+    [searchPlaceholder]="'USERS.SEARCH_PLACEHOLDER' | translate"
+    [emptyMessage]="'USERS.EMPTY_MESSAGE' | translate"
     (onCustomAction)="onAction($event)"
     (onDelete)="openDeleteConfirm($event)"
   >
@@ -41,7 +41,7 @@
     <div class="modal-overlay" (click)="closeAddModal()">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>Dodaj administratora</h2>
+          <h2>{{ 'USERS.MODAL_ADD_TITLE' | translate }}</h2>
           <button class="close-btn" (click)="closeAddModal()">✕</button>
         </div>
 
@@ -49,47 +49,47 @@
           <div class="modal-body">
             <div class="form-row">
               <div class="form-group">
-                <label>Ime *</label>
-                <input type="text" formControlName="firstName" placeholder="Ime" />
+                <label>{{ 'USERS.FIELD_FIRST_NAME' | translate }}</label>
+                <input type="text" formControlName="firstName" [placeholder]="'USERS.FIELD_FIRST_NAME_PLACEHOLDER' | translate" />
                 @if (
                   addAdminForm.get('firstName')?.touched && addAdminForm.get('firstName')?.invalid
                 ) {
-                  <div class="error">Ime je obavezno</div>
+                  <div class="error">{{ 'USERS.FIELD_FIRST_NAME_ERROR' | translate }}</div>
                 }
               </div>
               <div class="form-group">
-                <label>Prezime *</label>
-                <input type="text" formControlName="lastName" placeholder="Prezime" />
+                <label>{{ 'USERS.FIELD_LAST_NAME' | translate }}</label>
+                <input type="text" formControlName="lastName" [placeholder]="'USERS.FIELD_LAST_NAME_PLACEHOLDER' | translate" />
                 @if (
                   addAdminForm.get('lastName')?.touched && addAdminForm.get('lastName')?.invalid
                 ) {
-                  <div class="error">Prezime je obavezno</div>
+                  <div class="error">{{ 'USERS.FIELD_LAST_NAME_ERROR' | translate }}</div>
                 }
               </div>
             </div>
 
             <div class="form-group">
-              <label>Email *</label>
-              <input type="email" formControlName="email" placeholder="admin@email.com" />
+              <label>{{ 'USERS.FIELD_EMAIL' | translate }}</label>
+              <input type="email" formControlName="email" [placeholder]="'USERS.FIELD_EMAIL_PLACEHOLDER' | translate" />
               @if (addAdminForm.get('email')?.touched && addAdminForm.get('email')?.invalid) {
                 <div class="error">
                   @if (addAdminForm.get('email')?.hasError('required')) {
-                    <span>Email je obavezan</span>
+                    <span>{{ 'USERS.FIELD_EMAIL_ERROR_REQUIRED' | translate }}</span>
                   }
                   @if (addAdminForm.get('email')?.hasError('email')) {
-                    <span>Unesite ispravan email</span>
+                    <span>{{ 'USERS.FIELD_EMAIL_ERROR_INVALID' | translate }}</span>
                   }
                 </div>
               }
             </div>
 
             <div class="form-group">
-              <label>Lozinka *</label>
+              <label>{{ 'USERS.FIELD_PASSWORD' | translate }}</label>
               <div class="password-input-wrapper">
                 <input
                   [type]="showPassword() ? 'text' : 'password'"
                   formControlName="password"
-                  placeholder="Minimalno 6 karaktera"
+                  [placeholder]="'USERS.FIELD_PASSWORD_PLACEHOLDER' | translate"
                 />
                 <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
                   @if (!showPassword()) {
@@ -131,28 +131,28 @@
               @if (addAdminForm.get('password')?.touched && addAdminForm.get('password')?.invalid) {
                 <div class="error">
                   @if (addAdminForm.get('password')?.hasError('required')) {
-                    <span>Lozinka je obavezna</span>
+                    <span>{{ 'USERS.FIELD_PASSWORD_ERROR_REQUIRED' | translate }}</span>
                   }
                   @if (addAdminForm.get('password')?.hasError('minlength')) {
-                    <span>Lozinka mora imati najmanje 6 karaktera</span>
+                    <span>{{ 'USERS.FIELD_PASSWORD_ERROR_MINLENGTH' | translate }}</span>
                   }
                 </div>
               }
             </div>
 
             <div class="form-group">
-              <label>Telefon</label>
-              <input type="text" formControlName="phone" placeholder="+381..." />
+              <label>{{ 'USERS.FIELD_PHONE' | translate }}</label>
+              <input type="text" formControlName="phone" [placeholder]="'USERS.FIELD_PHONE_PLACEHOLDER' | translate" />
             </div>
 
             <div class="form-group">
-              <label>Adresa</label>
-              <input type="text" formControlName="address" placeholder="Ulica i broj" />
+              <label>{{ 'USERS.FIELD_ADDRESS' | translate }}</label>
+              <input type="text" formControlName="address" [placeholder]="'USERS.FIELD_ADDRESS_PLACEHOLDER' | translate" />
             </div>
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeAddModal()">Otkaži</button>
+            <button type="button" class="btn-secondary" (click)="closeAddModal()">{{ 'USERS.BTN_CANCEL' | translate }}</button>
             <button
               type="submit"
               class="btn-primary"
@@ -161,7 +161,7 @@
               @if (isSubmitting()) {
                 <span class="spinner"></span>
               }
-              <span>{{ isSubmitting() ? 'Učitavanje...' : 'Dodaj administratora' }}</span>
+              <span>{{ isSubmitting() ? ('USERS.BTN_ADDING' | translate) : ('USERS.BTN_ADD' | translate) }}</span>
             </button>
           </div>
         </form>
@@ -174,22 +174,22 @@
     <div class="modal-overlay" (click)="closeDeleteConfirm()">
       <div class="modal-content modal-small" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>Potvrda brisanja</h2>
+          <h2>{{ 'USERS.MODAL_DELETE_TITLE' | translate }}</h2>
           <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
         </div>
 
         <div class="modal-body">
           <p class="confirm-message">
-            Da li ste sigurni da želite da obrišete korisnika
+            {{ 'USERS.DELETE_CONFIRM_MSG' | translate }}
             <strong>{{ deletingUser()?.firstName }} {{ deletingUser()?.lastName }}</strong
             >?
           </p>
-          <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+          <p class="confirm-warning">{{ 'USERS.DELETE_CONFIRM_WARNING' | translate }}</p>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
-          <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
+          <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'USERS.BTN_CANCEL' | translate }}</button>
+          <button type="button" class="btn-danger" (click)="confirmDelete()">{{ 'USERS.BTN_DELETE' | translate }}</button>
         </div>
       </div>
     </div>

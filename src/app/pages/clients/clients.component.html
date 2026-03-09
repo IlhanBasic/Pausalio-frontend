@@ -2,8 +2,8 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
-            <h1>Klijenti</h1>
-            <p class="subtitle">Upravljajte klijentima vaše firme</p>
+            <h1>{{ 'CLIENTS.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'CLIENTS.SUBTITLE' | translate }}</p>
         </div>
         <button class="btn-primary" (click)="openAddModal()">
             <span class="btn-icon">
@@ -13,7 +13,7 @@
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </span>
-            Dodaj klijenta
+            {{ 'CLIENTS.ADD_BTN' | translate }}
         </button>
     </div>
 
@@ -21,28 +21,29 @@
     <div class="filter-tabs">
         <button class="filter-tab" [class.active]="activeClientTypeFilter() === null"
             (click)="setClientTypeFilter(null)">
-            Svi
+            {{ 'CLIENTS.FILTER_ALL' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeClientTypeFilter() === ClientType.individual"
             (click)="setClientTypeFilter(ClientType.individual)">
             <span class="tab-dot dot-individual"></span>
-            Domaće fizičko lice
+            {{ 'CLIENTS.FILTER_INDIVIDUAL' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeClientTypeFilter() === ClientType.domestic"
             (click)="setClientTypeFilter(ClientType.domestic)">
             <span class="tab-dot dot-domestic"></span>
-            Domaće pravno lice
+            {{ 'CLIENTS.FILTER_DOMESTIC' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeClientTypeFilter() === ClientType.foreign"
             (click)="setClientTypeFilter(ClientType.foreign)">
             <span class="tab-dot dot-foreign"></span>
-            Strano pravno lice
+            {{ 'CLIENTS.FILTER_FOREIGN' | translate }}
         </button>
     </div>
 
     <!-- Data Table -->
-    <app-data-table [columns]="columns" [data]="clients()" [actions]="actions" searchPlaceholder="Pretraži klijente..."
-        emptyMessage="Nema klijenata za prikaz. Dodajte prvog klijenta!" (onEdit)="openEditModal($event)"
+    <app-data-table [columns]="columns" [data]="clients()" [actions]="actions"
+        [searchPlaceholder]="'CLIENTS.SEARCH_PLACEHOLDER' | translate"
+        [emptyMessage]="'CLIENTS.EMPTY_MESSAGE' | translate" (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)">
     </app-data-table>
 
@@ -51,37 +52,38 @@
         <div class="modal-overlay" (click)="closeModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>{{ editingClient() ? 'Izmeni klijenta' : 'Dodaj novog klijenta' }}</h2>
+                    <h2>{{ editingClient() ? ('CLIENTS.MODAL_EDIT_TITLE' | translate) : ('CLIENTS.MODAL_ADD_TITLE' | translate) }}</h2>
                     <button class="close-btn" (click)="closeModal()">✕</button>
                 </div>
 
                 <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Naziv *</label>
-                            <input type="text" formControlName="name" placeholder="Ime i prezime / Naziv firme">
+                            <label>{{ 'CLIENTS.FIELD_NAME' | translate }}</label>
+                            <input type="text" formControlName="name" [placeholder]="'CLIENTS.FIELD_NAME_PLACEHOLDER' | translate">
                             @if (clientForm.get('name')?.touched && clientForm.get('name')?.invalid) {
-                                <div class="error">Naziv je obavezan</div>
+                                <div class="error">{{ 'CLIENTS.FIELD_NAME_ERROR' | translate }}</div>
                             }
                         </div>
+                        
                         @if(!editingClient()){
-                        <div class="form-group">
-                            <label>Tip klijenta *</label>
-                            <select formControlName="clientType">
-                                <option [ngValue]="1">Domaće fizičko lice</option>
-                                <option [ngValue]="2">Domaće pravno lice</option>
-                                <option [ngValue]="3">Strano pravno lice</option>
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label>{{ 'CLIENTS.FIELD_CLIENT_TYPE' | translate }}</label>
+                                <select formControlName="clientType">
+                                    <option [ngValue]="1">{{ 'CLIENTS.FIELD_CLIENT_TYPE_INDIVIDUAL' | translate }}</option>
+                                    <option [ngValue]="2">{{ 'CLIENTS.FIELD_CLIENT_TYPE_DOMESTIC' | translate }}</option>
+                                    <option [ngValue]="3">{{ 'CLIENTS.FIELD_CLIENT_TYPE_FOREIGN' | translate }}</option>
+                                </select>
+                            </div>
                         }
-                       
 
                         <!-- Country field -->
                         @if (isForeignClient()) {
                             <div class="form-group">
-                                <label>Država *</label>
+                                <label>{{ 'CLIENTS.FIELD_COUNTRY' | translate }}</label>
                                 <div class="autocomplete-wrapper">
-                                    <input type="text" formControlName="countrySearch" placeholder="Pretražite državu..."
+                                    <input type="text" formControlName="countrySearch" 
+                                        [placeholder]="'CLIENTS.FIELD_COUNTRY_SEARCH_PLACEHOLDER' | translate"
                                         (focus)="onCountrySearchFocus()" (blur)="onCountrySearchBlur()" autocomplete="off">
 
                                     @if (showCountryDropdown() && filteredCountries().length > 0) {
@@ -97,13 +99,15 @@
 
                                     @if (showCountryDropdown() && filteredCountries().length === 0 && countrySearchText()) {
                                         <div class="autocomplete-dropdown">
-                                            <div class="autocomplete-item no-results">Nema rezultata</div>
+                                            <div class="autocomplete-item no-results">
+                                                {{ 'CLIENTS.FIELD_COUNTRY_NO_RESULTS' | translate }}
+                                            </div>
                                         </div>
                                     }
                                 </div>
 
                                 @if (clientForm.get('countryId')?.touched && clientForm.get('countryId')?.invalid) {
-                                    <div class="error">Država je obavezna za strane klijente</div>
+                                    <div class="error">{{ 'CLIENTS.FIELD_COUNTRY_ERROR' | translate }}</div>
                                 }
                             </div>
                         }
@@ -112,56 +116,57 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>
-                                        PIB
+                                        {{ 'CLIENTS.FIELD_PIB' | translate }}
                                         @if (clientForm.get('clientType')?.value === 2 || clientForm.get('clientType')?.value === 3) {
                                             <span>*</span>
                                         }
                                     </label>
-                                    <input type="text" formControlName="pib" placeholder="123456789">
+                                    <input type="text" formControlName="pib" [placeholder]="'CLIENTS.FIELD_PIB_PLACEHOLDER' | translate">
                                     @if (clientForm.get('pib')?.touched && clientForm.get('pib')?.invalid) {
-                                        <div class="error">PIB je obavezan za pravna lica</div>
+                                        <div class="error">{{ 'CLIENTS.FIELD_PIB_REQUIRED' | translate }}</div>
                                     }
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Matični broj (MB)</label>
-                                    <input type="text" formControlName="mb" placeholder="12345678">
+                                    <label>{{ 'CLIENTS.FIELD_MB' | translate }}</label>
+                                    <input type="text" formControlName="mb" [placeholder]="'CLIENTS.FIELD_MB_PLACEHOLDER' | translate">
                                 </div>
                             </div>
                         }
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Grad</label>
-                                <input type="text" formControlName="city" placeholder="Beograd">
+                                <label>{{ 'CLIENTS.FIELD_CITY' | translate }}</label>
+                                <input type="text" formControlName="city" [placeholder]="'CLIENTS.FIELD_CITY_PLACEHOLDER' | translate">
                             </div>
 
                             <div class="form-group">
-                                <label>Adresa</label>
-                                <input type="text" formControlName="address" placeholder="Ulica i broj">
+                                <label>{{ 'CLIENTS.FIELD_ADDRESS' | translate }}</label>
+                                <input type="text" formControlName="address" [placeholder]="'CLIENTS.FIELD_ADDRESS_PLACEHOLDER' | translate">
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" formControlName="email" placeholder="klijent@email.com">
+                                <label>{{ 'CLIENTS.FIELD_EMAIL' | translate }}</label>
+                                <input type="email" formControlName="email" [placeholder]="'CLIENTS.FIELD_EMAIL_PLACEHOLDER' | translate">
                                 @if (clientForm.get('email')?.touched && clientForm.get('email')?.invalid) {
-                                    <div class="error">Neispravan email format</div>
+                                    <div class="error">{{ 'CLIENTS.FIELD_EMAIL_ERROR' | translate }}</div>
                                 }
                             </div>
 
                             <div class="form-group">
-                                <label>Telefon</label>
-                                <input type="tel" inputmode="numeric"  pattern="[0-9+ ]*" formControlName="phone" placeholder="+381...">
+                                <label>{{ 'CLIENTS.FIELD_PHONE' | translate }}</label>
+                                <input type="tel" inputmode="numeric" pattern="[0-9+ ]*" formControlName="phone" 
+                                    [placeholder]="'CLIENTS.FIELD_PHONE_PLACEHOLDER' | translate">
                             </div>
                         </div>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'CLIENTS.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="clientForm.invalid">
-                            {{ editingClient() ? 'Sačuvaj izmene' : 'Dodaj klijenta' }}
+                            {{ editingClient() ? ('CLIENTS.BTN_SAVE' | translate) : ('CLIENTS.BTN_ADD' | translate) }}
                         </button>
                     </div>
                 </form>
@@ -174,20 +179,20 @@
         <div class="modal-overlay" (click)="closeDeleteConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda brisanja</h2>
+                    <h2>{{ 'CLIENTS.MODAL_DELETE_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
                 </div>
 
                 <div class="modal-body">
                     <p class="confirm-message">
-                        Da li ste sigurni da želite da obrišete klijenta
+                        {{ 'CLIENTS.DELETE_CONFIRM_MSG' | translate }}
                         <strong>{{ deletingClient()?.name }}</strong>?
                     </p>
-                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+                    <p class="confirm-warning">{{ 'CLIENTS.DELETE_CONFIRM_WARNING' | translate }}</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'CLIENTS.BTN_CANCEL' | translate }}</button>
                     <button type="button" class="btn-danger" (click)="confirmDelete()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -197,7 +202,7 @@
                             <path d="M14 11v6"></path>
                             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
                         </svg>
-                        Obriši
+                        {{ 'CLIENTS.BTN_DELETE' | translate }}
                     </button>
                 </div>
             </div>

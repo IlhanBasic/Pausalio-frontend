@@ -2,8 +2,8 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
-            <h1>Statistika</h1>
-            <p class="subtitle">Pregled poslovnih metrika i trendova</p>
+            <h1>{{ 'STATISTICS.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'STATISTICS.SUBTITLE' | translate }}</p>
         </div>
     </div>
 
@@ -11,7 +11,7 @@
     @if (isLoading()) {
         <div class="loading-container">
             <div class="spinner"></div>
-            <p>Učitavanje statistike...</p>
+            <p>{{ 'STATISTICS.LOADING' | translate }}</p>
         </div>
     }
 
@@ -30,9 +30,9 @@
                         </svg>
                     </div>
                     <div class="kpi-content">
-                        <h3>Ukupan prihod</h3>
+                        <h3>{{ 'STATISTICS.KPI_TOTAL_REVENUE' | translate }}</h3>
                         <p class="kpi-value">{{ formatCurrency(totalRevenue()) }}</p>
-                        <span class="kpi-label">Plaćene fakture</span>
+                        <span class="kpi-label">{{ 'STATISTICS.KPI_TOTAL_REVENUE_LABEL' | translate }}</span>
                     </div>
                 </div>
 
@@ -46,9 +46,9 @@
                         </svg>
                     </div>
                     <div class="kpi-content">
-                        <h3>Ukupni troškovi</h3>
+                        <h3>{{ 'STATISTICS.KPI_TOTAL_EXPENSES' | translate }}</h3>
                         <p class="kpi-value">{{ formatCurrency(totalExpenses()) }}</p>
-                        <span class="kpi-label">Plaćeni troškovi</span>
+                        <span class="kpi-label">{{ 'STATISTICS.KPI_TOTAL_EXPENSES_LABEL' | translate }}</span>
                     </div>
                 </div>
 
@@ -72,9 +72,9 @@
                         }
                     </div>
                     <div class="kpi-content">
-                        <h3>Neto rezultat</h3>
+                        <h3>{{ 'STATISTICS.KPI_NET_RESULT' | translate }}</h3>
                         <p class="kpi-value">{{ formatCurrency(netResult()) }}</p>
-                        <span class="kpi-label">Prihod - Troškovi</span>
+                        <span class="kpi-label">{{ 'STATISTICS.KPI_NET_RESULT_LABEL' | translate }}</span>
                     </div>
                 </div>
 
@@ -87,9 +87,9 @@
                         </svg>
                     </div>
                     <div class="kpi-content">
-                        <h3>Dugovanja za porez</h3>
+                        <h3>{{ 'STATISTICS.KPI_TAX_DEBT' | translate }}</h3>
                         <p class="kpi-value">{{ formatCurrency(taxObligations()) }}</p>
-                        <span class="kpi-label">Neplaćene obaveze</span>
+                        <span class="kpi-label">{{ 'STATISTICS.KPI_TAX_DEBT_LABEL' | translate }}</span>
                     </div>
                 </div>
             </div>
@@ -97,7 +97,7 @@
             <!-- Charts Row: Line + Pie -->
             <div class="charts-row">
                 <div class="chart-container">
-                    <h3>Prihodi i troškovi po mesecima</h3>
+                    <h3>{{ 'STATISTICS.CHART_LINE_TITLE' | translate }}</h3>
                     <div class="chart-wrapper">
                         <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [type]="lineChartType">
                         </canvas>
@@ -105,7 +105,7 @@
                 </div>
 
                 <div class="chart-container">
-                    <h3>Raspodela faktura</h3>
+                    <h3>{{ 'STATISTICS.CHART_PIE_TITLE' | translate }}</h3>
                     <div class="chart-wrapper">
                         <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="pieChartType">
                         </canvas>
@@ -119,8 +119,8 @@
                 <!-- Horizontal Bar: Top 5 Cities -->
                 <div class="chart-container">
                     <div class="chart-header">
-                        <h3>Top 5 gradova po ukupnom prihodu</h3>
-                        <span class="chart-subtitle">Ukupan iznos svih faktura po gradu klijenta</span>
+                        <h3>{{ 'STATISTICS.CHART_CITY_TITLE' | translate }}</h3>
+                        <span class="chart-subtitle">{{ 'STATISTICS.CHART_CITY_SUBTITLE' | translate }}</span>
                     </div>
                     <div class="chart-wrapper chart-wrapper-bar">
                         @if (barChartData.labels && barChartData.labels.length > 0) {
@@ -137,7 +137,7 @@
                                     <line x1="12" y1="20" x2="12" y2="4"></line>
                                     <line x1="6" y1="20" x2="6" y2="14"></line>
                                 </svg>
-                                <p>Nema podataka o gradovima klijenata</p>
+                                <p>{{ 'STATISTICS.CHART_CITY_EMPTY' | translate }}</p>
                             </div>
                         }
                     </div>
@@ -146,8 +146,8 @@
                 <!-- Vertical Bar: Top 5 Countries (foreign clients) -->
                 <div class="chart-container">
                     <div class="chart-header">
-                        <h3>Top 5 zemalja stranih klijenata</h3>
-                        <span class="chart-subtitle">Ukupan iznos faktura po zemlji porekla stranog klijenta</span>
+                        <h3>{{ 'STATISTICS.CHART_COUNTRY_TITLE' | translate }}</h3>
+                        <span class="chart-subtitle">{{ 'STATISTICS.CHART_COUNTRY_SUBTITLE' | translate }}</span>
                     </div>
                     <div class="chart-wrapper chart-wrapper-bar">
                         @if (countryChartData.labels && countryChartData.labels.length > 0) {
@@ -163,7 +163,7 @@
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
                                     <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                                 </svg>
-                                <p>Nema podataka o stranim klijentima</p>
+                                <p>{{ 'STATISTICS.CHART_COUNTRY_EMPTY' | translate }}</p>
                             </div>
                         }
                     </div>
@@ -173,7 +173,7 @@
 
             <!-- Upcoming Tax Obligations -->
             <div class="obligations-section">
-                <h2>Predstojeće poreske obaveze</h2>
+                <h2>{{ 'STATISTICS.OBLIGATIONS_TITLE' | translate }}</h2>
 
                 @if (upcomingTaxes().length > 0) {
                     <div class="obligations-list">
@@ -190,7 +190,7 @@
                                             <line x1="8" y1="2" x2="8" y2="6"></line>
                                             <line x1="3" y1="10" x2="21" y2="10"></line>
                                         </svg>
-                                        Rok: {{ formatDate(tax.dueDate) }}
+                                        {{ 'STATISTICS.OBLIGATIONS_DUE_DATE' | translate:{ date: formatDate(tax.dueDate) } }}
                                     </p>
                                 </div>
                                 <div class="obligation-amount">
@@ -208,7 +208,7 @@
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        <p>Nema predstojećih poreskih obaveza</p>
+                        <p>{{ 'STATISTICS.OBLIGATIONS_EMPTY' | translate }}</p>
                     </div>
                 }
             </div>

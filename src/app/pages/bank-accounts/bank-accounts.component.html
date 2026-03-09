@@ -2,8 +2,8 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
-            <h1>Bankovni računi</h1>
-            <p class="subtitle">Upravljajte vašim poslovnim računima</p>
+            <h1>{{ 'BANK_ACCOUNTS.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'BANK_ACCOUNTS.SUBTITLE' | translate }}</p>
         </div>
         <button class="btn-primary" (click)="openAddModal()">
             <span class="btn-icon">
@@ -13,14 +13,15 @@
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </span>
-            Dodaj račun
+            {{ 'BANK_ACCOUNTS.ADD_BTN' | translate }}
         </button>
     </div>
 
     <!-- Data Table -->
-    <app-data-table [columns]="columns" [data]="accounts()" [actions]="actions" searchPlaceholder="Pretraži račune..."
-        emptyMessage="Nema bankovnih računa za prikaz. Dodajte prvi račun!" (onEdit)="openEditModal($event)"
-        (onDelete)="openDeleteConfirm($event)">
+    <app-data-table [columns]="columns" [data]="accounts()" [actions]="actions"
+        [searchPlaceholder]="'BANK_ACCOUNTS.SEARCH_PLACEHOLDER' | translate"
+        [emptyMessage]="'BANK_ACCOUNTS.EMPTY_MESSAGE' | translate"
+        (onEdit)="openEditModal($event)" (onDelete)="openDeleteConfirm($event)">
     </app-data-table>
 
     <!-- Add/Edit Modal -->
@@ -28,31 +29,31 @@
         <div class="modal-overlay" (click)="closeModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>{{ editingAccount() ? 'Izmeni račun' : 'Dodaj novi račun' }}</h2>
+                    <h2>{{ editingAccount() ? ('BANK_ACCOUNTS.MODAL_EDIT_TITLE' | translate) : ('BANK_ACCOUNTS.MODAL_ADD_TITLE' | translate) }}</h2>
                     <button class="close-btn" (click)="closeModal()">✕</button>
                 </div>
 
                 <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Naziv banke *</label>
-                            <input type="text" formControlName="bankName" placeholder="Npr. Raiffeisen Bank">
+                            <label>{{ 'BANK_ACCOUNTS.FIELD_BANK_NAME' | translate }}</label>
+                            <input type="text" formControlName="bankName" [placeholder]="'BANK_ACCOUNTS.FIELD_BANK_NAME_PLACEHOLDER' | translate">
                             @if (accountForm.get('bankName')?.touched && accountForm.get('bankName')?.invalid) {
-                                <div class="error">Naziv banke je obavezan</div>
+                                <div class="error">{{ 'BANK_ACCOUNTS.FIELD_BANK_NAME_ERROR' | translate }}</div>
                             }
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Broj računa *</label>
-                                <input type="text" formControlName="accountNumber" placeholder="xxx-xxxxxxxxxxxx-xx">
+                                <label>{{ 'BANK_ACCOUNTS.FIELD_ACCOUNT_NUMBER' | translate }}</label>
+                                <input type="text" formControlName="accountNumber" [placeholder]="'BANK_ACCOUNTS.FIELD_ACCOUNT_NUMBER_PLACEHOLDER' | translate">
                                 @if (accountForm.get('accountNumber')?.touched && accountForm.get('accountNumber')?.invalid) {
-                                    <div class="error">Broj računa je obavezan</div>
+                                    <div class="error">{{ 'BANK_ACCOUNTS.FIELD_ACCOUNT_NUMBER_ERROR' | translate }}</div>
                                 }
                             </div>
 
                             <div class="form-group">
-                                <label>Valuta *</label>
+                                <label>{{ 'BANK_ACCOUNTS.FIELD_CURRENCY' | translate }}</label>
                                 <select formControlName="currency">
                                     @for (opt of currencyOptions; track $index) {
                                         <option [value]="opt.value">{{ opt.label }}</option>
@@ -65,18 +66,18 @@
                         @if (!isRsdSelected()) {
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>IBAN *</label>
-                                    <input type="text" formControlName="IBAN" placeholder="RS35...">
+                                    <label>{{ 'BANK_ACCOUNTS.FIELD_IBAN' | translate }}</label>
+                                    <input type="text" formControlName="IBAN" [placeholder]="'BANK_ACCOUNTS.FIELD_IBAN_PLACEHOLDER' | translate">
                                     @if (accountForm.get('IBAN')?.touched && accountForm.get('IBAN')?.invalid) {
-                                        <div class="error">IBAN je obavezan za devizne račune</div>
+                                        <div class="error">{{ 'BANK_ACCOUNTS.FIELD_IBAN_ERROR' | translate }}</div>
                                     }
                                 </div>
 
                                 <div class="form-group">
-                                    <label>SWIFT *</label>
-                                    <input type="text" formControlName="SWIFT" placeholder="XXXXRS...">
+                                    <label>{{ 'BANK_ACCOUNTS.FIELD_SWIFT' | translate }}</label>
+                                    <input type="text" formControlName="SWIFT" [placeholder]="'BANK_ACCOUNTS.FIELD_SWIFT_PLACEHOLDER' | translate">
                                     @if (accountForm.get('SWIFT')?.touched && accountForm.get('SWIFT')?.invalid) {
-                                        <div class="error">SWIFT je obavezan za devizne račune</div>
+                                        <div class="error">{{ 'BANK_ACCOUNTS.FIELD_SWIFT_ERROR' | translate }}</div>
                                     }
                                 </div>
                             </div>
@@ -84,9 +85,9 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'BANK_ACCOUNTS.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="accountForm.invalid">
-                            {{ editingAccount() ? 'Sačuvaj izmene' : 'Dodaj račun' }}
+                            {{ editingAccount() ? ('BANK_ACCOUNTS.BTN_SAVE' | translate) : ('BANK_ACCOUNTS.BTN_ADD' | translate) }}
                         </button>
                     </div>
                 </form>
@@ -99,20 +100,20 @@
         <div class="modal-overlay" (click)="closeDeleteConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda brisanja</h2>
+                    <h2>{{ 'BANK_ACCOUNTS.MODAL_DELETE_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
                 </div>
 
                 <div class="modal-body">
                     <p class="confirm-message">
-                        Da li ste sigurni da želite da obrišete račun
+                        {{ 'BANK_ACCOUNTS.DELETE_CONFIRM_MSG' | translate }}
                         <strong>{{ deletingAccount()?.accountNumber }}</strong>?
                     </p>
-                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+                    <p class="confirm-warning">{{ 'BANK_ACCOUNTS.DELETE_CONFIRM_WARNING' | translate }}</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'BANK_ACCOUNTS.BTN_CANCEL' | translate }}</button>
                     <button type="button" class="btn-danger" (click)="confirmDelete()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -121,7 +122,8 @@
                             <path d="M10 11v6"></path>
                             <path d="M14 11v6"></path>
                             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-                        </svg>Obriši
+                        </svg>
+                        {{ 'BANK_ACCOUNTS.BTN_DELETE' | translate }}
                     </button>
                 </div>
             </div>

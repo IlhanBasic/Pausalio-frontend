@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { inject } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 export interface TableColumn {
     key: string;
@@ -22,20 +23,21 @@ export interface TableAction {
 @Component({
     selector: 'app-data-table',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TranslateModule],
     templateUrl: './data-table.component.html',
     styleUrl: './data-table.component.css'
 })
 export class DataTableComponent {
     private sanitizer = inject(DomSanitizer);
+    private translate = inject(TranslateService);
 
     @Input() columns: TableColumn[] = [];
     @Input() set data(value: any[]) {
         this.dataSignal.set(value);
     }
     @Input() actions: TableAction[] = [];
-    @Input() searchPlaceholder = 'Pretraži...';
-    @Input() emptyMessage = 'Nema podataka za prikaz';
+    @Input() searchPlaceholder = 'DATA_TABLE.SEARCH_PLACEHOLDER';
+    @Input() emptyMessage = 'DATA_TABLE.EMPTY_MESSAGE';
 
     @Output() onEdit = new EventEmitter<any>();
     @Output() onDelete = new EventEmitter<any>();
@@ -93,11 +95,21 @@ export class DataTableComponent {
 
     formatValue(value: any, type?: string): string {
         if (value === null || value === undefined) return '-';
+        
+        const locale = this.translate.currentLang === 'sr-Cyrl' ? 'sr-Cyrl-RS' : 'sr-Latn-RS';
+        
         switch (type) {
             case 'number':
-                return new Intl.NumberFormat('sr-Latn-RS').format(value);
+                return new Intl.NumberFormat(locale).format(value);
+            case 'currency':
+                return new Intl.NumberFormat(locale, {
+                    style: 'currency',
+                    currency: 'RSD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(value);
             case 'date':
-                return new Date(value).toLocaleDateString('sr-Latn-RS');
+                return new Date(value).toLocaleDateString(locale);
             default:
                 return value.toString();
         }
@@ -115,7 +127,16 @@ export class DataTableComponent {
 
     getSortIcon(column: TableColumn): string {
         if (!column.sortable) return '';
-        if (this.sortColumn() !== column.key) return '⇅';
-        return this.sortDirection() === 'asc' ? '↑' : '↓';
+        if (this.sortColumn() !== column.key) return this.translate.instant('DATA_TABLE.SORT_ICON');
+        return this.sortDirection() === 'asc' 
+            ? this.translate.instant('DATA_TABLE.SORT_ASC') 
+            : this.translate.instant('DATA_TABLE.SORT_DESC');
+    }
+
+    getResultCountText(): string {
+        return this.translate.instant('DATA_TABLE.RESULT_COUNT', {
+            count: this.filteredData().length,
+            total: this.dataSignal().length
+        });
     }
 }

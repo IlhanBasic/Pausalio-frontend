@@ -1,117 +1,196 @@
 <header class="navbar">
-    <!-- Hamburger — vidljiv samo na mobilnom -->
-    <button class="mobile-toggle" (click)="sidebarService.toggle()" aria-label="Toggle menu">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
+  <!-- Hamburger — vidljiv samo na mobilnom -->
+  <button class="mobile-toggle" (click)="sidebarService.toggle()" aria-label="Toggle menu">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <!-- Company Info -->
+  <div class="company-info">
+    <ng-container *ngIf="store.isOwner()">
+      <div class="company-logo-wrapper" *ngIf="currentBusiness()?.companyLogo">
+        <img
+          [src]="currentBusiness()?.companyLogo"
+          [alt]="currentBusiness()?.businessName"
+          class="company-logo"
+        />
+      </div>
+      <div class="company-logo-placeholder" *ngIf="!currentBusiness()?.companyLogo">
+        {{ getInitials(currentBusiness()?.businessName || '') }}
+      </div>
+      <div class="company-details">
+        <span class="business-name">{{ currentBusiness()?.businessName || 'Učitavanje...' }}</span>
+        <span class="business-meta" *ngIf="currentBusiness()?.pib"
+          >PIB: {{ currentBusiness()?.pib }}</span
+        >
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="store.isAssistant()">
+      <div class="business-switcher">
+        <div class="business-selector" (click)="toggleBusinessDropdown()">
+          <div class="company-logo-wrapper" *ngIf="currentBusiness()?.companyLogo">
+            <img
+              [src]="currentBusiness()?.companyLogo"
+              [alt]="currentBusiness()?.businessName"
+              class="company-logo"
+            />
+          </div>
+          <div class="company-logo-placeholder" *ngIf="!currentBusiness()?.companyLogo">
+            {{ getInitials(currentBusiness()?.businessName || '') }}
+          </div>
+          <div class="company-details">
+            <span class="business-name">{{
+              currentBusiness()?.businessName || 'Izaberite firmu'
+            }}</span>
+            <span class="business-meta" *ngIf="currentBusiness()?.pib"
+              >PIB: {{ currentBusiness()?.pib }}</span
+            >
+          </div>
+          <span class="selector-arrow" [class.open]="showBusinessDropdown()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+
+        <div class="business-dropdown" [class.show]="showBusinessDropdown()">
+          <button
+            *ngFor="let business of availableBusinesses()"
+            class="business-option"
+            [class.active]="business.id === currentBusiness()?.id"
+            (click)="selectBusiness(business.id)"
+          >
+            <div class="business-option-logo" *ngIf="business.companyLogo">
+              <img [src]="business.companyLogo" [alt]="business.businessName" />
+            </div>
+            <div class="business-option-placeholder" *ngIf="!business.companyLogo">
+              {{ getInitials(business.businessName) }}
+            </div>
+            <div class="business-option-details">
+              <span class="business-option-name">{{ business.businessName }}</span>
+              <span class="business-option-meta">PIB: {{ business.pib }}</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Language Switcher -->
+  <div class="lang-switcher">
+    <button
+      class="lang-btn"
+      [class.active]="isActive('sr-Latn')"
+      (click)="switchLanguage('sr-Latn')"
+    >
+      Latinica
     </button>
 
-    <!-- Company Info -->
-    <div class="company-info">
-        <ng-container *ngIf="store.isOwner()">
-            <div class="company-logo-wrapper" *ngIf="currentBusiness()?.companyLogo">
-                <img [src]="currentBusiness()?.companyLogo" [alt]="currentBusiness()?.businessName" class="company-logo">
-            </div>
-            <div class="company-logo-placeholder" *ngIf="!currentBusiness()?.companyLogo">
-                {{ getInitials(currentBusiness()?.businessName || '') }}
-            </div>
-            <div class="company-details">
-                <span class="business-name">{{ currentBusiness()?.businessName || 'Učitavanje...' }}</span>
-                <span class="business-meta" *ngIf="currentBusiness()?.pib">PIB: {{ currentBusiness()?.pib }}</span>
-            </div>
-        </ng-container>
+    <button
+      class="lang-btn"
+      [class.active]="isActive('sr-Cyrl')"
+      (click)="switchLanguage('sr-Cyrl')"
+    >
+      Ćirilica
+    </button>
+  </div>
 
-        <ng-container *ngIf="store.isAssistant()">
-            <div class="business-switcher">
-                <div class="business-selector" (click)="toggleBusinessDropdown()">
-                    <div class="company-logo-wrapper" *ngIf="currentBusiness()?.companyLogo">
-                        <img [src]="currentBusiness()?.companyLogo" [alt]="currentBusiness()?.businessName" class="company-logo">
-                    </div>
-                    <div class="company-logo-placeholder" *ngIf="!currentBusiness()?.companyLogo">
-                        {{ getInitials(currentBusiness()?.businessName || '') }}
-                    </div>
-                    <div class="company-details">
-                        <span class="business-name">{{ currentBusiness()?.businessName || 'Izaberite firmu' }}</span>
-                        <span class="business-meta" *ngIf="currentBusiness()?.pib">PIB: {{ currentBusiness()?.pib }}</span>
-                    </div>
-                    <span class="selector-arrow" [class.open]="showBusinessDropdown()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </span>
-                </div>
-
-                <div class="business-dropdown" [class.show]="showBusinessDropdown()">
-                    <button *ngFor="let business of availableBusinesses()" class="business-option"
-                        [class.active]="business.id === currentBusiness()?.id"
-                        (click)="selectBusiness(business.id)">
-                        <div class="business-option-logo" *ngIf="business.companyLogo">
-                            <img [src]="business.companyLogo" [alt]="business.businessName">
-                        </div>
-                        <div class="business-option-placeholder" *ngIf="!business.companyLogo">
-                            {{ getInitials(business.businessName) }}
-                        </div>
-                        <div class="business-option-details">
-                            <span class="business-option-name">{{ business.businessName }}</span>
-                            <span class="business-option-meta">PIB: {{ business.pib }}</span>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </ng-container>
+  <!-- User Menu -->
+  <div class="user-menu">
+    <div class="user-info" (click)="toggleUserDropdown()">
+      <div class="user-avatar-wrapper" *ngIf="getUserProfilePicture()">
+        <img [src]="getUserProfilePicture()" [alt]="getUserFullName()" class="user-avatar-image" />
+      </div>
+      <div class="user-avatar-placeholder" *ngIf="!getUserProfilePicture()">
+        {{ getUserInitials() }}
+      </div>
+      <div class="user-details">
+        <span class="user-name">{{ getUserFullName() }}</span>
+        <span class="user-role">{{ getUserRole() }}</span>
+      </div>
+      <span class="dropdown-arrow" [class.open]="showUserDropdown()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </span>
     </div>
 
-    <!-- User Menu -->
-    <div class="user-menu">
-        <div class="user-info" (click)="toggleUserDropdown()">
-            <div class="user-avatar-wrapper" *ngIf="getUserProfilePicture()">
-                <img [src]="getUserProfilePicture()" [alt]="getUserFullName()" class="user-avatar-image">
-            </div>
-            <div class="user-avatar-placeholder" *ngIf="!getUserProfilePicture()">
-                {{ getUserInitials() }}
-            </div>
-            <div class="user-details">
-                <span class="user-name">{{ getUserFullName() }}</span>
-                <span class="user-role">{{ getUserRole() }}</span>
-            </div>
-            <span class="dropdown-arrow" [class.open]="showUserDropdown()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-            </span>
-        </div>
-
-        <div class="user-dropdown" [class.show]="showUserDropdown()">
-            <button class="dropdown-item" (click)="navigateToProfile()">
-                <span class="item-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                </span>
-                Profil
-            </button>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item logout" (click)="logout()">
-                <span class="item-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                </span>
-                Odjavi se
-            </button>
-        </div>
+    <div class="user-dropdown" [class.show]="showUserDropdown()">
+      <button class="dropdown-item" (click)="navigateToProfile()">
+        <span class="item-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </span>
+        Profil
+      </button>
+      <div class="dropdown-divider"></div>
+      <button class="dropdown-item logout" (click)="logout()">
+        <span class="item-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </span>
+        Odjavi se
+      </button>
     </div>
+  </div>
 </header>
 
 <div class="dropdown-overlay" *ngIf="showUserDropdown()" (click)="toggleUserDropdown()"></div>
-<div class="dropdown-overlay" *ngIf="showBusinessDropdown()" (click)="toggleBusinessDropdown()"></div>
+<div
+  class="dropdown-overlay"
+  *ngIf="showBusinessDropdown()"
+  (click)="toggleBusinessDropdown()"
+></div>

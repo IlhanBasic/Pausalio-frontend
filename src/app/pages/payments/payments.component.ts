@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PaymentService } from '../../services/payment.service';
 import { InvoiceService } from '../../services/invoice.service';
 import { ExpenseService } from '../../services/expense.service';
@@ -23,7 +24,7 @@ import { PaymentStatus } from '../../enums/payment-status';
 @Component({
     selector: 'app-payments',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+    imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule],
     templateUrl: './payments.component.html',
     styleUrl: './payments.component.css'
 })
@@ -35,6 +36,7 @@ export class PaymentsComponent implements OnInit {
     bankAccountService = inject(BankAccountService);
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
+    translate = inject(TranslateService);
     allBankAccounts = signal<BankAccountToReturnDto[]>([]);
 
     payments = signal<PaymentToReturnDto[]>([]);
@@ -63,19 +65,19 @@ export class PaymentsComponent implements OnInit {
     });
 
     columns: TableColumn[] = [
-        { key: 'paymentTypeDisplay', label: 'Tip plaćanja', sortable: true },
-        { key: 'entityDisplay', label: 'Entitet', sortable: false },
-        { key: 'amount', label: 'Iznos', type: 'currency', sortable: true },
-        { key: 'currencyDisplay', label: 'Valuta', sortable: true },
-        { key: 'amountRSD', label: 'Iznos (RSD)', type: 'currency', sortable: true },
-        { key: 'paymentDate', label: 'Datum plaćanja', type: 'date', sortable: true },
-        { key: 'referenceNumber', label: 'Poziv na broj', sortable: false },
-        { key: 'bankAccountDisplay', label: 'Bankovni račun', sortable: false }
+        { key: 'paymentTypeDisplay', label: 'PAYMENTS.COLUMN_PAYMENT_TYPE', sortable: true },
+        { key: 'entityDisplay', label: 'PAYMENTS.COLUMN_ENTITY', sortable: false },
+        { key: 'amount', label: 'PAYMENTS.COLUMN_AMOUNT', type: 'currency', sortable: true },
+        { key: 'currencyDisplay', label: 'PAYMENTS.COLUMN_CURRENCY', sortable: true },
+        { key: 'amountRSD', label: 'PAYMENTS.COLUMN_AMOUNT_RSD', type: 'currency', sortable: true },
+        { key: 'paymentDate', label: 'PAYMENTS.COLUMN_PAYMENT_DATE', type: 'date', sortable: true },
+        { key: 'referenceNumber', label: 'PAYMENTS.COLUMN_REFERENCE_NUMBER', sortable: false },
+        { key: 'bankAccountDisplay', label: 'PAYMENTS.COLUMN_BANK_ACCOUNT', sortable: false }
     ];
 
     actions: TableAction[] = [
-        { label: 'Izmeni', icon: '✏️', type: 'edit' },
-        { label: 'Obriši', icon: '🗑️', type: 'delete' }
+        { label: this.translate.instant('PAYMENTS.ACTION_EDIT'), icon: '✏️', type: 'edit' },
+        { label: this.translate.instant('PAYMENTS.ACTION_DELETE'), icon: '🗑️', type: 'delete' }
     ];
 
     ngOnInit() {
@@ -176,7 +178,10 @@ export class PaymentsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading payments:', err);
-                this.toastr.error(err.error?.message || 'Greška pri učitavanju plaćanja', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PAYMENTS.TOAST_LOAD_ERROR'),
+                    this.translate.instant('PAYMENTS.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -290,8 +295,8 @@ export class PaymentsComponent implements OnInit {
 
             if (invoice?.client.clientType === ClientType.foreign && !formValue.bankAccountId) {
                 this.toastr.error(
-                    'Strani klijent mora biti plaćen preko bankovnog računa',
-                    'Greška'
+                    this.translate.instant('PAYMENTS.TOAST_VALIDATION_FOREIGN_CLIENT'),
+                    this.translate.instant('PAYMENTS.TOAST_ERROR_TITLE')
                 );
                 return;
             }
@@ -300,12 +305,18 @@ export class PaymentsComponent implements OnInit {
         if (!editing && formValue.paymentType === PaymentType.ExpensePayment) {
 
             if (formValue.currency !== Currency.RSD) {
-                this.toastr.error('Troškovi se mogu plaćati samo u RSD', 'Greška');
+                this.toastr.error(
+                    this.translate.instant('PAYMENTS.TOAST_VALIDATION_EXPENSE_CURRENCY'),
+                    this.translate.instant('PAYMENTS.TOAST_ERROR_TITLE')
+                );
                 return;
             }
 
             if (!formValue.bankAccountId) {
-                this.toastr.error('Trošak mora biti plaćen preko bankovnog računa', 'Greška');
+                this.toastr.error(
+                    this.translate.instant('PAYMENTS.TOAST_VALIDATION_EXPENSE_BANK'),
+                    this.translate.instant('PAYMENTS.TOAST_ERROR_TITLE')
+                );
                 return;
             }
         }
@@ -313,12 +324,18 @@ export class PaymentsComponent implements OnInit {
         if (!editing && formValue.paymentType === PaymentType.TaxPayment) {
 
             if (formValue.currency !== Currency.RSD) {
-                this.toastr.error('Porez se može platiti samo u RSD', 'Greška');
+                this.toastr.error(
+                    this.translate.instant('PAYMENTS.TOAST_VALIDATION_TAX_CURRENCY'),
+                    this.translate.instant('PAYMENTS.TOAST_ERROR_TITLE')
+                );
                 return;
             }
 
             if (!formValue.bankAccountId) {
-                this.toastr.error('Porez mora biti plaćen preko bankovnog računa', 'Greška');
+                this.toastr.error(
+                    this.translate.instant('PAYMENTS.TOAST_VALIDATION_TAX_BANK'),
+                    this.translate.instant('PAYMENTS.TOAST_ERROR_TITLE')
+                );
                 return;
             }
         }
@@ -332,13 +349,19 @@ export class PaymentsComponent implements OnInit {
 
             this.paymentService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.toastr.success('Plaćanje uspešno ažurirano', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('PAYMENTS.TOAST_UPDATE_SUCCESS'),
+                        this.translate.instant('PAYMENTS.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadPayments();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating payment:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju plaćanja', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('PAYMENTS.TOAST_UPDATE_ERROR'),
+                        this.translate.instant('PAYMENTS.TOAST_ERROR_TITLE')
+                    );
                 }
             });
 
@@ -356,13 +379,19 @@ export class PaymentsComponent implements OnInit {
 
             this.paymentService.create(dto).subscribe({
                 next: () => {
-                    this.toastr.success('Plaćanje uspešno dodato', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('PAYMENTS.TOAST_CREATE_SUCCESS'),
+                        this.translate.instant('PAYMENTS.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadPayments();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating payment:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri dodavanju plaćanja', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('PAYMENTS.TOAST_CREATE_ERROR'),
+                        this.translate.instant('PAYMENTS.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         }
@@ -384,13 +413,19 @@ export class PaymentsComponent implements OnInit {
 
         this.paymentService.delete(payment.id).subscribe({
             next: () => {
-                this.toastr.success('Plaćanje uspešno obrisano', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('PAYMENTS.TOAST_DELETE_SUCCESS'),
+                    this.translate.instant('PAYMENTS.TOAST_SUCCESS_TITLE')
+                );
                 this.loadPayments();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting payment:', err);
-                this.toastr.error(err.error?.message || 'Greška pri brisanju plaćanja', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PAYMENTS.TOAST_DELETE_ERROR'),
+                    this.translate.instant('PAYMENTS.TOAST_ERROR_TITLE')
+                );
                 this.closeDeleteConfirm();
             }
         });
@@ -398,20 +433,20 @@ export class PaymentsComponent implements OnInit {
 
     getPaymentTypeName(type: PaymentType): string {
         switch (type) {
-            case PaymentType.InvoicePayment: return 'Plaćanje fakture';
-            case PaymentType.TaxPayment: return 'Plaćanje poreza';
-            case PaymentType.ExpensePayment: return 'Plaćanje troška';
-            default: return 'Nepoznato';
+            case PaymentType.InvoicePayment: return this.translate.instant('PAYMENTS.TYPE_INVOICE');
+            case PaymentType.TaxPayment: return this.translate.instant('PAYMENTS.TYPE_TAX');
+            case PaymentType.ExpensePayment: return this.translate.instant('PAYMENTS.TYPE_EXPENSE');
+            default: return this.translate.instant('PAYMENTS.TYPE_UNKNOWN');
         }
     }
 
     getTaxObligationTypeName(type: TaxObligationType): string {
         switch (type) {
-            case TaxObligationType.Health: return 'Zdravstvena obaveza';
-            case TaxObligationType.PIO: return 'PIO obaveza';
-            case TaxObligationType.VAT: return 'PDV obaveza';
-            case TaxObligationType.Unemployment: return 'Nezaposlenost obaveza';
-            default: return 'Nepoznata obaveza';
+            case TaxObligationType.Health: return this.translate.instant('PAYMENTS.TAX_TYPE_HEALTH');
+            case TaxObligationType.PIO: return this.translate.instant('PAYMENTS.TAX_TYPE_PIO');
+            case TaxObligationType.VAT: return this.translate.instant('PAYMENTS.TAX_TYPE_VAT');
+            case TaxObligationType.Unemployment: return this.translate.instant('PAYMENTS.TAX_TYPE_UNEMPLOYMENT');
+            default: return this.translate.instant('PAYMENTS.TAX_TYPE_UNKNOWN');
         }
     }
 
@@ -431,9 +466,12 @@ export class PaymentsComponent implements OnInit {
     }
 
     getEntityDisplay(payment: PaymentToReturnDto): string {
-        if (payment.invoice) return `Faktura #${payment.invoice.invoiceNumber}`;
-        if (payment.expense) return `Trošak: ${payment.expense.name}`;
-        if (payment.taxObligation) return `Porez: ${payment.taxObligation.month}/${payment.taxObligation.year}`;
+        if (payment.invoice) return this.translate.instant('PAYMENTS.ENTITY_INVOICE', { number: payment.invoice.invoiceNumber });
+        if (payment.expense) return this.translate.instant('PAYMENTS.ENTITY_EXPENSE', { name: payment.expense.name });
+        if (payment.taxObligation) return this.translate.instant('PAYMENTS.ENTITY_TAX', { 
+            month: payment.taxObligation.month, 
+            year: payment.taxObligation.year 
+        });
         return 'N/A';
     }
 
@@ -450,11 +488,24 @@ export class PaymentsComponent implements OnInit {
     getEntityLabel(entity: any): string {
         const paymentType = this.paymentForm.get('paymentType')?.value;
         if (paymentType === PaymentType.InvoicePayment) {
-            return `Faktura #${entity.invoiceNumber} - ${entity.client?.name || 'N/A'} - ${entity.amountToPay} ${this.getCurrencyLabel(entity.currency)}`;
+            return this.translate.instant('PAYMENTS.ENTITY_INVOICE_WITH_CLIENT', {
+                number: entity.invoiceNumber,
+                client: entity.client?.name || 'N/A',
+                amount: entity.amountToPay,
+                currency: this.getCurrencyLabel(entity.currency)
+            });
         } else if (paymentType === PaymentType.ExpensePayment) {
-            return `${entity.name} - ${entity.amount} RSD`;
+            return this.translate.instant('PAYMENTS.ENTITY_EXPENSE_WITH_AMOUNT', {
+                name: entity.name,
+                amount: entity.amount
+            });
         } else if (paymentType === PaymentType.TaxPayment) {
-            return `${this.getTaxObligationTypeName(entity.type)} (${entity.month}/${entity.year}) - ${entity.totalAmount} RSD`;
+            return this.translate.instant('PAYMENTS.ENTITY_TAX_WITH_TYPE', {
+                type: this.getTaxObligationTypeName(entity.type),
+                month: entity.month,
+                year: entity.year,
+                amount: entity.totalAmount
+            });
         }
         return 'N/A';
     }

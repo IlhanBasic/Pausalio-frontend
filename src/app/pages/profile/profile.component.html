@@ -26,15 +26,15 @@
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </div>
-                <h3>Lični Podaci</h3>
-                <p>Ažurirajte svoje lične informacije i profilnu sliku</p>
+                <h3>{{ 'PROFILE.CARDS.PERSONAL.TITLE' | translate }}</h3>
+                <p>{{ 'PROFILE.CARDS.PERSONAL.DESCRIPTION' | translate }}</p>
                 <button class="card-button" (click)="openUserEditModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                     </svg>
-                    Izmeni Profil
+                    {{ 'PROFILE.CARDS.PERSONAL.BUTTON' | translate }}
                 </button>
             </div>
 
@@ -47,14 +47,14 @@
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
                 </div>
-                <h3>Bezbednost</h3>
-                <p>Promenite lozinku za bolju zaštitu naloga</p>
+                <h3>{{ 'PROFILE.CARDS.SECURITY.TITLE' | translate }}</h3>
+                <p>{{ 'PROFILE.CARDS.SECURITY.DESCRIPTION' | translate }}</p>
                 <button class="card-button" (click)="openPasswordModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                     </svg>
-                    Promeni Lozinku
+                    {{ 'PROFILE.CARDS.SECURITY.BUTTON' | translate }}
                 </button>
             </div>
 
@@ -68,15 +68,15 @@
                             <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
                     </div>
-                    <h3>Profil Firme</h3>
-                    <p>Upravljajte podacima o vašoj kompaniji</p>
+                    <h3>{{ 'PROFILE.CARDS.BUSINESS.TITLE' | translate }}</h3>
+                    <p>{{ 'PROFILE.CARDS.BUSINESS.DESCRIPTION' | translate }}</p>
                     <button class="card-button" (click)="openBusinessEditModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
-                        Izmeni Firmu
+                        {{ 'PROFILE.CARDS.BUSINESS.BUTTON' | translate }}
                     </button>
                 </div>
             }
@@ -93,8 +93,8 @@
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                     </div>
-                    <h3>Tim</h3>
-                    <p>Pozovite asistente da se pridruže vašoj kompaniji</p>
+                    <h3>{{ 'PROFILE.CARDS.TEAM.TITLE' | translate }}</h3>
+                    <p>{{ 'PROFILE.CARDS.TEAM.DESCRIPTION' | translate }}</p>
                     <button class="card-button" (click)="openInviteModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2">
@@ -103,7 +103,7 @@
                             <line x1="20" y1="8" x2="20" y2="14"></line>
                             <line x1="23" y1="11" x2="17" y2="11"></line>
                         </svg>
-                        Pozovi Asistenta
+                        {{ 'PROFILE.CARDS.TEAM.BUTTON' | translate }}
                     </button>
                 </div>
             }
@@ -119,15 +119,15 @@
                             <polyline points="17 11 19 13 23 9"></polyline>
                         </svg>
                     </div>
-                    <h3>Pridruži Se Kompaniji</h3>
-                    <p>Unesite invite token iz email-a da se pridružite kompaniji</p>
+                    <h3>{{ 'PROFILE.CARDS.JOIN.TITLE' | translate }}</h3>
+                    <p>{{ 'PROFILE.CARDS.JOIN.DESCRIPTION' | translate }}</p>
                     <button class="card-button" (click)="openAcceptInviteModal()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2">
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                         </svg>
-                        Prihvati Pozivnicu
+                        {{ 'PROFILE.CARDS.JOIN.BUTTON' | translate }}
                     </button>
                 </div>
             }
@@ -139,7 +139,7 @@
 @if (isLoadingProfile()) {
     <div class="loading-container">
         <div class="spinner-large"></div>
-        <p>Učitavanje profila...</p>
+        <p>{{ 'PROFILE.LOADING' | translate }}</p>
     </div>
 }
 
@@ -148,7 +148,7 @@
     <div class="modal-overlay" (click)="closePasswordModal()">
         <div class="modal-content" (click)="$event.stopPropagation()">
             <div class="modal-header">
-                <h2>Promena Lozinke</h2>
+                <h2>{{ 'PROFILE.MODALS.PASSWORD.TITLE' | translate }}</h2>
                 <button class="modal-close" (click)="closePasswordModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
@@ -160,10 +160,10 @@
             <div class="modal-body">
                 <form [formGroup]="changePasswordForm" (ngSubmit)="onSubmitPasswordChange()">
                     <div class="form-group">
-                        <label>Trenutna lozinka</label>
+                        <label>{{ 'PROFILE.MODALS.PASSWORD.OLD_PASSWORD' | translate }}</label>
                         <div class="password-input-wrapper">
                             <input [type]="showOldPassword() ? 'text' : 'password'" formControlName="oldPassword"
-                                placeholder="Unesite trenutnu lozinku">
+                                [placeholder]="'PROFILE.MODALS.PASSWORD.OLD_PASSWORD_PLACEHOLDER' | translate">
                             <button type="button" class="password-toggle" (click)="toggleVisibility('old')">
                                 @if (!showOldPassword()) {
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -182,15 +182,15 @@
                             </button>
                         </div>
                         @if (changePasswordForm.get('oldPassword')?.touched && changePasswordForm.get('oldPassword')?.invalid) {
-                            <div class="error">Obavezno polje</div>
+                            <div class="error">{{ 'PROFILE.MODALS.PASSWORD.ERROR_REQUIRED' | translate }}</div>
                         }
                     </div>
 
                     <div class="form-group">
-                        <label>Nova lozinka</label>
+                        <label>{{ 'PROFILE.MODALS.PASSWORD.NEW_PASSWORD' | translate }}</label>
                         <div class="password-input-wrapper">
                             <input [type]="showNewPassword() ? 'text' : 'password'" formControlName="newPassword"
-                                placeholder="Unesite novu lozinku">
+                                [placeholder]="'PROFILE.MODALS.PASSWORD.NEW_PASSWORD_PLACEHOLDER' | translate">
                             <button type="button" class="password-toggle" (click)="toggleVisibility('new')">
                                 @if (!showNewPassword()) {
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -209,15 +209,15 @@
                             </button>
                         </div>
                         @if (changePasswordForm.get('newPassword')?.touched && changePasswordForm.get('newPassword')?.errors?.['pattern']) {
-                            <div class="error">Min 8 karaktera, 1 veliko, 1 malo slovo, 1 broj, 1 spec. znak</div>
+                            <div class="error">{{ 'PROFILE.MODALS.PASSWORD.ERROR_PATTERN' | translate }}</div>
                         }
                     </div>
 
                     <div class="form-group">
-                        <label>Potvrdi novu lozinku</label>
+                        <label>{{ 'PROFILE.MODALS.PASSWORD.CONFIRM_PASSWORD' | translate }}</label>
                         <div class="password-input-wrapper">
                             <input [type]="showConfirmPassword() ? 'text' : 'password'" formControlName="confirmPassword"
-                                placeholder="Potvrdite novu lozinku">
+                                [placeholder]="'PROFILE.MODALS.PASSWORD.CONFIRM_PASSWORD_PLACEHOLDER' | translate">
                             <button type="button" class="password-toggle" (click)="toggleVisibility('confirm')">
                                 @if (!showConfirmPassword()) {
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
@@ -236,15 +236,15 @@
                             </button>
                         </div>
                         @if (changePasswordForm.hasError('mismatch') && changePasswordForm.get('confirmPassword')?.touched) {
-                            <div class="error">Lozinke se ne poklapaju</div>
+                            <div class="error">{{ 'PROFILE.MODALS.PASSWORD.ERROR_MISMATCH' | translate }}</div>
                         }
                     </div>
 
                     <div class="modal-actions">
-                        <button type="button" class="btn-secondary" (click)="closePasswordModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closePasswordModal()">{{ 'PROFILE.MODALS.PASSWORD.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="changePasswordForm.invalid || isLoading()">
                             @if (isLoading()) { <span class="spinner"></span> }
-                            <span>{{ isLoading() ? 'Čuvanje...' : 'Sačuvaj' }}</span>
+                            <span>{{ isLoading() ? ('PROFILE.MODALS.PASSWORD.BTN_SAVING' | translate) : ('PROFILE.MODALS.PASSWORD.BTN_SAVE' | translate) }}</span>
                         </button>
                     </div>
                 </form>
@@ -258,7 +258,7 @@
     <div class="modal-overlay" (click)="closeUserEditModal()">
         <div class="modal-content" (click)="$event.stopPropagation()">
             <div class="modal-header">
-                <h2>Izmeni Korisnički Profil</h2>
+                <h2>{{ 'PROFILE.MODALS.USER_EDIT.TITLE' | translate }}</h2>
                 <button class="modal-close" (click)="closeUserEditModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
@@ -270,7 +270,7 @@
             <div class="modal-body">
                 <form [formGroup]="userProfileForm" (ngSubmit)="onSubmitUserProfile()">
                     <div class="image-upload-section">
-                        <label>Profilna Slika</label>
+                        <label>{{ 'PROFILE.MODALS.USER_EDIT.PROFILE_PICTURE' | translate }}</label>
                         <div class="image-upload-container">
                             @if (profilePicturePreview()) {
                                 <div class="image-preview">
@@ -292,7 +292,7 @@
                                         <polyline points="17 8 12 3 7 8"></polyline>
                                         <line x1="12" y1="3" x2="12" y2="15"></line>
                                     </svg>
-                                    <span>Upload Sliku</span>
+                                    <span>{{ 'PROFILE.MODALS.USER_EDIT.UPLOAD_BTN' | translate }}</span>
                                     <input type="file" accept="image/*" (change)="onProfilePictureSelect($event)" hidden>
                                 </label>
                             }
@@ -301,42 +301,42 @@
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Ime *</label>
-                            <input type="text" formControlName="firstName" placeholder="Unesite ime">
+                            <label>{{ 'PROFILE.MODALS.USER_EDIT.FIRST_NAME' | translate }}</label>
+                            <input type="text" formControlName="firstName" [placeholder]="'PROFILE.MODALS.USER_EDIT.FIRST_NAME_PLACEHOLDER' | translate">
                             @if (userProfileForm.get('firstName')?.touched && userProfileForm.get('firstName')?.invalid) {
-                                <div class="error">Obavezno polje</div>
+                                <div class="error">{{ 'PROFILE.MODALS.USER_EDIT.FIRST_NAME_ERROR' | translate }}</div>
                             }
                         </div>
                         <div class="form-group">
-                            <label>Prezime *</label>
-                            <input type="text" formControlName="lastName" placeholder="Unesite prezime">
+                            <label>{{ 'PROFILE.MODALS.USER_EDIT.LAST_NAME' | translate }}</label>
+                            <input type="text" formControlName="lastName" [placeholder]="'PROFILE.MODALS.USER_EDIT.LAST_NAME_PLACEHOLDER' | translate">
                             @if (userProfileForm.get('lastName')?.touched && userProfileForm.get('lastName')?.invalid) {
-                                <div class="error">Obavezno polje</div>
+                                <div class="error">{{ 'PROFILE.MODALS.USER_EDIT.LAST_NAME_ERROR' | translate }}</div>
                             }
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Telefon</label>
-                            <input type="tel" formControlName="phone" placeholder="Unesite telefon">
+                            <label>{{ 'PROFILE.MODALS.USER_EDIT.PHONE' | translate }}</label>
+                            <input type="tel" formControlName="phone" [placeholder]="'PROFILE.MODALS.USER_EDIT.PHONE_PLACEHOLDER' | translate">
                         </div>
                         <div class="form-group">
-                            <label>Grad</label>
-                            <input type="text" formControlName="city" placeholder="Unesite grad">
+                            <label>{{ 'PROFILE.MODALS.USER_EDIT.CITY' | translate }}</label>
+                            <input type="text" formControlName="city" [placeholder]="'PROFILE.MODALS.USER_EDIT.CITY_PLACEHOLDER' | translate">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Adresa</label>
-                        <input type="text" formControlName="address" placeholder="Unesite adresu">
+                        <label>{{ 'PROFILE.MODALS.USER_EDIT.ADDRESS' | translate }}</label>
+                        <input type="text" formControlName="address" [placeholder]="'PROFILE.MODALS.USER_EDIT.ADDRESS_PLACEHOLDER' | translate">
                     </div>
 
                     <div class="modal-actions">
-                        <button type="button" class="btn-secondary" (click)="closeUserEditModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeUserEditModal()">{{ 'PROFILE.MODALS.USER_EDIT.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="userProfileForm.invalid || isLoading()">
                             @if (isLoading()) { <span class="spinner"></span> }
-                            <span>{{ isLoading() ? 'Čuvanje...' : 'Sačuvaj' }}</span>
+                            <span>{{ isLoading() ? ('PROFILE.MODALS.USER_EDIT.BTN_SAVING' | translate) : ('PROFILE.MODALS.USER_EDIT.BTN_SAVE' | translate) }}</span>
                         </button>
                     </div>
                 </form>
@@ -350,7 +350,7 @@
     <div class="modal-overlay" (click)="closeBusinessEditModal()">
         <div class="modal-content modal-large" (click)="$event.stopPropagation()">
             <div class="modal-header">
-                <h2>Izmeni Profil Firme</h2>
+                <h2>{{ 'PROFILE.MODALS.BUSINESS_EDIT.TITLE' | translate }}</h2>
                 <button class="modal-close" (click)="closeBusinessEditModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
@@ -362,7 +362,7 @@
             <div class="modal-body">
                 <form [formGroup]="businessProfileForm" (ngSubmit)="onSubmitBusinessProfile()">
                     <div class="image-upload-section">
-                        <label>Logo Firme</label>
+                        <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.LOGO' | translate }}</label>
                         <div class="image-upload-container">
                             @if (companyLogoPreview()) {
                                 <div class="image-preview">
@@ -384,7 +384,7 @@
                                         <polyline points="17 8 12 3 7 8"></polyline>
                                         <line x1="12" y1="3" x2="12" y2="15"></line>
                                     </svg>
-                                    <span>Upload Logo</span>
+                                    <span>{{ 'PROFILE.MODALS.BUSINESS_EDIT.UPLOAD_BTN' | translate }}</span>
                                     <input type="file" accept="image/*" (change)="onCompanyLogoSelect($event)" hidden>
                                 </label>
                             }
@@ -392,78 +392,78 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Naziv firme *</label>
-                        <input type="text" formControlName="businessName" placeholder="Unesite naziv firme">
+                        <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.BUSINESS_NAME' | translate }}</label>
+                        <input type="text" formControlName="businessName" [placeholder]="'PROFILE.MODALS.BUSINESS_EDIT.BUSINESS_NAME_PLACEHOLDER' | translate">
                         @if (businessProfileForm.get('businessName')?.touched && businessProfileForm.get('businessName')?.invalid) {
-                            <div class="error">Obavezno polje</div>
+                            <div class="error">{{ 'PROFILE.MODALS.BUSINESS_EDIT.BUSINESS_NAME_ERROR' | translate }}</div>
                         }
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>PIB *</label>
-                            <input type="text" formControlName="PIB" placeholder="Unesite PIB">
+                            <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.PIB' | translate }}</label>
+                            <input type="text" formControlName="PIB" [placeholder]="'PROFILE.MODALS.BUSINESS_EDIT.PIB_PLACEHOLDER' | translate">
                             @if (businessProfileForm.get('PIB')?.touched && businessProfileForm.get('PIB')?.invalid) {
-                                <div class="error">Obavezno polje</div>
+                                <div class="error">{{ 'PROFILE.MODALS.BUSINESS_EDIT.PIB_ERROR' | translate }}</div>
                             }
                         </div>
                         <div class="form-group">
-                            <label>MB</label>
-                            <input type="text" formControlName="MB" placeholder="Unesite MB">
+                            <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.MB' | translate }}</label>
+                            <input type="text" formControlName="MB" [placeholder]="'PROFILE.MODALS.BUSINESS_EDIT.MB_PLACEHOLDER' | translate">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Šifra delatnosti *</label>
+                        <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.ACTIVITY_CODE' | translate }}</label>
                         <select formControlName="activityCodeId">
-                            <option value="">Izaberite šifru delatnosti</option>
+                            <option value="">{{ 'PROFILE.MODALS.BUSINESS_EDIT.ACTIVITY_CODE_PLACEHOLDER' | translate }}</option>
                             @for (code of activityCodes(); track code.id) {
                                 <option [value]="code.id">{{ code.code }} - {{ code.description }}</option>
                             }
                         </select>
                         @if (businessProfileForm.get('activityCodeId')?.touched && businessProfileForm.get('activityCodeId')?.invalid) {
-                            <div class="error">Obavezno polje</div>
+                            <div class="error">{{ 'PROFILE.MODALS.BUSINESS_EDIT.ACTIVITY_CODE_ERROR' | translate }}</div>
                         }
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Email *</label>
-                            <input type="email" formControlName="email" placeholder="Unesite email">
+                            <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.EMAIL' | translate }}</label>
+                            <input type="email" formControlName="email" [placeholder]="'PROFILE.MODALS.BUSINESS_EDIT.EMAIL_PLACEHOLDER' | translate">
                             @if (businessProfileForm.get('email')?.touched && businessProfileForm.get('email')?.invalid) {
-                                <div class="error">Unesite validnu email adresu</div>
+                                <div class="error">{{ 'PROFILE.MODALS.BUSINESS_EDIT.EMAIL_ERROR' | translate }}</div>
                             }
                         </div>
                         <div class="form-group">
-                            <label>Telefon</label>
-                            <input type="text" formControlName="phone" placeholder="Unesite telefon">
+                            <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.PHONE' | translate }}</label>
+                            <input type="text" formControlName="phone" [placeholder]="'PROFILE.MODALS.BUSINESS_EDIT.PHONE_PLACEHOLDER' | translate">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Grad</label>
-                            <input type="text" formControlName="city" placeholder="Unesite grad">
+                            <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.CITY' | translate }}</label>
+                            <input type="text" formControlName="city" [placeholder]="'PROFILE.MODALS.BUSINESS_EDIT.CITY_PLACEHOLDER' | translate">
                         </div>
                         <div class="form-group">
-                            <label>Adresa *</label>
-                            <input type="text" formControlName="address" placeholder="Unesite adresu">
+                            <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.ADDRESS' | translate }}</label>
+                            <input type="text" formControlName="address" [placeholder]="'PROFILE.MODALS.BUSINESS_EDIT.ADDRESS_PLACEHOLDER' | translate">
                             @if (businessProfileForm.get('address')?.touched && businessProfileForm.get('address')?.invalid) {
-                                <div class="error">Obavezno polje</div>
+                                <div class="error">{{ 'PROFILE.MODALS.BUSINESS_EDIT.ADDRESS_ERROR' | translate }}</div>
                             }
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Website</label>
-                        <input type="text" formControlName="website" placeholder="Unesite website">
+                        <label>{{ 'PROFILE.MODALS.BUSINESS_EDIT.WEBSITE' | translate }}</label>
+                        <input type="text" formControlName="website" [placeholder]="'PROFILE.MODALS.BUSINESS_EDIT.WEBSITE_PLACEHOLDER' | translate">
                     </div>
 
                     <div class="modal-actions">
-                        <button type="button" class="btn-secondary" (click)="closeBusinessEditModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeBusinessEditModal()">{{ 'PROFILE.MODALS.BUSINESS_EDIT.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="businessProfileForm.invalid || isLoading()">
                             @if (isLoading()) { <span class="spinner"></span> }
-                            <span>{{ isLoading() ? 'Čuvanje...' : 'Sačuvaj' }}</span>
+                            <span>{{ isLoading() ? ('PROFILE.MODALS.BUSINESS_EDIT.BTN_SAVING' | translate) : ('PROFILE.MODALS.BUSINESS_EDIT.BTN_SAVE' | translate) }}</span>
                         </button>
                     </div>
                 </form>
@@ -477,7 +477,7 @@
     <div class="modal-overlay" (click)="closeInviteModal()">
         <div class="modal-content modal-small" (click)="$event.stopPropagation()">
             <div class="modal-header">
-                <h2>Pozovi Asistenta</h2>
+                <h2>{{ 'PROFILE.MODALS.INVITE.TITLE' | translate }}</h2>
                 <button class="modal-close" (click)="closeInviteModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
@@ -487,21 +487,21 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="invite-description">Unesite email adresu osobe koju želite da pozovete da postane asistent u vašoj kompaniji.</p>
+                <p class="invite-description">{{ 'PROFILE.MODALS.INVITE.DESCRIPTION' | translate }}</p>
                 <form [formGroup]="inviteForm" (ngSubmit)="onSubmitInvite()">
                     <div class="form-group">
-                        <label>Email Adresa *</label>
-                        <input type="email" formControlName="email" placeholder="primer@email.com">
+                        <label>{{ 'PROFILE.MODALS.INVITE.EMAIL' | translate }}</label>
+                        <input type="email" formControlName="email" [placeholder]="'PROFILE.MODALS.INVITE.EMAIL_PLACEHOLDER' | translate">
                         @if (inviteForm.get('email')?.touched && inviteForm.get('email')?.invalid) {
-                            <div class="error">Unesite validnu email adresu</div>
+                            <div class="error">{{ 'PROFILE.MODALS.INVITE.EMAIL_ERROR' | translate }}</div>
                         }
                     </div>
 
                     <div class="modal-actions">
-                        <button type="button" class="btn-secondary" (click)="closeInviteModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeInviteModal()">{{ 'PROFILE.MODALS.INVITE.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="inviteForm.invalid || isLoading()">
                             @if (isLoading()) { <span class="spinner"></span> }
-                            <span>{{ isLoading() ? 'Slanje...' : 'Pošalji Pozivnicu' }}</span>
+                            <span>{{ isLoading() ? ('PROFILE.MODALS.INVITE.BTN_SENDING' | translate) : ('PROFILE.MODALS.INVITE.BTN_SEND' | translate) }}</span>
                         </button>
                     </div>
                 </form>
@@ -515,7 +515,7 @@
     <div class="modal-overlay" (click)="closeAcceptInviteModal()">
         <div class="modal-content modal-small" (click)="$event.stopPropagation()">
             <div class="modal-header">
-                <h2>Prihvati Pozivnicu</h2>
+                <h2>{{ 'PROFILE.MODALS.ACCEPT_INVITE.TITLE' | translate }}</h2>
                 <button class="modal-close" (click)="closeAcceptInviteModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2">
@@ -525,21 +525,21 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="invite-description">Unesite invite token koji ste dobili na email da biste se pridružili kompaniji.</p>
+                <p class="invite-description">{{ 'PROFILE.MODALS.ACCEPT_INVITE.DESCRIPTION' | translate }}</p>
                 <form [formGroup]="acceptInviteForm" (ngSubmit)="onSubmitAcceptInvite()">
                     <div class="form-group">
-                        <label>Invite Token *</label>
-                        <input type="text" formControlName="inviteToken" placeholder="Nalepite token ovde">
+                        <label>{{ 'PROFILE.MODALS.ACCEPT_INVITE.TOKEN' | translate }}</label>
+                        <input type="text" formControlName="inviteToken" [placeholder]="'PROFILE.MODALS.ACCEPT_INVITE.TOKEN_PLACEHOLDER' | translate">
                         @if (acceptInviteForm.get('inviteToken')?.touched && acceptInviteForm.get('inviteToken')?.invalid) {
-                            <div class="error">Token je obavezan</div>
+                            <div class="error">{{ 'PROFILE.MODALS.ACCEPT_INVITE.TOKEN_ERROR' | translate }}</div>
                         }
                     </div>
 
                     <div class="modal-actions">
-                        <button type="button" class="btn-secondary" (click)="closeAcceptInviteModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeAcceptInviteModal()">{{ 'PROFILE.MODALS.ACCEPT_INVITE.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="acceptInviteForm.invalid || isLoading()">
                             @if (isLoading()) { <span class="spinner"></span> }
-                            <span>{{ isLoading() ? 'Pridruživanje...' : 'Pridruži Se' }}</span>
+                            <span>{{ isLoading() ? ('PROFILE.MODALS.ACCEPT_INVITE.BTN_JOINING' | translate) : ('PROFILE.MODALS.ACCEPT_INVITE.BTN_JOIN' | translate) }}</span>
                         </button>
                     </div>
                 </form>

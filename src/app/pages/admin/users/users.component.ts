@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserProfileService } from '../../../services/user-profile.service';
 import { AuthService } from '../../../services/auth.service';
 import { UserProfileToReturnDto } from '../../../models/user-profile';
@@ -15,7 +16,7 @@ import { UserRole } from '../../../enums/user-role';
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })
@@ -24,12 +25,15 @@ export class UsersComponent implements OnInit {
   authService = inject(AuthService);
   fb = inject(FormBuilder);
   toastr = inject(ToastrService);
+  translate = inject(TranslateService);
+  
   isSubmitting = signal(false);
   showPassword = signal(false);
 
   togglePasswordVisibility() {
     this.showPassword.set(!this.showPassword());
   }
+  
   users = signal<any[]>([]);
   isLoading = signal(false);
   showDeleteConfirm = signal(false);
@@ -37,26 +41,26 @@ export class UsersComponent implements OnInit {
   deletingUser = signal<UserProfileToReturnDto | null>(null);
 
   columns: TableColumn[] = [
-    { key: 'fullName', label: 'Ime i prezime', sortable: true },
-    { key: 'email', label: 'Email', sortable: true },
-    { key: 'roleDisplay', label: 'Uloga', sortable: true },
-    { key: 'statusDisplay', label: 'Status', sortable: false },
+    { key: 'fullName', label: 'USERS.COLUMN_FULL_NAME', sortable: true },
+    { key: 'email', label: 'USERS.COLUMN_EMAIL', sortable: true },
+    { key: 'roleDisplay', label: 'USERS.COLUMN_ROLE', sortable: true },
+    { key: 'statusDisplay', label: 'USERS.COLUMN_STATUS', sortable: false },
   ];
 
   actions: TableAction[] = [
     {
-      label: 'Aktiviraj',
+      label: this.translate.instant('USERS.ACTION_ACTIVATE'),
       icon: '✅',
       type: 'custom',
       showCondition: (user: UserProfileToReturnDto) => !user.isActive,
     },
     {
-      label: 'Deaktiviraj',
+      label: this.translate.instant('USERS.ACTION_DEACTIVATE'),
       icon: '⛔',
       type: 'custom',
       showCondition: (user: UserProfileToReturnDto) => user.isActive,
     },
-    { label: 'Obriši', icon: '🗑️', type: 'delete' },
+    { label: this.translate.instant('USERS.ACTION_DELETE'), icon: '🗑️', type: 'delete' },
   ];
 
   addAdminForm: FormGroup = this.fb.group({
@@ -80,14 +84,19 @@ export class UsersComponent implements OnInit {
           ...user,
           fullName: `${user.firstName} ${user.lastName}`,
           roleDisplay: this.getRoleDisplay(user.role),
-          statusDisplay: user.isActive ? 'Aktivan' : 'Neaktivan',
+          statusDisplay: user.isActive 
+            ? this.translate.instant('USERS.STATUS_ACTIVE')
+            : this.translate.instant('USERS.STATUS_INACTIVE'),
         }));
         this.users.set(transformedData);
         this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error loading users:', err);
-        this.toastr.error(err.error?.message || 'Greška pri učitavanju korisnika', 'Greška');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('USERS.TOAST_LOAD_ERROR'),
+          this.translate.instant('USERS.TOAST_ERROR_TITLE')
+        );
         this.isLoading.set(false);
       },
     });
@@ -122,13 +131,19 @@ export class UsersComponent implements OnInit {
 
     this.authService.registerAdmin(dto).subscribe({
       next: () => {
-        this.toastr.success('Administrator uspešno dodat', 'Uspeh');
+        this.toastr.success(
+          this.translate.instant('USERS.TOAST_CREATE_SUCCESS'),
+          this.translate.instant('USERS.TOAST_SUCCESS_TITLE')
+        );
         this.loadUsers();
         this.closeAddModal();
         this.isSubmitting.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Greška pri dodavanju administratora', 'Greška');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('USERS.TOAST_CREATE_ERROR'),
+          this.translate.instant('USERS.TOAST_ERROR_TITLE')
+        );
         this.isSubmitting.set(false);
       },
     });
@@ -137,11 +152,17 @@ export class UsersComponent implements OnInit {
   handleActivate(user: UserProfileToReturnDto) {
     this.userProfileService.activateUser(user.id).subscribe({
       next: () => {
-        this.toastr.success('Korisnik aktiviran', 'Uspeh');
+        this.toastr.success(
+          this.translate.instant('USERS.TOAST_ACTIVATE_SUCCESS'),
+          this.translate.instant('USERS.TOAST_SUCCESS_TITLE')
+        );
         this.loadUsers();
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Greška pri aktivaciji', 'Greška');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('USERS.TOAST_ACTIVATE_ERROR'),
+          this.translate.instant('USERS.TOAST_ERROR_TITLE')
+        );
       },
     });
   }
@@ -149,26 +170,31 @@ export class UsersComponent implements OnInit {
   handleDeactivate(user: UserProfileToReturnDto) {
     this.userProfileService.deactivateUser(user.id).subscribe({
       next: () => {
-        this.toastr.success('Korisnik deaktiviran', 'Uspeh');
+        this.toastr.success(
+          this.translate.instant('USERS.TOAST_DEACTIVATE_SUCCESS'),
+          this.translate.instant('USERS.TOAST_SUCCESS_TITLE')
+        );
         this.loadUsers();
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Greška pri deaktivaciji', 'Greška');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('USERS.TOAST_DEACTIVATE_ERROR'),
+          this.translate.instant('USERS.TOAST_ERROR_TITLE')
+        );
       },
     });
   }
 
   onAction(event: { action: string; item: UserProfileToReturnDto }) {
-    switch (event.action) {
-      case 'Aktiviraj':
-        this.handleActivate(event.item);
-        break;
-      case 'Deaktiviraj':
-        this.handleDeactivate(event.item);
-        break;
-      case 'Obriši':
-        this.openDeleteConfirm(event.item);
-        break;
+    const actionMap: { [key: string]: () => void } = {
+      [this.translate.instant('USERS.ACTION_ACTIVATE')]: () => this.handleActivate(event.item),
+      [this.translate.instant('USERS.ACTION_DEACTIVATE')]: () => this.handleDeactivate(event.item),
+      [this.translate.instant('USERS.ACTION_DELETE')]: () => this.openDeleteConfirm(event.item),
+    };
+    
+    const action = actionMap[event.action];
+    if (action) {
+      action();
     }
   }
 
@@ -188,12 +214,18 @@ export class UsersComponent implements OnInit {
 
     this.userProfileService.deleteProfile(user.id).subscribe({
       next: () => {
-        this.toastr.success('Korisnik uspešno obrisan', 'Uspeh');
+        this.toastr.success(
+          this.translate.instant('USERS.TOAST_DELETE_SUCCESS'),
+          this.translate.instant('USERS.TOAST_SUCCESS_TITLE')
+        );
         this.loadUsers();
         this.closeDeleteConfirm();
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Greška pri brisanju korisnika', 'Greška');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('USERS.TOAST_DELETE_ERROR'),
+          this.translate.instant('USERS.TOAST_ERROR_TITLE')
+        );
         this.closeDeleteConfirm();
       },
     });
@@ -202,11 +234,11 @@ export class UsersComponent implements OnInit {
   getRoleDisplay(role: UserRole): string {
     switch (role) {
       case UserRole.RegularUser:
-        return 'Korisnik';
+        return this.translate.instant('USERS.ROLE_USER');
       case UserRole.Admin:
-        return 'Administrator';
+        return this.translate.instant('USERS.ROLE_ADMIN');
       default:
-        return 'Nepoznato';
+        return this.translate.instant('USERS.ROLE_UNKNOWN');
     }
   }
 }

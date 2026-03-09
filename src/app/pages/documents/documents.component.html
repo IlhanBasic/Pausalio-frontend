@@ -1,8 +1,8 @@
 <div class="documents-page">
   <div class="page-header">
     <div class="header-content">
-      <h1>Dokumentacija</h1>
-      <p class="subtitle">Upravljajte dokumentima koje koristite</p>
+      <h1>{{ 'DOCUMENTS.TITLE' | translate }}</h1>
+      <p class="subtitle">{{ 'DOCUMENTS.SUBTITLE' | translate }}</p>
     </div>
     <button class="btn-primary" (click)="openAddModal()">
       <span class="btn-icon">
@@ -21,7 +21,7 @@
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </span>
-      Dodaj dokument
+      {{ 'DOCUMENTS.ADD_BTN' | translate }}
     </button>
   </div>
 
@@ -29,8 +29,8 @@
     [columns]="columns"
     [data]="documents()"
     [actions]="actions"
-    searchPlaceholder="Pretraži dokumente..."
-    emptyMessage="Nema dokumenata za prikaz. Dodajte prvi dokument!"
+    [searchPlaceholder]="'DOCUMENTS.SEARCH_PLACEHOLDER' | translate"
+    [emptyMessage]="'DOCUMENTS.EMPTY_MESSAGE' | translate"
     (onEdit)="openEditModal($event)"
     (onDelete)="openDeleteConfirm($event)"
   >
@@ -41,45 +41,45 @@
     <div class="modal-overlay" (click)="closeModal()">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>{{ editingDocument() ? 'Izmeni dokument' : 'Dodaj novi dokument' }}</h2>
+          <h2>{{ editingDocument() ? ('DOCUMENTS.MODAL_EDIT_TITLE' | translate) : ('DOCUMENTS.MODAL_ADD_TITLE' | translate) }}</h2>
           <button class="close-btn" (click)="closeModal()">✕</button>
         </div>
 
         <form [formGroup]="documentForm" (ngSubmit)="onSubmit()">
           <div class="modal-body">
             <div class="form-group">
-              <label>Tip dokumenta *</label>
+              <label>{{ 'DOCUMENTS.FIELD_DOCUMENT_TYPE' | translate }}</label>
               <select formControlName="documentType">
-                <option value="">Izaberite tip</option>
-                <option [value]="DocumentType.tax">Poreski</option>
-                <option [value]="DocumentType.expense">Trošak</option>
-                <option [value]="DocumentType.invoice">Faktura</option>
-                <option [value]="DocumentType.payment">Plaćanje</option>
-                <option [value]="DocumentType.other">Ostalo</option>
+                <option value="">{{ 'DOCUMENTS.FIELD_DOCUMENT_TYPE_PLACEHOLDER' | translate }}</option>
+                <option [value]="DocumentType.tax">{{ 'DOCUMENTS.TYPE_TAX' | translate }}</option>
+                <option [value]="DocumentType.expense">{{ 'DOCUMENTS.TYPE_EXPENSE' | translate }}</option>
+                <option [value]="DocumentType.invoice">{{ 'DOCUMENTS.TYPE_INVOICE' | translate }}</option>
+                <option [value]="DocumentType.payment">{{ 'DOCUMENTS.TYPE_PAYMENT' | translate }}</option>
+                <option [value]="DocumentType.other">{{ 'DOCUMENTS.TYPE_OTHER' | translate }}</option>
               </select>
               @if (
                 documentForm.get('documentType')?.touched &&
                 documentForm.get('documentType')?.invalid
               ) {
-                <div class="error">Tip dokumenta je obavezan</div>
+                <div class="error">{{ 'DOCUMENTS.FIELD_DOCUMENT_TYPE_ERROR' | translate }}</div>
               }
             </div>
 
             <div class="form-group">
-              <label>Broj dokumenta *</label>
-              <input type="text" formControlName="documentNumber" placeholder="npr. DOC-2024-001" />
+              <label>{{ 'DOCUMENTS.FIELD_DOCUMENT_NUMBER' | translate }}</label>
+              <input type="text" formControlName="documentNumber" [placeholder]="'DOCUMENTS.FIELD_DOCUMENT_NUMBER_PLACEHOLDER' | translate" />
               @if (
                 documentForm.get('documentNumber')?.touched &&
                 documentForm.get('documentNumber')?.invalid
               ) {
-                <div class="error">Broj dokumenta je obavezan</div>
+                <div class="error">{{ 'DOCUMENTS.FIELD_DOCUMENT_NUMBER_ERROR' | translate }}</div>
               }
             </div>
 
             <div class="form-group file-upload">
-              <label
-                >Fajl {{ editingDocument() ? '(ostavi prazno da zadržiš postojeći)' : '*' }}</label
-              >
+              <label>
+                {{ 'DOCUMENTS.FIELD_FILE' | translate:{ keepHint: editingDocument() ? ('DOCUMENTS.FIELD_FILE_KEEP_HINT' | translate) : '' } }}
+              </label>
               <div class="file-input-wrapper">
                 <input type="file" id="documentFile" (change)="onFileSelect($event)" />
                 <label for="documentFile" class="file-label">
@@ -102,9 +102,9 @@
                   @if (selectedFile()) {
                     {{ selectedFile()!.name }}
                   } @else if (editingDocument()?.filePath) {
-                    Izaberi novi fajl
+                    {{ 'DOCUMENTS.FILE_CHOOSE_NEW' | translate }}
                   } @else {
-                    Izaberite fajl
+                    {{ 'DOCUMENTS.FILE_CHOOSE' | translate }}
                   }
                 </label>
               </div>
@@ -131,7 +131,7 @@
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                   </svg>
-                  Pogledaj trenutni fajl
+                  {{ 'DOCUMENTS.FILE_PREVIEW' | translate }}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="14"
@@ -151,13 +151,13 @@
               }
 
               @if (!editingDocument() && !selectedFile() && documentForm.touched) {
-                <div class="error">Fajl je obavezan</div>
+                <div class="error">{{ 'DOCUMENTS.FIELD_FILE_REQUIRED' | translate }}</div>
               }
             </div>
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+            <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'DOCUMENTS.BTN_CANCEL' | translate }}</button>
             <button
               type="submit"
               class="btn-primary"
@@ -168,7 +168,7 @@
               @if (isLoading()) {
                 <span class="btn-spinner"></span>
               }
-              {{ editingDocument() ? 'Sačuvaj izmene' : 'Dodaj dokument' }}
+              {{ editingDocument() ? ('DOCUMENTS.BTN_SAVE' | translate) : ('DOCUMENTS.BTN_ADD' | translate) }}
             </button>
           </div>
         </form>
@@ -181,21 +181,20 @@
     <div class="modal-overlay" (click)="closeDeleteConfirm()">
       <div class="modal-content modal-small" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>Potvrda brisanja</h2>
+          <h2>{{ 'DOCUMENTS.MODAL_DELETE_TITLE' | translate }}</h2>
           <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
         </div>
 
         <div class="modal-body">
           <p class="confirm-message">
-            Da li ste sigurni da želite da obrišete dokument
-            <strong>{{ deletingDocument()?.documentNumber }}</strong
-            >?
+            {{ 'DOCUMENTS.DELETE_CONFIRM_MSG' | translate }}
+            <strong>{{ deletingDocument()?.documentNumber }}</strong>?
           </p>
-          <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+          <p class="confirm-warning">{{ 'DOCUMENTS.DELETE_CONFIRM_WARNING' | translate }}</p>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+          <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'DOCUMENTS.BTN_CANCEL' | translate }}</button>
           <button type="button" class="btn-danger" (click)="confirmDelete()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -214,7 +213,7 @@
               <path d="M14 11v6"></path>
               <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
             </svg>
-            Obriši
+            {{ 'DOCUMENTS.BTN_DELETE' | translate }}
           </button>
         </div>
       </div>

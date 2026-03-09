@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CountryService } from '../../../services/country.service';
 import { CountryToReturnDto, AddCountryDto, UpdateCountryDto } from '../../../models/country';
 import {
@@ -13,13 +14,16 @@ import {
 @Component({
   selector: 'app-countries',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule],
   templateUrl: './countries.component.html',
   styleUrl: './countries.component.css',
 })
 export class CountriesComponent implements OnInit {
   countryService = inject(CountryService);
   fb = inject(FormBuilder);
+  toastr = inject(ToastrService);
+  translate = inject(TranslateService);
+  
   isSubmitting = signal(false);
   countries = signal<CountryToReturnDto[]>([]);
   isLoading = signal(false);
@@ -27,7 +31,6 @@ export class CountriesComponent implements OnInit {
   showDeleteConfirm = signal(false);
   editingCountry = signal<CountryToReturnDto | null>(null);
   deletingCountry = signal<CountryToReturnDto | null>(null);
-  toastr = inject(ToastrService);
 
   countryForm = this.fb.group({
     name: ['', Validators.required],
@@ -35,13 +38,13 @@ export class CountriesComponent implements OnInit {
   });
 
   columns: TableColumn[] = [
-    { key: 'name', label: 'Naziv', sortable: true },
-    { key: 'code', label: 'Oznaka', sortable: true },
+    { key: 'name', label: 'COUNTRIES.COLUMN_NAME', sortable: true },
+    { key: 'code', label: 'COUNTRIES.COLUMN_CODE', sortable: true },
   ];
 
   actions: TableAction[] = [
-    { label: 'Izmeni', icon: '✏️', type: 'edit' },
-    { label: 'Obriši', icon: '🗑️', type: 'delete' },
+    { label: this.translate.instant('COUNTRIES.ACTION_EDIT'), icon: '✏️', type: 'edit' },
+    { label: this.translate.instant('COUNTRIES.ACTION_DELETE'), icon: '🗑️', type: 'delete' },
   ];
 
   ngOnInit() {
@@ -57,7 +60,10 @@ export class CountriesComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading countries:', err);
-        this.toastr.error(err.error?.message || 'Greška pri učitavanju država', 'Greška');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('COUNTRIES.TOAST_LOAD_ERROR'),
+          this.translate.instant('COUNTRIES.TOAST_ERROR_TITLE')
+        );
         this.isLoading.set(false);
       },
     });
@@ -102,14 +108,20 @@ export class CountriesComponent implements OnInit {
 
       this.countryService.update(editing.id, dto).subscribe({
         next: () => {
-          this.toastr.success('Država uspešno ažurirana', 'Uspeh');
+          this.toastr.success(
+            this.translate.instant('COUNTRIES.TOAST_UPDATE_SUCCESS'),
+            this.translate.instant('COUNTRIES.TOAST_SUCCESS_TITLE')
+          );
           this.loadCountries();
           this.closeModal();
           this.isSubmitting.set(false);
         },
         error: (err) => {
           console.error('Error updating country:', err);
-          this.toastr.error(err.error?.message || 'Greška pri ažuriranju države', 'Greška');
+          this.toastr.error(
+            err.error?.message || this.translate.instant('COUNTRIES.TOAST_UPDATE_ERROR'),
+            this.translate.instant('COUNTRIES.TOAST_ERROR_TITLE')
+          );
           this.isSubmitting.set(false);
         },
       });
@@ -121,14 +133,20 @@ export class CountriesComponent implements OnInit {
 
       this.countryService.create(dto).subscribe({
         next: () => {
-          this.toastr.success('Država uspešno dodata', 'Uspeh');
+          this.toastr.success(
+            this.translate.instant('COUNTRIES.TOAST_CREATE_SUCCESS'),
+            this.translate.instant('COUNTRIES.TOAST_SUCCESS_TITLE')
+          );
           this.loadCountries();
           this.closeModal();
           this.isSubmitting.set(false);
         },
         error: (err) => {
           console.error('Error creating country:', err);
-          this.toastr.error(err.error?.message || 'Greška pri dodavanju države', 'Greška');
+          this.toastr.error(
+            err.error?.message || this.translate.instant('COUNTRIES.TOAST_CREATE_ERROR'),
+            this.translate.instant('COUNTRIES.TOAST_ERROR_TITLE')
+          );
           this.isSubmitting.set(false);
         },
       });
@@ -152,14 +170,20 @@ export class CountriesComponent implements OnInit {
     this.isSubmitting.set(true);
     this.countryService.delete(country.id).subscribe({
       next: () => {
-        this.toastr.success('Država uspešno obrisana', 'Uspeh');
+        this.toastr.success(
+          this.translate.instant('COUNTRIES.TOAST_DELETE_SUCCESS'),
+          this.translate.instant('COUNTRIES.TOAST_SUCCESS_TITLE')
+        );
         this.loadCountries();
         this.closeDeleteConfirm();
         this.isSubmitting.set(false);
       },
       error: (err) => {
         console.error('Error deleting country:', err);
-        this.toastr.error(err.error?.message || 'Greška pri brisanju države', 'Greška');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('COUNTRIES.TOAST_DELETE_ERROR'),
+          this.translate.instant('COUNTRIES.TOAST_ERROR_TITLE')
+        );
         this.closeDeleteConfirm();
         this.isSubmitting.set(false);
       },

@@ -1,8 +1,8 @@
 <div class="countries-page">
   <div class="page-header">
     <div class="header-content">
-      <h1>Države</h1>
-      <p class="subtitle">Upravljanje državama sistema</p>
+      <h1>{{ 'COUNTRIES.TITLE' | translate }}</h1>
+      <p class="subtitle">{{ 'COUNTRIES.SUBTITLE' | translate }}</p>
     </div>
     <button class="btn-primary" (click)="openAddModal()">
       <span class="btn-icon">
@@ -21,7 +21,7 @@
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
       </span>
-      Dodaj državu
+      {{ 'COUNTRIES.ADD_BTN' | translate }}
     </button>
   </div>
 
@@ -29,6 +29,8 @@
     [data]="countries()"
     [columns]="columns"
     [actions]="actions"
+    [searchPlaceholder]="'COUNTRIES.SEARCH_PLACEHOLDER' | translate"
+    [emptyMessage]="'COUNTRIES.EMPTY_MESSAGE' | translate"
     (onEdit)="openEditModal($event)"
     (onDelete)="openDeleteConfirm($event)"
   >
@@ -38,28 +40,28 @@
     <div class="modal-overlay" (click)="closeModal()">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>{{ editingCountry() ? 'Izmeni državu' : 'Nova država' }}</h2>
+          <h2>{{ editingCountry() ? ('COUNTRIES.MODAL_EDIT_TITLE' | translate) : ('COUNTRIES.MODAL_ADD_TITLE' | translate) }}</h2>
           <button class="close-btn" (click)="closeModal()">✕</button>
         </div>
         <form [formGroup]="countryForm" (ngSubmit)="onSubmit()">
           <div class="modal-body">
             <div class="form-group">
-              <label>Naziv *</label>
-              <input type="text" formControlName="name" placeholder="npr. Srbija" />
+              <label>{{ 'COUNTRIES.FIELD_NAME' | translate }}</label>
+              <input type="text" formControlName="name" [placeholder]="'COUNTRIES.FIELD_NAME_PLACEHOLDER' | translate" />
               @if (countryForm.get('name')?.touched && countryForm.get('name')?.invalid) {
-                <div class="error">Naziv je obavezan</div>
+                <div class="error">{{ 'COUNTRIES.FIELD_NAME_ERROR' | translate }}</div>
               }
             </div>
             <div class="form-group">
-              <label>Oznaka *</label>
-              <input type="text" formControlName="code" placeholder="npr. RS" />
+              <label>{{ 'COUNTRIES.FIELD_CODE' | translate }}</label>
+              <input type="text" formControlName="code" [placeholder]="'COUNTRIES.FIELD_CODE_PLACEHOLDER' | translate" />
               @if (countryForm.get('code')?.touched && countryForm.get('code')?.invalid) {
-                <div class="error">Oznaka je obavezna</div>
+                <div class="error">{{ 'COUNTRIES.FIELD_CODE_ERROR' | translate }}</div>
               }
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+            <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'COUNTRIES.BTN_CANCEL' | translate }}</button>
             <button
               type="submit"
               class="btn-primary"
@@ -70,10 +72,10 @@
               }
               <span>{{
                 isSubmitting()
-                  ? 'Učitavanje...'
+                  ? ('COUNTRIES.BTN_SAVING' | translate)
                   : editingCountry()
-                    ? 'Sačuvaj izmene'
-                    : 'Dodaj državu'
+                    ? ('COUNTRIES.BTN_SAVE' | translate)
+                    : ('COUNTRIES.BTN_ADD' | translate)
               }}</span>
             </button>
           </div>
@@ -86,19 +88,19 @@
     <div class="modal-overlay" (click)="closeDeleteConfirm()">
       <div class="modal-content modal-small" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>Potvrda brisanja</h2>
+          <h2>{{ 'COUNTRIES.MODAL_DELETE_TITLE' | translate }}</h2>
           <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
         </div>
         <div class="modal-body">
           <p class="confirm-message">
-            Da li ste sigurni da želite da obrišete državu
+            {{ 'COUNTRIES.DELETE_CONFIRM_MSG' | translate }}
             <strong>{{ deletingCountry()?.name }}</strong
             >?
           </p>
-          <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+          <p class="confirm-warning">{{ 'COUNTRIES.DELETE_CONFIRM_WARNING' | translate }}</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+          <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'COUNTRIES.BTN_CANCEL' | translate }}</button>
           <button
             type="button"
             class="btn-danger"
@@ -127,7 +129,7 @@
                 <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
               </svg>
             }
-            <span>{{ isSubmitting() ? 'Brisanje...' : 'Obriši' }}</span>
+            <span>{{ isSubmitting() ? ('COUNTRIES.BTN_DELETING' | translate) : ('COUNTRIES.BTN_DELETE' | translate) }}</span>
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { PASSWORD_REGEX } from '../../shared/constants/password-regex';
@@ -9,7 +10,7 @@ import { PASSWORD_REGEX } from '../../shared/constants/password-regex';
 @Component({
     selector: 'app-forgot-password',
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule, RouterLink],
+    imports: [ReactiveFormsModule, CommonModule, RouterLink, TranslateModule],
     templateUrl: './forgot-password.component.html',
     styleUrl: './forgot-password.component.css'
 })
@@ -18,6 +19,7 @@ export class ForgotPasswordComponent {
     authService = inject(AuthService);
     router = inject(Router);
     toastr = inject(ToastrService);
+    translate = inject(TranslateService);
 
     step = signal<1 | 2>(1);
     isLoading = signal(false);
@@ -58,11 +60,17 @@ export class ForgotPasswordComponent {
             next: () => {
                 this.step.set(2);
                 this.resetForm.patchValue({ email });
-                this.toastr.success('PIN je poslat na vašu email adresu.', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('FORGOT_PASSWORD.TOAST_PIN_SUCCESS'),
+                    this.translate.instant('FORGOT_PASSWORD.TOAST_SUCCESS_TITLE')
+                );
                 this.isLoading.set(false);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Došlo je do greške prilikom slanja PIN-a.', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('FORGOT_PASSWORD.TOAST_PIN_ERROR'),
+                    this.translate.instant('FORGOT_PASSWORD.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -80,11 +88,17 @@ export class ForgotPasswordComponent {
             newPassword: val.newPassword!
         }).subscribe({
             next: () => {
-                this.toastr.success('Lozinka uspešno promenjena! Preusmeravanje na prijavu...', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('FORGOT_PASSWORD.TOAST_RESET_SUCCESS'),
+                    this.translate.instant('FORGOT_PASSWORD.TOAST_SUCCESS_TITLE')
+                );
                 setTimeout(() => this.router.navigate(['/login']), 2000);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Došlo je do greške prilikom resetovanja lozinke.', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('FORGOT_PASSWORD.TOAST_RESET_ERROR'),
+                    this.translate.instant('FORGOT_PASSWORD.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });

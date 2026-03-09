@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ItemService } from '../../services/item.service';
 import { ItemToReturnDto, AddItemDto, UpdateItemDto } from '../../models/item';
 import { ItemType } from '../../enums/item-type';
@@ -10,13 +11,15 @@ import { DataTableComponent, TableColumn, TableAction } from '../../components/s
 @Component({
     selector: 'app-services',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+    imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule],
     templateUrl: './services.component.html',
     styleUrl: './services.component.css'
 })
 export class ServicesComponent implements OnInit {
     itemService = inject(ItemService);
     fb = inject(FormBuilder);
+    toastr = inject(ToastrService);
+    translate = inject(TranslateService);
 
     services = signal<ItemToReturnDto[]>([]);
     isLoading = signal(false);
@@ -24,7 +27,6 @@ export class ServicesComponent implements OnInit {
     showDeleteConfirm = signal(false);
     editingService = signal<ItemToReturnDto | null>(null);
     deletingService = signal<ItemToReturnDto | null>(null);
-    toastr = inject(ToastrService);
     activeItemTypeFilter = signal<ItemType | null>(null);
 
     ItemType = ItemType;
@@ -43,15 +45,15 @@ export class ServicesComponent implements OnInit {
     });
 
     columns: TableColumn[] = [
-        { key: 'name', label: 'Naziv', sortable: true },
-        { key: 'description', label: 'Opis', sortable: false },
-        { key: 'itemTypeBadge', label: 'Tip', type: 'badge', sortable: false },
-        { key: 'unitPrice', label: 'Cena (RSD)', type: 'currency', sortable: true }
+        { key: 'name', label: 'SERVICES.COLUMN_NAME', sortable: true },
+        { key: 'description', label: 'SERVICES.COLUMN_DESCRIPTION', sortable: false },
+        { key: 'itemTypeBadge', label: 'SERVICES.COLUMN_TYPE', type: 'badge', sortable: false },
+        { key: 'unitPrice', label: 'SERVICES.COLUMN_PRICE', type: 'currency', sortable: true }
     ];
 
     actions: TableAction[] = [
-        { label: 'Izmeni', icon: '✏️', type: 'edit' },
-        { label: 'Obriši', icon: '🗑️', type: 'delete' }
+        { label: this.translate.instant('SERVICES.ACTION_EDIT'), icon: '✏️', type: 'edit' },
+        { label: this.translate.instant('SERVICES.ACTION_DELETE'), icon: '🗑️', type: 'delete' }
     ];
 
     ngOnInit() {
@@ -73,7 +75,10 @@ export class ServicesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading services:', err);
-                this.toastr.error(err.error?.message || 'Greška pri učitavanju usluga', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('SERVICES.TOAST_LOAD_ERROR'),
+                    this.translate.instant('SERVICES.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -131,13 +136,19 @@ export class ServicesComponent implements OnInit {
 
             this.itemService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.toastr.success('Usluga uspešno ažurirana', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('SERVICES.TOAST_UPDATE_SUCCESS'),
+                        this.translate.instant('SERVICES.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadServices();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating service:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju usluge', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('SERVICES.TOAST_UPDATE_ERROR'),
+                        this.translate.instant('SERVICES.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         } else {
@@ -151,13 +162,19 @@ export class ServicesComponent implements OnInit {
 
             this.itemService.create(dto).subscribe({
                 next: () => {
-                    this.toastr.success('Usluga uspešno dodata', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('SERVICES.TOAST_CREATE_SUCCESS'),
+                        this.translate.instant('SERVICES.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadServices();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating service:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri dodavanju usluge', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('SERVICES.TOAST_CREATE_ERROR'),
+                        this.translate.instant('SERVICES.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         }
@@ -179,28 +196,34 @@ export class ServicesComponent implements OnInit {
 
         this.itemService.delete(service.id).subscribe({
             next: () => {
-                this.toastr.success('Usluga uspešno obrisana', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('SERVICES.TOAST_DELETE_SUCCESS'),
+                    this.translate.instant('SERVICES.TOAST_SUCCESS_TITLE')
+                );
                 this.loadServices();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting service:', err);
-                this.toastr.error(err.error?.message || 'Greška pri brisanju usluge', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('SERVICES.TOAST_DELETE_ERROR'),
+                    this.translate.instant('SERVICES.TOAST_ERROR_TITLE')
+                );
                 this.closeDeleteConfirm();
             }
         });
     }
 
     getItemTypeName(type: ItemType): string {
-        return type === ItemType.product ? 'Proizvod' : 'Usluga';
+        return type === ItemType.product 
+            ? this.translate.instant('SERVICES.TYPE_PRODUCT') 
+            : this.translate.instant('SERVICES.TYPE_SERVICE');
     }
 
     getItemTypeBadge(type: ItemType): string {
         if (type === ItemType.product) {
-            return '<span class="badge badge-product">Proizvod</span>';
+            return `<span class="badge badge-product">${this.translate.instant('SERVICES.TYPE_PRODUCT')}</span>`;
         }
-        return '<span class="badge badge-service">Usluga</span>';
+        return `<span class="badge badge-service">${this.translate.instant('SERVICES.TYPE_SERVICE')}</span>`;
     }
-
-
 }

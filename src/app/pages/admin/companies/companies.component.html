@@ -1,8 +1,8 @@
 <div class="companies-page">
     <div class="page-header">
       <div class="header-content">
-        <h1>Kompanije</h1>
-        <p class="subtitle">Upravljanje kompanijama sistema</p>
+        <h1>{{ 'COMPANIES.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'COMPANIES.SUBTITLE' | translate }}</p>
       </div>
     </div>
   
@@ -10,6 +10,8 @@
       [data]="companies()"
       [columns]="columns"
       [actions]="actions"
+      [searchPlaceholder]="'COMPANIES.SEARCH_PLACEHOLDER' | translate"
+      [emptyMessage]="'COMPANIES.EMPTY_MESSAGE' | translate"
       (onCustomAction)="onCustomAction($event)"
       (onDelete)="openDeleteConfirm($event)"
     >
@@ -31,7 +33,7 @@
               <div>
                 <h2>{{ selectedCompany()?.businessName }}</h2>
                 <span class="status-badge" [class.active]="selectedCompany()?.isActive" [class.inactive]="!selectedCompany()?.isActive">
-                  {{ selectedCompany()?.isActive ? 'Aktivna' : 'Neaktivna' }}
+                  {{ selectedCompany()?.isActive ? ('COMPANIES.STATUS_ACTIVE' | translate) : ('COMPANIES.STATUS_INACTIVE' | translate) }}
                 </span>
               </div>
             </div>
@@ -40,59 +42,59 @@
           <div class="modal-body">
             <div class="detail-grid">
               <div class="detail-item">
-                <span class="detail-label">PIB</span>
-                <span class="detail-value">{{ selectedCompany()?.pib || '—' }}</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_PIB' | translate }}</span>
+                <span class="detail-value">{{ selectedCompany()?.pib || ('COMPANIES.VALUE_NOT_AVAILABLE' | translate) }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Matični broj</span>
-                <span class="detail-value">{{ selectedCompany()?.mb || '—' }}</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_MB' | translate }}</span>
+                <span class="detail-value">{{ selectedCompany()?.mb || ('COMPANIES.VALUE_NOT_AVAILABLE' | translate) }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Email</span>
-                <span class="detail-value">{{ selectedCompany()?.email || '—' }}</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_EMAIL' | translate }}</span>
+                <span class="detail-value">{{ selectedCompany()?.email || ('COMPANIES.VALUE_NOT_AVAILABLE' | translate) }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Telefon</span>
-                <span class="detail-value">{{ selectedCompany()?.phone || '—' }}</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_PHONE' | translate }}</span>
+                <span class="detail-value">{{ selectedCompany()?.phone || ('COMPANIES.VALUE_NOT_AVAILABLE' | translate) }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Grad</span>
-                <span class="detail-value">{{ selectedCompany()?.city || '—' }}</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_CITY' | translate }}</span>
+                <span class="detail-value">{{ selectedCompany()?.city || ('COMPANIES.VALUE_NOT_AVAILABLE' | translate) }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Adresa</span>
-                <span class="detail-value">{{ selectedCompany()?.address || '—' }}</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_ADDRESS' | translate }}</span>
+                <span class="detail-value">{{ selectedCompany()?.address || ('COMPANIES.VALUE_NOT_AVAILABLE' | translate) }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Šifra delatnosti</span>
-                <span class="detail-value">{{ selectedCompany()?.activityCode || '—' }}</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_ACTIVITY_CODE' | translate }}</span>
+                <span class="detail-value">{{ selectedCompany()?.activityCode || ('COMPANIES.VALUE_NOT_AVAILABLE' | translate) }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Website</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_WEBSITE' | translate }}</span>
                 <span class="detail-value">
                   @if (selectedCompany()?.website) {
                     <a [href]="selectedCompany()?.website" target="_blank" class="website-link">
                       {{ selectedCompany()?.website }}
                     </a>
                   } @else {
-                    —
+                    {{ 'COMPANIES.VALUE_NOT_AVAILABLE' | translate }}
                   }
                 </span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Kreirana</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_CREATED_AT' | translate }}</span>
                 <span class="detail-value">{{ selectedCompany()?.createdAt | date: 'dd.MM.yyyy' }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">Poslednja izmena</span>
+                <span class="detail-label">{{ 'COMPANIES.LABEL_UPDATED_AT' | translate }}</span>
                 <span class="detail-value">
-                  {{ selectedCompany()?.updatedAt ? (selectedCompany()?.updatedAt | date: 'dd.MM.yyyy') : '—' }}
+                  {{ selectedCompany()?.updatedAt ? (selectedCompany()?.updatedAt | date: 'dd.MM.yyyy') : ('COMPANIES.VALUE_NOT_AVAILABLE' | translate) }}
                 </span>
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeDetailModal()">Zatvori</button>
+            <button type="button" class="btn-secondary" (click)="closeDetailModal()">{{ 'COMPANIES.BTN_CLOSE' | translate }}</button>
             <button
               type="button"
               [class]="selectedCompany()?.isActive ? 'btn-warning' : 'btn-success'"
@@ -102,7 +104,7 @@
               @if (isSubmitting()) {
                 <span class="spinner"></span>
               }
-              <span>{{ selectedCompany()?.isActive ? '⛔ Deaktiviraj' : '✅ Aktiviraj' }}</span>
+              <span>{{ selectedCompany()?.isActive ? ('COMPANIES.BTN_DEACTIVATE' | translate) : ('COMPANIES.BTN_ACTIVATE' | translate) }}</span>
             </button>
           </div>
         </div>
@@ -114,18 +116,18 @@
       <div class="modal-overlay" (click)="closeDeleteConfirm()">
         <div class="modal-content modal-small" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h2>Potvrda brisanja</h2>
+            <h2>{{ 'COMPANIES.MODAL_DELETE_TITLE' | translate }}</h2>
             <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
           </div>
           <div class="modal-body">
             <p class="confirm-message">
-              Da li ste sigurni da želite da obrišete kompaniju
+              {{ 'COMPANIES.DELETE_CONFIRM_MSG' | translate }}
               <strong>{{ deletingCompany()?.businessName }}</strong>?
             </p>
-            <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+            <p class="confirm-warning">{{ 'COMPANIES.DELETE_CONFIRM_WARNING' | translate }}</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+            <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'COMPANIES.BTN_CANCEL' | translate }}</button>
             <button
               type="button"
               class="btn-danger"
@@ -154,7 +156,7 @@
                   <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
                 </svg>
               }
-              <span>{{ isSubmitting() ? 'Brisanje...' : 'Obriši' }}</span>
+              <span>{{ isSubmitting() ? ('COMPANIES.BTN_DELETING' | translate) : ('COMPANIES.BTN_DELETE' | translate) }}</span>
             </button>
           </div>
         </div>

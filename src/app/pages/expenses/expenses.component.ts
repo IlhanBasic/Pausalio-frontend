@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ExpenseService } from '../../services/expense.service';
 import { PaymentService } from '../../services/payment.service';
 import { BankAccountService } from '../../services/bank-account.service';
@@ -15,7 +16,7 @@ import { DataTableComponent, TableColumn, TableAction } from '../../components/s
 @Component({
     selector: 'app-expenses',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+    imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule],
     templateUrl: './expenses.component.html',
     styleUrl: './expenses.component.css'
 })
@@ -25,6 +26,7 @@ export class ExpensesComponent implements OnInit {
     bankAccountService = inject(BankAccountService);
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
+    translate = inject(TranslateService);
 
     expenses = signal<ExpenseToReturnDto[]>([]);
     bankAccounts = signal<BankAccountToReturnDto[]>([]);
@@ -46,38 +48,38 @@ export class ExpensesComponent implements OnInit {
     });
 
     paymentForm: FormGroup = this.fb.group({
-        bankAccountId: ['',Validators.required]
+        bankAccountId: ['', Validators.required]
     });
 
     columns: TableColumn[] = [
-        { key: 'name', label: 'Naziv', sortable: true },
-        { key: 'amount', label: 'Iznos (RSD)', sortable: true },
-        { key: 'statusBadge', label: 'Status', type: 'badge', sortable: false },
-        { key: 'referenceNumber', label: 'Referenca', sortable: false },
-        { key: 'createdAtDisplay', label: 'Datum kreiranja', sortable: true }
+        { key: 'name', label: 'EXPENSES.COLUMN_NAME', sortable: true },
+        { key: 'amount', label: 'EXPENSES.COLUMN_AMOUNT', sortable: true },
+        { key: 'statusBadge', label: 'EXPENSES.COLUMN_STATUS', type: 'badge', sortable: false },
+        { key: 'referenceNumber', label: 'EXPENSES.COLUMN_REFERENCE', sortable: false },
+        { key: 'createdAtDisplay', label: 'EXPENSES.COLUMN_CREATED_AT', sortable: true }
     ];
 
     actions: TableAction[] = [
         {
-            label: 'Izmeni',
+            label: this.translate.instant('EXPENSES.ACTION_EDIT'),
             icon: '✏️',
             type: 'edit',
             showCondition: (item) => item.status === ExpenseStatus.pending
         },
         {
-            label: 'Plati',
+            label: this.translate.instant('EXPENSES.ACTION_PAY'),
             icon: '💳',
             type: 'custom',
             showCondition: (item) => item.status === ExpenseStatus.pending
         },
         {
-            label: 'Arhiviraj',
+            label: this.translate.instant('EXPENSES.ACTION_ARCHIVE'),
             icon: '📦',
             type: 'custom',
             showCondition: (item) => item.status === ExpenseStatus.paid
         },
         {
-            label: 'Obriši',
+            label: this.translate.instant('EXPENSES.ACTION_DELETE'),
             icon: '🗑️',
             type: 'delete',
             showCondition: (item) => item.status !== ExpenseStatus.archived
@@ -116,7 +118,10 @@ export class ExpensesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading expenses:', err);
-                this.toastr.error(err.error?.message || 'Greška pri učitavanju troškova', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('EXPENSES.TOAST_LOAD_ERROR'),
+                    this.translate.instant('EXPENSES.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -135,7 +140,10 @@ export class ExpensesComponent implements OnInit {
 
     openEditModal(expense: ExpenseToReturnDto) {
         if (expense.status !== ExpenseStatus.pending) {
-            this.toastr.warning('Može se menjati samo trošak na čekanju', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('EXPENSES.WARNING_CANNOT_EDIT'),
+                this.translate.instant('EXPENSES.TOAST_WARNING_TITLE')
+            );
             return;
         }
         this.editingExpense.set(expense);
@@ -153,7 +161,10 @@ export class ExpensesComponent implements OnInit {
 
     openPaymentModal(expense: ExpenseToReturnDto) {
         if (expense.status !== ExpenseStatus.pending) {
-            this.toastr.warning('Trošak nije na čekanju', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('EXPENSES.WARNING_CANNOT_PAY'),
+                this.translate.instant('EXPENSES.TOAST_WARNING_TITLE')
+            );
             return;
         }
         this.payingExpense.set(expense);
@@ -181,13 +192,19 @@ export class ExpensesComponent implements OnInit {
 
         this.paymentService.create(dto).subscribe({
             next: () => {
-                this.toastr.success('Trošak uspešno plaćen', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('EXPENSES.TOAST_PAY_SUCCESS'),
+                    this.translate.instant('EXPENSES.TOAST_SUCCESS_TITLE')
+                );
                 this.loadExpenses(this.activeStatusFilter());
                 this.closePaymentModal();
             },
             error: (err) => {
                 console.error('Error paying expense:', err);
-                this.toastr.error(err.error?.message || 'Greška pri plaćanju troška', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('EXPENSES.TOAST_PAY_ERROR'),
+                    this.translate.instant('EXPENSES.TOAST_ERROR_TITLE')
+                );
             }
         });
     }
@@ -196,30 +213,40 @@ export class ExpensesComponent implements OnInit {
 
     archiveExpense(expense: ExpenseToReturnDto) {
         if (expense.status !== ExpenseStatus.paid) {
-            this.toastr.warning('Može se arhivirati samo plaćeni trošak', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('EXPENSES.WARNING_CANNOT_ARCHIVE'),
+                this.translate.instant('EXPENSES.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
         this.expenseService.archive(expense.id).subscribe({
             next: () => {
-                this.toastr.success('Trošak uspešno arhiviran', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('EXPENSES.TOAST_ARCHIVE_SUCCESS'),
+                    this.translate.instant('EXPENSES.TOAST_SUCCESS_TITLE')
+                );
                 this.loadExpenses(this.activeStatusFilter());
             },
             error: (err) => {
                 console.error('Error archiving expense:', err);
-                this.toastr.error(err.error?.message || 'Greška pri arhiviranju troška', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('EXPENSES.TOAST_ARCHIVE_ERROR'),
+                    this.translate.instant('EXPENSES.TOAST_ERROR_TITLE')
+                );
             }
         });
     }
 
     handleCustomAction(event: { action: string, item: any }) {
-        switch (event.action) {
-            case 'Plati':
-                this.openPaymentModal(event.item);
-                break;
-            case 'Arhiviraj':
-                this.archiveExpense(event.item);
-                break;
+        const actionMap: { [key: string]: () => void } = {
+            [this.translate.instant('EXPENSES.ACTION_PAY')]: () => this.openPaymentModal(event.item),
+            [this.translate.instant('EXPENSES.ACTION_ARCHIVE')]: () => this.archiveExpense(event.item)
+        };
+        
+        const action = actionMap[event.action];
+        if (action) {
+            action();
         }
     }
 
@@ -241,13 +268,19 @@ export class ExpensesComponent implements OnInit {
 
         this.expenseService.delete(expense.id).subscribe({
             next: () => {
-                this.toastr.success('Trošak uspešno obrisan', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('EXPENSES.TOAST_DELETE_SUCCESS'),
+                    this.translate.instant('EXPENSES.TOAST_SUCCESS_TITLE')
+                );
                 this.loadExpenses(this.activeStatusFilter());
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting expense:', err);
-                this.toastr.error(err.error?.message || 'Greška pri brisanju troška', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('EXPENSES.TOAST_DELETE_ERROR'),
+                    this.translate.instant('EXPENSES.TOAST_ERROR_TITLE')
+                );
                 this.closeDeleteConfirm();
             }
         });
@@ -271,13 +304,19 @@ export class ExpensesComponent implements OnInit {
             };
             this.expenseService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.toastr.success('Trošak uspešno ažuriran', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('EXPENSES.TOAST_UPDATE_SUCCESS'),
+                        this.translate.instant('EXPENSES.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadExpenses(this.activeStatusFilter());
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating expense:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju troška', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('EXPENSES.TOAST_UPDATE_ERROR'),
+                        this.translate.instant('EXPENSES.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         } else {
@@ -287,13 +326,19 @@ export class ExpensesComponent implements OnInit {
             };
             this.expenseService.create(dto).subscribe({
                 next: () => {
-                    this.toastr.success('Trošak uspešno dodat', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('EXPENSES.TOAST_CREATE_SUCCESS'),
+                        this.translate.instant('EXPENSES.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadExpenses(this.activeStatusFilter());
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating expense:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri dodavanju troška', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('EXPENSES.TOAST_CREATE_ERROR'),
+                        this.translate.instant('EXPENSES.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         }
@@ -303,28 +348,28 @@ export class ExpensesComponent implements OnInit {
 
     getStatusName(status: ExpenseStatus): string {
         switch (status) {
-            case ExpenseStatus.pending: return 'Na čekanju';
-            case ExpenseStatus.paid: return 'Plaćeno';
-            case ExpenseStatus.archived: return 'Arhivirano';
-            default: return 'Nepoznato';
+            case ExpenseStatus.pending: return this.translate.instant('EXPENSES.STATUS_PENDING');
+            case ExpenseStatus.paid: return this.translate.instant('EXPENSES.STATUS_PAID');
+            case ExpenseStatus.archived: return this.translate.instant('EXPENSES.STATUS_ARCHIVED');
+            default: return this.translate.instant('EXPENSES.STATUS_UNKNOWN');
         }
     }
 
     getStatusBadge(status: ExpenseStatus): string {
         switch (status) {
             case ExpenseStatus.pending:
-                return '<span class="badge badge-pending">Na čekanju</span>';
+                return `<span class="badge badge-pending">${this.translate.instant('EXPENSES.STATUS_PENDING')}</span>`;
             case ExpenseStatus.paid:
-                return '<span class="badge badge-paid">Plaćeno</span>';
+                return `<span class="badge badge-paid">${this.translate.instant('EXPENSES.STATUS_PAID')}</span>`;
             case ExpenseStatus.archived:
-                return '<span class="badge badge-archived">Arhivirano</span>';
+                return `<span class="badge badge-archived">${this.translate.instant('EXPENSES.STATUS_ARCHIVED')}</span>`;
             default:
-                return '<span class="badge badge-unknown">Nepoznato</span>';
+                return `<span class="badge badge-unknown">${this.translate.instant('EXPENSES.STATUS_UNKNOWN')}</span>`;
         }
     }
 
     formatDate(date: Date): string {
-        return new Date(date).toLocaleDateString('sr-Latn-RS', {
+        return new Date(date).toLocaleDateString(this.translate.currentLang === 'sr-Cyrl' ? 'sr-Cyrl-RS' : 'sr-Latn-RS', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
@@ -332,7 +377,7 @@ export class ExpensesComponent implements OnInit {
     }
 
     formatCurrency(amount: number): string {
-        return new Intl.NumberFormat('sr-Latn-RS', {
+        return new Intl.NumberFormat(this.translate.currentLang === 'sr-Cyrl' ? 'sr-Cyrl-RS' : 'sr-Latn-RS', {
             style: 'currency',
             currency: 'RSD',
             minimumFractionDigits: 0,

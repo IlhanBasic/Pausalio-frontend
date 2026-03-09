@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InvoiceService } from '../../services/invoice.service';
 import { InvoiceToReturnDto } from '../../models/invoice';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -10,7 +11,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 @Component({
     selector: 'app-invoice-detail',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TranslateModule],
     templateUrl: './invoice-detail.component.html',
     styleUrl: './invoice-detail.component.css'
 })
@@ -20,6 +21,7 @@ export class InvoiceDetailComponent implements OnInit {
     private invoiceService = inject(InvoiceService);
     private toastr = inject(ToastrService);
     private sanitizer = inject(DomSanitizer);
+    private translate = inject(TranslateService);
 
     invoiceId = signal<string>('');
     previewHtml = signal<SafeHtml>('');
@@ -56,7 +58,10 @@ export class InvoiceDetailComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading preview:', err);
-                this.toastr.error('Greška pri učitavanju preview-a', 'Greška');
+                this.toastr.error(
+                    this.translate.instant('INVOICE_DETAIL.TOAST_PREVIEW_ERROR'),
+                    this.translate.instant('INVOICE_DETAIL.TOAST_ERROR_TITLE')
+                );
                 this.isLoadingPreview.set(false);
             }
         });
@@ -76,7 +81,10 @@ export class InvoiceDetailComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error exporting PDF:', err);
-                this.toastr.error('Greška pri exportu PDF-a', 'Greška');
+                this.toastr.error(
+                    this.translate.instant('INVOICE_DETAIL.TOAST_PDF_ERROR'),
+                    this.translate.instant('INVOICE_DETAIL.TOAST_ERROR_TITLE')
+                );
                 this.isExporting.set(false);
             }
         });
@@ -126,12 +134,18 @@ export class InvoiceDetailComponent implements OnInit {
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            this.toastr.warning('Unesite ispravnu email adresu', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICE_DETAIL.TOAST_EMAIL_INVALID'),
+                this.translate.instant('INVOICE_DETAIL.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
         if (this.emails().includes(email)) {
-            this.toastr.warning('Email je već dodat', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICE_DETAIL.TOAST_EMAIL_DUPLICATE'),
+                this.translate.instant('INVOICE_DETAIL.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
@@ -152,20 +166,29 @@ export class InvoiceDetailComponent implements OnInit {
 
     sendInvoice() {
         if (this.emails().length === 0) {
-            this.toastr.warning('Dodajte bar jednu email adresu', 'Upozorenje');
+            this.toastr.warning(
+                this.translate.instant('INVOICE_DETAIL.TOAST_EMAIL_EMPTY'),
+                this.translate.instant('INVOICE_DETAIL.TOAST_WARNING_TITLE')
+            );
             return;
         }
 
         this.isSending.set(true);
         this.invoiceService.sendInvoice(this.invoiceId(), { emails: this.emails() }).subscribe({
             next: () => {
-                this.toastr.success('Faktura uspešno poslata', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('INVOICE_DETAIL.TOAST_SEND_SUCCESS'),
+                    this.translate.instant('INVOICE_DETAIL.TOAST_SUCCESS_TITLE')
+                );
                 this.closeSendPanel();
                 this.isSending.set(false);
             },
             error: (err) => {
                 console.error('Error sending invoice:', err);
-                this.toastr.error(err.error?.message || 'Greška pri slanju fakture', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('INVOICE_DETAIL.TOAST_SEND_ERROR'),
+                    this.translate.instant('INVOICE_DETAIL.TOAST_ERROR_TITLE')
+                );
                 this.isSending.set(false);
             }
         });

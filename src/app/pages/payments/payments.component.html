@@ -1,8 +1,8 @@
 <div class="payments-page">
     <div class="page-header">
         <div class="header-content">
-            <h1>Plaćanja</h1>
-            <p class="subtitle">Upravljajte plaćanjima faktura, poreza i troškova</p>
+            <h1>{{ 'PAYMENTS.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'PAYMENTS.SUBTITLE' | translate }}</p>
         </div>
         <button class="btn-primary" (click)="openAddModal()">
             <span class="btn-icon">
@@ -12,13 +12,13 @@
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </span>
-            Dodaj plaćanje
+            {{ 'PAYMENTS.ADD_BTN' | translate }}
         </button>
     </div>
 
     <app-data-table [columns]="columns" [data]="payments()" [actions]="actions"
-        searchPlaceholder="Pretraži plaćanja..."
-        emptyMessage="Nema plaćanja za prikaz. Dodajte prvo plaćanje!"
+        [searchPlaceholder]="'PAYMENTS.SEARCH_PLACEHOLDER' | translate"
+        [emptyMessage]="'PAYMENTS.EMPTY_MESSAGE' | translate"
         (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)">
     </app-data-table>
@@ -28,7 +28,7 @@
         <div class="modal-overlay" (click)="closeModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>{{ editingPayment() ? 'Izmeni plaćanje' : 'Dodaj novo plaćanje' }}</h2>
+                    <h2>{{ editingPayment() ? ('PAYMENTS.MODAL_EDIT_TITLE' | translate) : ('PAYMENTS.MODAL_ADD_TITLE' | translate) }}</h2>
                     <button class="close-btn" (click)="closeModal()">✕</button>
                 </div>
 
@@ -37,41 +37,41 @@
 
                         @if (!editingPayment()) {
                             <div class="form-group">
-                                <label>Tip plaćanja *</label>
+                                <label>{{ 'PAYMENTS.FIELD_PAYMENT_TYPE' | translate }}</label>
                                 <select formControlName="paymentType">
-                                    <option [ngValue]="PaymentType.InvoicePayment">Plaćanje fakture</option>
-                                    <option [ngValue]="PaymentType.TaxPayment">Plaćanje poreza</option>
-                                    <option [ngValue]="PaymentType.ExpensePayment">Plaćanje troška</option>
+                                    <option [ngValue]="PaymentType.InvoicePayment">{{ 'PAYMENTS.FIELD_PAYMENT_TYPE_INVOICE' | translate }}</option>
+                                    <option [ngValue]="PaymentType.TaxPayment">{{ 'PAYMENTS.FIELD_PAYMENT_TYPE_TAX' | translate }}</option>
+                                    <option [ngValue]="PaymentType.ExpensePayment">{{ 'PAYMENTS.FIELD_PAYMENT_TYPE_EXPENSE' | translate }}</option>
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label>Izaberite entitet *</label>
+                                <label>{{ 'PAYMENTS.FIELD_ENTITY' | translate }}</label>
                                 <select formControlName="entityId">
-                                    <option value="">-- Izaberite --</option>
+                                    <option value="">{{ 'PAYMENTS.FIELD_ENTITY_PLACEHOLDER' | translate }}</option>
                                     @for (entity of getAvailableEntities(); track entity.id) {
                                         <option [value]="entity.id">{{ getEntityLabel(entity) }}</option>
                                     }
                                 </select>
                                 @if (paymentForm.get('entityId')?.touched && paymentForm.get('entityId')?.invalid) {
-                                    <div class="error">Entitet je obavezan</div>
+                                    <div class="error">{{ 'PAYMENTS.FIELD_ENTITY_ERROR' | translate }}</div>
                                 }
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Iznos *</label>
-                                    <input type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0">
+                                    <label>{{ 'PAYMENTS.FIELD_AMOUNT' | translate }}</label>
+                                    <input type="number" formControlName="amount" [placeholder]="'PAYMENTS.FIELD_AMOUNT_PLACEHOLDER' | translate" step="0.01" min="0">
                                     @if (paymentForm.get('paymentType')?.value !== PaymentType.InvoicePayment && paymentForm.get('entityId')?.value) {
-                                        <small class="form-hint">Iznos je automatski preuzet iz odabranog entiteta</small>
+                                        <small class="form-hint">{{ 'PAYMENTS.FIELD_AMOUNT_HINT' | translate }}</small>
                                     }
                                     @if (paymentForm.get('amount')?.touched && paymentForm.get('amount')?.invalid) {
-                                        <div class="error">Iznos je obavezan i mora biti veći od 0</div>
+                                        <div class="error">{{ 'PAYMENTS.FIELD_AMOUNT_ERROR' | translate }}</div>
                                     }
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Valuta *</label>
+                                    <label>{{ 'PAYMENTS.FIELD_CURRENCY' | translate }}</label>
                                     <select formControlName="currency">
                                         <option [ngValue]="Currency.RSD">RSD</option>
                                         <option [ngValue]="Currency.USD">USD</option>
@@ -83,9 +83,9 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Bankovni račun</label>
+                                <label>{{ 'PAYMENTS.FIELD_BANK_ACCOUNT' | translate }}</label>
                                 <select formControlName="bankAccountId">
-                                    <option value="">-- Bez računa --</option>
+                                    <option value="">{{ 'PAYMENTS.FIELD_BANK_ACCOUNT_PLACEHOLDER' | translate }}</option>
                                     @for (account of bankAccounts(); track account.id) {
                                         <option [value]="account.id">
                                             {{ account.bankName }} - {{ account.accountNumber }} ({{ getCurrencyLabel(account.currency) }})
@@ -94,29 +94,29 @@
                                 </select>
                                 @if (bankAccounts().length === 0) {
                                     <small class="form-hint">
-                                        Nemate aktivnih bankovnih računa. Dodajte račun u podešavanjima.
+                                        {{ 'PAYMENTS.FIELD_BANK_ACCOUNT_HINT' | translate }}
                                     </small>
                                 }
                             </div>
                         }
 
                         <div class="form-group">
-                            <label>Poziv na broj</label>
-                            <input type="text" formControlName="referenceNumber" placeholder="123-456-789">
+                            <label>{{ 'PAYMENTS.FIELD_REFERENCE_NUMBER' | translate }}</label>
+                            <input type="text" formControlName="referenceNumber" [placeholder]="'PAYMENTS.FIELD_REFERENCE_NUMBER_PLACEHOLDER' | translate">
                         </div>
 
                         <div class="form-group">
-                            <label>Opis</label>
+                            <label>{{ 'PAYMENTS.FIELD_DESCRIPTION' | translate }}</label>
                             <textarea formControlName="description" rows="3"
-                                placeholder="Dodatne napomene o plaćanju..."></textarea>
+                                [placeholder]="'PAYMENTS.FIELD_DESCRIPTION_PLACEHOLDER' | translate"></textarea>
                         </div>
 
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'PAYMENTS.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="paymentForm.invalid">
-                            {{ editingPayment() ? 'Sačuvaj izmene' : 'Dodaj plaćanje' }}
+                            {{ editingPayment() ? ('PAYMENTS.BTN_SAVE' | translate) : ('PAYMENTS.BTN_ADD' | translate) }}
                         </button>
                     </div>
                 </form>
@@ -129,18 +129,18 @@
         <div class="modal-overlay" (click)="closeDeleteConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda brisanja</h2>
+                    <h2>{{ 'PAYMENTS.MODAL_DELETE_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
                 </div>
 
                 <div class="modal-body">
-                    <p class="confirm-message">Da li ste sigurni da želite da obrišete ovo plaćanje?</p>
-                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+                    <p class="confirm-message">{{ 'PAYMENTS.DELETE_CONFIRM_MSG' | translate }}</p>
+                    <p class="confirm-warning">{{ 'PAYMENTS.DELETE_CONFIRM_WARNING' | translate }}</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
-                    <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'PAYMENTS.BTN_CANCEL' | translate }}</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">{{ 'PAYMENTS.BTN_DELETE' | translate }}</button>
                 </div>
             </div>
         </div>

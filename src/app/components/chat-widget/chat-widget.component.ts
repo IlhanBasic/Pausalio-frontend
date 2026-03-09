@@ -9,7 +9,9 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 import { ChatService } from '../../services/chat.service';
 import { ChatSignalrService } from '../../services/chat-signalr.service';
 import { AuthStore } from '../../stores/auth.store';
@@ -18,7 +20,7 @@ import { BusinessMemberDto, ChatMessageDto, MessageStatus } from '../../models/c
 @Component({
   selector: 'app-chat-widget',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './chat-widget.component.html',
   styleUrl: './chat-widget.component.css',
 })
@@ -28,6 +30,8 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
   private chatService = inject(ChatService);
   private signalrService = inject(ChatSignalrService);
   private authStore = inject(AuthStore);
+  private toastr = inject(ToastrService);
+  private translate = inject(TranslateService);
 
   isOpen = false;
   members: BusinessMemberDto[] = [];
@@ -44,7 +48,12 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
     await this.signalrService.startConnection();
 
     this.subscriptions.add(
-      this.signalrService.isConnected$.subscribe((connected) => (this.isConnected = connected)),
+      this.signalrService.isConnected$.subscribe((connected) => {
+        this.isConnected = connected;
+        if (!connected) {
+          console.warn('⚠️ SignalR nije povezan');
+        }
+      }),
     );
 
     this.loadMembers();
@@ -106,7 +115,13 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
   private loadMembers(): void {
     this.chatService.getMembers().subscribe({
       next: (members) => (this.members = members),
-      error: (err) => console.error('Error loading members:', err),
+      error: (err) => {
+        console.error('Error loading members:', err);
+        this.toastr.error(
+          this.translate.instant('CHAT.ERRORS.LOAD_MEMBERS'),
+          this.translate.instant('COMMON.ERROR')
+        );
+      },
     });
   }
 
@@ -145,7 +160,14 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
         this.shouldScroll = true;
         this.markAsRead();
       },
-      error: () => (this.isLoadingHistory = false),
+      error: (err) => {
+        console.error('Error loading history:', err);
+        this.toastr.error(
+          this.translate.instant('CHAT.ERRORS.LOAD_HISTORY'),
+          this.translate.instant('COMMON.ERROR')
+        );
+        this.isLoadingHistory = false;
+      },
     });
   }
 
@@ -155,13 +177,25 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
 
     if (!this.isConnected) {
       console.warn('⚠️ SignalR nije povezan, pokušavam ponovo...');
+      this.toastr.warning(
+        this.translate.instant('CHAT.ERRORS.CONNECTION_FAILED'),
+        this.translate.instant('COMMON.WARNING')
+      );
       await this.signalrService.startConnection();
     }
 
     const businessId = this.authStore.currentBusinessId()!;
     this.inputText = '';
 
-    await this.signalrService.sendMessage(this.selectedMember.userId, businessId, text);
+    try {
+      await this.signalrService.sendMessage(this.selectedMember.userId, businessId, text);
+    } catch (err) {
+      console.error('Error sending message:', err);
+      this.toastr.error(
+        this.translate.instant('CHAT.ERRORS.SEND_MESSAGE'),
+        this.translate.instant('COMMON.ERROR')
+      );
+    }
   }
 
   onKeyDown(event: KeyboardEvent): void {
@@ -200,20 +234,22 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
   }
 
   formatTime(date: Date): string {
-    return new Date(date).toLocaleTimeString('sr-Latn', {
-      hour: '2-digit',
-      minute: '2-digit',
+    return this.translate.instant('CHAT.MESSAGE.SENT_AT', {
+      time: new Date(date).toLocaleTimeString(this.translate.currentLang === 'sr-Cyrl' ? 'sr-Cyrl-RS' : 'sr-Latn-RS', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
     });
   }
 
   getStatusIcon(status: MessageStatus): string {
     switch (status) {
       case MessageStatus.Read:
-        return '✔✔';
+        return this.translate.instant('CHAT.MESSAGE.STATUS_READ');
       case MessageStatus.Delivered:
-        return '✓✓';
+        return this.translate.instant('CHAT.MESSAGE.STATUS_DELIVERED');
       case MessageStatus.Sent:
-        return '✓';
+        return this.translate.instant('CHAT.MESSAGE.STATUS_SENT');
       default:
         return '';
     }

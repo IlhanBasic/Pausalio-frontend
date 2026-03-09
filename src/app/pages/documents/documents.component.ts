@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DocumentService } from '../../services/document.service';
 import { FileService } from '../../services/file.service';
 import { DocumentToReturnDto, AddDocumentDto, UpdateDocumentDto } from '../../models/document';
@@ -15,7 +16,7 @@ import {
 @Component({
   selector: 'app-documents',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+  imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.css',
 })
@@ -24,6 +25,7 @@ export class DocumentsComponent implements OnInit {
   fileService = inject(FileService);
   fb = inject(FormBuilder);
   toastr = inject(ToastrService);
+  translate = inject(TranslateService);
 
   documents = signal<DocumentToReturnDto[]>([]);
   editingDocument = signal<DocumentToReturnDto | null>(null);
@@ -43,15 +45,15 @@ export class DocumentsComponent implements OnInit {
   });
 
   columns: TableColumn[] = [
-    { key: 'documentTypeBadge', label: 'Tip dokumenta', type: 'badge', sortable: false },
-    { key: 'documentNumber', label: 'Broj dokumenta', sortable: true },
-    { key: 'filePath', label: 'Putanja', type: 'link', sortable: false },
-    { key: 'uploadedAtDisplay', label: 'Datum uploada', sortable: true },
+    { key: 'documentTypeBadge', label: 'DOCUMENTS.COLUMN_DOCUMENT_TYPE', type: 'badge', sortable: false },
+    { key: 'documentNumber', label: 'DOCUMENTS.COLUMN_DOCUMENT_NUMBER', sortable: true },
+    { key: 'filePath', label: 'DOCUMENTS.COLUMN_FILE_PATH', type: 'link', sortable: false },
+    { key: 'uploadedAtDisplay', label: 'DOCUMENTS.COLUMN_UPLOADED_AT', sortable: true },
   ];
 
   actions: TableAction[] = [
-    { label: 'Izmeni', icon: '✏️', type: 'edit' },
-    { label: 'Obriši', icon: '🗑️', type: 'delete' },
+    { label: this.translate.instant('DOCUMENTS.ACTION_EDIT'), icon: '✏️', type: 'edit' },
+    { label: this.translate.instant('DOCUMENTS.ACTION_DELETE'), icon: '🗑️', type: 'delete' },
   ];
 
   ngOnInit(): void {
@@ -71,7 +73,10 @@ export class DocumentsComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Greška pri učitavanju dokumenata', 'Greška');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('DOCUMENTS.TOAST_LOAD_ERROR'),
+          this.translate.instant('DOCUMENTS.TOAST_ERROR_TITLE')
+        );
         this.isLoading.set(false);
       },
     });
@@ -108,7 +113,10 @@ export class DocumentsComponent implements OnInit {
 
     const maxSizeInBytes = 25 * 1024 * 1024;
     if (file.size > maxSizeInBytes) {
-      this.toastr.error('Fajl ne sme biti veći od 25MB', 'Greška');
+      this.toastr.error(
+        this.translate.instant('DOCUMENTS.FILE_SIZE_ERROR'),
+        this.translate.instant('DOCUMENTS.TOAST_ERROR_TITLE')
+      );
       event.target.value = '';
       return;
     }
@@ -133,7 +141,10 @@ export class DocumentsComponent implements OnInit {
           this.saveDocument(res.url || '', editing);
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Greška pri upload-u fajla', 'Greška');
+          this.toastr.error(
+            err.error?.message || this.translate.instant('DOCUMENTS.FILE_UPLOAD_ERROR'),
+            this.translate.instant('DOCUMENTS.TOAST_ERROR_TITLE')
+          );
           this.isLoading.set(false);
         },
       });
@@ -154,13 +165,19 @@ export class DocumentsComponent implements OnInit {
       };
       this.documentService.update(editing.id, dto).subscribe({
         next: () => {
-          this.toastr.success('Dokument uspešno ažuriran', 'Uspeh');
+          this.toastr.success(
+            this.translate.instant('DOCUMENTS.TOAST_UPDATE_SUCCESS'),
+            this.translate.instant('DOCUMENTS.TOAST_SUCCESS_TITLE')
+          );
           this.loadDocuments();
           this.closeModal();
           this.isLoading.set(false);
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Greška pri ažuriranju dokumenta', 'Greška');
+          this.toastr.error(
+            err.error?.message || this.translate.instant('DOCUMENTS.TOAST_UPDATE_ERROR'),
+            this.translate.instant('DOCUMENTS.TOAST_ERROR_TITLE')
+          );
           this.isLoading.set(false);
         },
       });
@@ -172,13 +189,19 @@ export class DocumentsComponent implements OnInit {
       };
       this.documentService.create(dto).subscribe({
         next: () => {
-          this.toastr.success('Dokument uspešno dodat', 'Uspeh');
+          this.toastr.success(
+            this.translate.instant('DOCUMENTS.TOAST_CREATE_SUCCESS'),
+            this.translate.instant('DOCUMENTS.TOAST_SUCCESS_TITLE')
+          );
           this.loadDocuments();
           this.closeModal();
           this.isLoading.set(false);
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Greška pri dodavanju dokumenta', 'Greška');
+          this.toastr.error(
+            err.error?.message || this.translate.instant('DOCUMENTS.TOAST_CREATE_ERROR'),
+            this.translate.instant('DOCUMENTS.TOAST_ERROR_TITLE')
+          );
           this.isLoading.set(false);
         },
       });
@@ -201,12 +224,18 @@ export class DocumentsComponent implements OnInit {
 
     this.documentService.delete(document.id).subscribe({
       next: () => {
-        this.toastr.success('Dokument uspešno obrisan', 'Uspeh');
+        this.toastr.success(
+          this.translate.instant('DOCUMENTS.TOAST_DELETE_SUCCESS'),
+          this.translate.instant('DOCUMENTS.TOAST_SUCCESS_TITLE')
+        );
         this.loadDocuments();
         this.closeDeleteConfirm();
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Greška pri brisanju dokumenta', 'Greška');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('DOCUMENTS.TOAST_DELETE_ERROR'),
+          this.translate.instant('DOCUMENTS.TOAST_ERROR_TITLE')
+        );
         this.closeDeleteConfirm();
       },
     });
@@ -215,39 +244,39 @@ export class DocumentsComponent implements OnInit {
   getDocumentTypeBadge(type: DocumentType): string {
     switch (type) {
       case DocumentType.tax:
-        return '<span class="badge badge-tax">Poreski</span>';
+        return `<span class="badge badge-tax">${this.translate.instant('DOCUMENTS.TYPE_TAX')}</span>`;
       case DocumentType.expense:
-        return '<span class="badge badge-expense">Trošak</span>';
+        return `<span class="badge badge-expense">${this.translate.instant('DOCUMENTS.TYPE_EXPENSE')}</span>`;
       case DocumentType.invoice:
-        return '<span class="badge badge-invoice">Faktura</span>';
+        return `<span class="badge badge-invoice">${this.translate.instant('DOCUMENTS.TYPE_INVOICE')}</span>`;
       case DocumentType.payment:
-        return '<span class="badge badge-payment">Plaćanje</span>';
+        return `<span class="badge badge-payment">${this.translate.instant('DOCUMENTS.TYPE_PAYMENT')}</span>`;
       case DocumentType.other:
-        return '<span class="badge badge-other">Ostalo</span>';
+        return `<span class="badge badge-other">${this.translate.instant('DOCUMENTS.TYPE_OTHER')}</span>`;
       default:
-        return '<span class="badge badge-other">Nepoznato</span>';
+        return `<span class="badge badge-other">${this.translate.instant('DOCUMENTS.TYPE_UNKNOWN')}</span>`;
     }
   }
 
   getDocumentTypeName(type: DocumentType): string {
     switch (type) {
       case DocumentType.tax:
-        return 'Poreski';
+        return this.translate.instant('DOCUMENTS.TYPE_TAX');
       case DocumentType.expense:
-        return 'Trošak';
+        return this.translate.instant('DOCUMENTS.TYPE_EXPENSE');
       case DocumentType.invoice:
-        return 'Faktura';
+        return this.translate.instant('DOCUMENTS.TYPE_INVOICE');
       case DocumentType.payment:
-        return 'Plaćanje';
+        return this.translate.instant('DOCUMENTS.TYPE_PAYMENT');
       case DocumentType.other:
-        return 'Ostalo';
+        return this.translate.instant('DOCUMENTS.TYPE_OTHER');
       default:
-        return 'Nepoznato';
+        return this.translate.instant('DOCUMENTS.TYPE_UNKNOWN');
     }
   }
 
   formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString('sr-Latn-RS', {
+    return new Date(date).toLocaleDateString(this.translate.currentLang === 'sr-Cyrl' ? 'sr-Cyrl-RS' : 'sr-Latn-RS', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

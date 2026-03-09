@@ -7,37 +7,37 @@
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
-            Nazad
+            {{ 'INVOICE_DETAIL.BACK_BTN' | translate }}
         </button>
 
         <div class="toolbar-actions">
-            <button class="btn-action" (click)="print()" title="Štampaj">
+            <button class="btn-action" (click)="print()" [title]="'INVOICE_DETAIL.PRINT_BTN' | translate">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="6 9 6 2 18 2 18 9"></polyline>
                     <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                     <rect x="6" y="14" width="12" height="8"></rect>
                 </svg>
-                Štampaj
+                {{ 'INVOICE_DETAIL.PRINT_BTN' | translate }}
             </button>
 
-            <button class="btn-action" (click)="exportPdf()" [disabled]="isExporting()" title="Preuzmi PDF">
+            <button class="btn-action" (click)="exportPdf()" [disabled]="isExporting()" [title]="'INVOICE_DETAIL.DOWNLOAD_BTN' | translate">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="7 10 12 15 17 10"></polyline>
                     <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
-                {{ isExporting() ? 'Preuzimanje...' : 'Preuzmi PDF' }}
+                {{ isExporting() ? ('INVOICE_DETAIL.DOWNLOADING_BTN' | translate) : ('INVOICE_DETAIL.DOWNLOAD_BTN' | translate) }}
             </button>
 
-            <button class="btn-action btn-send" (click)="openSendPanel()" title="Pošalji na email">
+            <button class="btn-action btn-send" (click)="openSendPanel()" [title]="'INVOICE_DETAIL.SEND_BTN' | translate">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                 </svg>
-                Pošalji
+                {{ 'INVOICE_DETAIL.SEND_BTN' | translate }}
             </button>
         </div>
     </div>
@@ -47,7 +47,7 @@
         @if (isLoadingPreview()) {
             <div class="loading-state">
                 <div class="spinner"></div>
-                <p>Učitavanje fakture...</p>
+                <p>{{ 'INVOICE_DETAIL.LOADING' | translate }}</p>
             </div>
         } @else {
             <div id="invoice-preview-content" [innerHTML]="previewHtml()"></div>
@@ -59,12 +59,12 @@
         <div class="modal-overlay" (click)="closeSendPanel()">
             <div class="modal-content modal-send" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Pošalji fakturu</h2>
+                    <h2>{{ 'INVOICE_DETAIL.MODAL_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeSendPanel()">✕</button>
                 </div>
                 <div class="modal-body">
                     <p class="send-description">
-                        Faktura će biti poslata kao PDF prilog na sledeće adrese:
+                        {{ 'INVOICE_DETAIL.MODAL_DESCRIPTION' | translate }}
                     </p>
 
                     <!-- Email chips -->
@@ -84,14 +84,14 @@
                             [value]="emailInput()"
                             (input)="emailInput.set($any($event.target).value)"
                             (keydown)="onEmailKeydown($event)"
-                            placeholder="Dodajte email adresu i pritisnite Enter"
+                            [placeholder]="'INVOICE_DETAIL.EMAIL_PLACEHOLDER' | translate"
                             class="email-input">
-                        <button class="btn-add-email" (click)="addEmail()">Dodaj</button>
+                        <button class="btn-add-email" (click)="addEmail()">{{ 'INVOICE_DETAIL.EMAIL_ADD_BTN' | translate }}</button>
                     </div>
-                    <small class="form-hint">Pritisnite Enter ili zapetu da dodate adresu</small>
+                    <small class="form-hint">{{ 'INVOICE_DETAIL.EMAIL_HINT' | translate }}</small>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" (click)="closeSendPanel()">Otkaži</button>
+                    <button class="btn-secondary" (click)="closeSendPanel()">{{ 'INVOICE_DETAIL.BTN_CANCEL' | translate }}</button>
                     <button class="btn-primary btn-send-confirm"
                         [disabled]="emails().length === 0 || isSending()"
                         (click)="sendInvoice()">
@@ -100,7 +100,7 @@
                             <line x1="22" y1="2" x2="11" y2="13"></line>
                             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                         </svg>
-                        {{ isSending() ? 'Slanje...' : 'Pošalji' }}
+                        {{ isSending() ? ('INVOICE_DETAIL.SENDING_BTN' | translate) : ('INVOICE_DETAIL.BTN_SEND_CONFIRM' | translate) }}
                     </button>
                 </div>
             </div>

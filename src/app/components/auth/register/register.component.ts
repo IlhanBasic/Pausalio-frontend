@@ -3,6 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../services/auth.service';
 import { ActivityCodeService } from '../../../services/activity-code.service';
 import { FileService } from '../../../services/file.service';
@@ -16,7 +17,7 @@ import { PASSWORD_REGEX } from '../../shared/constants/password-regex';
 @Component({
     selector: 'app-register',
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule, RouterLink],
+    imports: [ReactiveFormsModule, CommonModule, RouterLink, TranslateModule],
     templateUrl: './register.component.html',
     styleUrl: './register.component.css'
 })
@@ -28,6 +29,7 @@ export class RegisterComponent implements OnInit {
     fileService = inject(FileService);
     router = inject(Router);
     toastr = inject(ToastrService);
+    translate = inject(TranslateService);
 
     isOwner = signal(true);
     isLoading = signal(false);
@@ -84,22 +86,22 @@ export class RegisterComponent implements OnInit {
 
     // Mapiranje backend polja na srpske poruke
     private fieldMessages: Record<string, string> = {
-        'User.FirstName': 'Ime',
-        'User.LastName': 'Prezime',
-        'User.Email': 'Email adresa',
-        'User.Password': 'Lozinka',
-        'User.Phone': 'Telefon',
-        'User.City': 'Grad',
-        'User.Address': 'Adresa',
-        'Business.BusinessName': 'Naziv firme',
-        'Business.PIB': 'PIB',
-        'Business.MB': 'Matični broj',
-        'Business.Email': 'Email firme',
-        'Business.Phone': 'Telefon firme',
-        'Business.Website': 'Website',
-        'Business.Address': 'Adresa firme',
-        'Business.ActivityCodeId': 'Šifra delatnosti',
-        'InviteToken': 'Token za pozivnicu',
+        'User.FirstName': this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.FIRST_NAME').replace(' *', ''),
+        'User.LastName': this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.LAST_NAME').replace(' *', ''),
+        'User.Email': this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.EMAIL').replace(' *', ''),
+        'User.Password': this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.PASSWORD').replace(' *', ''),
+        'User.Phone': this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.PHONE'),
+        'User.City': this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.CITY').replace(' *', ''),
+        'User.Address': this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.ADDRESS').replace(' *', ''),
+        'Business.BusinessName': this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.BUSINESS_NAME').replace(' *', ''),
+        'Business.PIB': this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.PIB').replace(' *', ''),
+        'Business.MB': this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.MB'),
+        'Business.Email': this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.EMAIL').replace(' *', ''),
+        'Business.Phone': this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.PHONE'),
+        'Business.Website': this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.WEBSITE'),
+        'Business.Address': this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.ADDRESS').replace(' *', ''),
+        'Business.ActivityCodeId': this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.ACTIVITY_CODE').replace(' *', ''),
+        'InviteToken': this.translate.instant('REGISTER.SECTIONS.INVITE_TOKEN.FIELD').replace(' *', ''),
     };
 
     get activeForm(): FormGroup {
@@ -120,7 +122,10 @@ export class RegisterComponent implements OnInit {
             next: (res) => this.activityCodes.set(res || []),
             error: (err) => {
                 console.error('Error loading activity codes:', err);
-                this.toastr.error('Greška pri učitavanju šifara delatnosti', 'Greška');
+                this.toastr.error(
+                    this.translate.instant('REGISTER.TOAST.LOAD_ACTIVITY_CODES_ERROR'),
+                    this.translate.instant('COMMON.ERROR')
+                );
             }
         });
     }
@@ -134,7 +139,10 @@ export class RegisterComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading cities:', err);
-                this.toastr.error('Greška pri učitavanju gradova', 'Greška');
+                this.toastr.error(
+                    this.translate.instant('REGISTER.TOAST.LOAD_CITIES_ERROR'),
+                    this.translate.instant('COMMON.ERROR')
+                );
             }
         });
     }
@@ -181,11 +189,17 @@ export class RegisterComponent implements OnInit {
         const file = event.target.files[0];
         if (!file) return;
         if (!file.type.startsWith('image/')) {
-            this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
+            this.toastr.error(
+                this.translate.instant('REGISTER.TOAST.IMAGE_TYPE_ERROR'),
+                this.translate.instant('COMMON.ERROR')
+            );
             return;
         }
         if (file.size > 10 * 1024 * 1024) {
-            this.toastr.error('Fajl ne sme biti veći od 10MB', 'Greška');
+            this.toastr.error(
+                this.translate.instant('REGISTER.TOAST.IMAGE_SIZE_ERROR'),
+                this.translate.instant('COMMON.ERROR')
+            );
             event.target.value = '';
             this.profilePictureFile.set(null);
             this.profilePicturePreview.set(null);
@@ -201,11 +215,17 @@ export class RegisterComponent implements OnInit {
         const file = event.target.files[0];
         if (!file) return;
         if (!file.type.startsWith('image/')) {
-            this.toastr.error('Fajl mora biti slika (jpg, png, gif, ...).', 'Greška');
+            this.toastr.error(
+                this.translate.instant('REGISTER.TOAST.IMAGE_TYPE_ERROR'),
+                this.translate.instant('COMMON.ERROR')
+            );
             return;
         }
         if (file.size > 10 * 1024 * 1024) {
-            this.toastr.error('Fajl ne sme biti veći od 10MB', 'Greška');
+            this.toastr.error(
+                this.translate.instant('REGISTER.TOAST.IMAGE_SIZE_ERROR'),
+                this.translate.instant('COMMON.ERROR')
+            );
             event.target.value = '';
             this.companyLogoFile.set(null);
             this.companyLogoPreview.set(null);
@@ -234,14 +254,14 @@ export class RegisterComponent implements OnInit {
 
             if (messages.length > 0) {
                 // Prikaži svaku grešku kao poseban toast
-                messages.forEach(msg => this.toastr.error(msg, 'Greška validacije'));
+                messages.forEach(msg => this.toastr.error(msg, this.translate.instant('COMMON.ERROR')));
                 return;
             }
         }
 
         // Fallback na generičku poruku
-        const fallback = err?.error?.message || err?.error?.title || 'Greška pri registraciji.';
-        this.toastr.error(fallback, 'Greška');
+        const fallback = err?.error?.message || err?.error?.title || this.translate.instant('REGISTER.TOAST.REGISTER_ERROR');
+        this.toastr.error(fallback, this.translate.instant('COMMON.ERROR'));
     }
 
     onSubmit() {
@@ -264,23 +284,23 @@ export class RegisterComponent implements OnInit {
     private showFrontendValidationErrors(): void {
         const form = this.activeForm;
         const fieldLabels: Record<string, string> = {
-            firstName: 'Ime',
-            lastName: 'Prezime',
-            email: 'Email adresa',
-            password: 'Lozinka',
-            phone: 'Telefon',
-            city: 'Grad',
-            address: 'Adresa',
-            businessName: 'Naziv firme',
-            PIB: 'PIB (mora biti 9 cifara)',
-            MB: 'Matični broj (mora biti 8 cifara)',
-            activityCodeId: 'Šifra delatnosti',
-            businessCity: 'Grad firme',
-            businessAddress: 'Adresa firme',
-            businessEmail: 'Email firme',
-            businessPhone: 'Telefon firme',
-            website: 'Website (mora biti validan URL, npr. https://example.com)',
-            inviteToken: 'Token za pozivnicu',
+            firstName: this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.FIRST_NAME').replace(' *', ''),
+            lastName: this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.LAST_NAME').replace(' *', ''),
+            email: this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.EMAIL').replace(' *', ''),
+            password: this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.PASSWORD').replace(' *', ''),
+            phone: this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.PHONE'),
+            city: this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.CITY').replace(' *', ''),
+            address: this.translate.instant('REGISTER.SECTIONS.PERSONAL_INFO.ADDRESS').replace(' *', ''),
+            businessName: this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.BUSINESS_NAME').replace(' *', ''),
+            PIB: this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.PIB').replace(' *', '') + ' (9 cifara)',
+            MB: this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.MB') + ' (8 cifara)',
+            activityCodeId: this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.ACTIVITY_CODE').replace(' *', ''),
+            businessCity: this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.CITY').replace(' *', ''),
+            businessAddress: this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.ADDRESS').replace(' *', ''),
+            businessEmail: this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.EMAIL').replace(' *', ''),
+            businessPhone: this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.PHONE'),
+            website: this.translate.instant('REGISTER.SECTIONS.BUSINESS_INFO.WEBSITE'),
+            inviteToken: this.translate.instant('REGISTER.SECTIONS.INVITE_TOKEN.FIELD').replace(' *', ''),
         };
 
         Object.keys(form.controls).forEach(key => {
@@ -288,15 +308,30 @@ export class RegisterComponent implements OnInit {
             if (control?.invalid) {
                 const label = fieldLabels[key] || key;
                 if (control.errors?.['required']) {
-                    this.toastr.warning(`${label} je obavezno polje`, 'Nepotpuna forma');
+                    this.toastr.warning(
+                        this.translate.instant('REGISTER.VALIDATION.FIELD_REQUIRED', { field: label }),
+                        this.translate.instant('REGISTER.TOAST.VALIDATION_ERROR_TITLE')
+                    );
                 } else if (control.errors?.['pattern']) {
-                    this.toastr.warning(`${label} nije u ispravnom formatu`, 'Nepotpuna forma');
+                    this.toastr.warning(
+                        this.translate.instant('REGISTER.VALIDATION.FIELD_FORMAT', { field: label }),
+                        this.translate.instant('REGISTER.TOAST.VALIDATION_ERROR_TITLE')
+                    );
                 } else if (control.errors?.['email']) {
-                    this.toastr.warning(`${label} nije ispravna email adresa`, 'Nepotpuna forma');
+                    this.toastr.warning(
+                        this.translate.instant('REGISTER.VALIDATION.FIELD_EMAIL', { field: label }),
+                        this.translate.instant('REGISTER.TOAST.VALIDATION_ERROR_TITLE')
+                    );
                 } else if (control.errors?.['maxlength']) {
-                    this.toastr.warning(`${label} je predugačko`, 'Nepotpuna forma');
+                    this.toastr.warning(
+                        this.translate.instant('REGISTER.VALIDATION.FIELD_MAXLENGTH', { field: label }),
+                        this.translate.instant('REGISTER.TOAST.VALIDATION_ERROR_TITLE')
+                    );
                 } else if (control.errors?.['minlength']) {
-                    this.toastr.warning(`${label} je prekratko`, 'Nepotpuna forma');
+                    this.toastr.warning(
+                        this.translate.instant('REGISTER.VALIDATION.FIELD_MINLENGTH', { field: label }),
+                        this.translate.instant('REGISTER.TOAST.VALIDATION_ERROR_TITLE')
+                    );
                 }
             }
         });
@@ -327,7 +362,12 @@ export class RegisterComponent implements OnInit {
                     this.submitOwnerRegistration(val, profilePictureUrl, companyLogoUrl);
                 },
                 error: (err) => {
-                    this.toastr.error('Greška pri upload-u slika: ' + (err.error?.message || 'Nepoznata greška'), 'Greška');
+                    this.toastr.error(
+                        this.translate.instant('REGISTER.TOAST.UPLOAD_ERROR', { 
+                            message: err.error?.message || this.translate.instant('COMMON.UNKNOWN_ERROR') 
+                        }),
+                        this.translate.instant('COMMON.ERROR')
+                    );
                     this.isLoading.set(false);
                 }
             });
@@ -364,7 +404,10 @@ export class RegisterComponent implements OnInit {
 
         this.authService.registerOwner(dto).subscribe({
             next: () => {
-                this.toastr.success('Registracija uspešna! Proverite email za verifikaciju.', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('REGISTER.TOAST.REGISTER_SUCCESS'),
+                    this.translate.instant('COMMON.SUCCESS')
+                );
                 setTimeout(() => this.router.navigate(['/login']), 1500);
             },
             error: (err) => {
@@ -391,7 +434,10 @@ export class RegisterComponent implements OnInit {
 
         this.authService.registerAssistant(dto).subscribe({
             next: () => {
-                this.toastr.success('Registracija uspešna! Proverite email za verifikaciju.', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('REGISTER.TOAST.REGISTER_SUCCESS'),
+                    this.translate.instant('COMMON.SUCCESS')
+                );
                 setTimeout(() => this.router.navigate(['/login']), 1500);
             },
             error: (err) => {

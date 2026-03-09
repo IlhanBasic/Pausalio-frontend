@@ -4,11 +4,13 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthStore } from '../stores/auth.store';
 import { AuthService } from '../services/auth.service';
+import { LanguageService } from '../services/language.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const authStore = inject(AuthStore);
     const router = inject(Router);
     const authService = inject(AuthService);
+    const languageService = inject(LanguageService);
 
     if (req.url.includes('/logout')) {
         return next(req);
@@ -16,6 +18,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
     const token = authStore.token();
     const currentBusinessId = authStore.currentBusinessId();
+    const currentLang = languageService.currentLang();
+
     let headers = req.headers;
 
     if (token) {
@@ -25,6 +29,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     if (currentBusinessId) {
         headers = headers.set('X-Business-Context', currentBusinessId);
     }
+
+    headers = headers.set('Accept-Language', currentLang);
 
     const authReq = req.clone({ headers, withCredentials: true });
 

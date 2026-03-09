@@ -13,8 +13,8 @@
           <div class="spinner-ring"></div>
           <div class="spinner-ring"></div>
         </div>
-        <h2>Proveravamo vaš email</h2>
-        <p>Samo trenutak dok potvrđujemo<br>vašu email adresu.</p>
+        <h2>{{ 'VERIFY_EMAIL.LOADING.TITLE' | translate }}</h2>
+        <p>{{ 'VERIFY_EMAIL.LOADING.SUBTITLE' | translate }}</p>
       </div>
     }
 
@@ -27,13 +27,13 @@
             <polyline points="20 6 9 17 4 12"/>
           </svg>
         </div>
-        <h2>Email potvrđen</h2>
-        <p>Vaš nalog je spreman. Bićete preusmereni<br>na prijavu za trenutak.</p>
+        <h2>{{ 'VERIFY_EMAIL.SUCCESS.TITLE' | translate }}</h2>
+        <p>{{ 'VERIFY_EMAIL.SUCCESS.SUBTITLE' | translate }}</p>
         <hr class="divider">
         <div class="progress-bar">
           <div class="progress-fill"></div>
         </div>
-        <p class="redirect-note">Preusmeravanje za 3 sekunde...</p>
+        <p class="redirect-note">{{ 'VERIFY_EMAIL.SUCCESS.REDIRECT_NOTE' | translate }}</p>
       </div>
     }
 
@@ -47,7 +47,7 @@
             <line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </div>
-        <h2>Provera nije uspela</h2>
+        <h2>{{ 'VERIFY_EMAIL.ERROR.TITLE' | translate }}</h2>
         <p>{{ errorMessage }}</p>
         <a routerLink="/login" class="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -56,7 +56,7 @@
             <polyline points="10 17 15 12 10 7"/>
             <line x1="15" y1="12" x2="3" y2="12"/>
           </svg>
-          Idi na prijavu
+          {{ 'VERIFY_EMAIL.ERROR.BUTTON_TEXT' | translate }}
         </a>
       </div>
     }

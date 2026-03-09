@@ -1,8 +1,8 @@
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h2>Registracija</h2>
-            <p class="subtitle">Kreirajte svoj nalog</p>
+            <h2>{{ 'REGISTER.TITLE' | translate }}</h2>
+            <p class="subtitle">{{ 'REGISTER.SUBTITLE' | translate }}</p>
         </div>
 
         <div class="role-selector">
@@ -12,7 +12,7 @@
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
                 </svg>
-                Vlasnik firme
+                {{ 'REGISTER.ROLE_OWNER' | translate }}
             </button>
             <button type="button" [class.active]="!isOwner()" (click)="setRole(false)">
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -20,7 +20,7 @@
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                Asistent
+                {{ 'REGISTER.ROLE_ASSISTANT' | translate }}
             </button>
         </div>
 
@@ -40,13 +40,13 @@
                             <line x1="16" y1="17" x2="8" y2="17"></line>
                             <polyline points="10 9 9 9 8 9"></polyline>
                         </svg>
-                        Invite Token
+                        {{ 'REGISTER.SECTIONS.INVITE_TOKEN.TITLE' | translate }}
                     </h3>
                     <div class="form-group">
-                        <label>Invite Token *</label>
-                        <input type="text" formControlName="inviteToken" placeholder="Unesite invite token">
+                        <label>{{ 'REGISTER.SECTIONS.INVITE_TOKEN.FIELD' | translate }}</label>
+                        <input type="text" formControlName="inviteToken" [placeholder]="'REGISTER.SECTIONS.INVITE_TOKEN.PLACEHOLDER' | translate">
                         @if (getControl('inviteToken')?.touched && getControl('inviteToken')?.invalid) {
-                            <div class="error">Obavezno polje</div>
+                            <div class="error">{{ 'REGISTER.SECTIONS.INVITE_TOKEN.ERROR' | translate }}</div>
                         }
                     </div>
                 </div>
@@ -61,42 +61,42 @@
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                    Lični podaci
+                    {{ 'REGISTER.SECTIONS.PERSONAL_INFO.TITLE' | translate }}
                 </h3>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Ime *</label>
-                        <input type="text" formControlName="firstName" placeholder="Unesite ime">
+                        <label>{{ 'REGISTER.SECTIONS.PERSONAL_INFO.FIRST_NAME' | translate }}</label>
+                        <input type="text" formControlName="firstName" [placeholder]="'REGISTER.SECTIONS.PERSONAL_INFO.FIRST_NAME_PLACEHOLDER' | translate">
                         @if (getControl('firstName')?.touched && getControl('firstName')?.invalid) {
-                            <div class="error">Obavezno polje</div>
+                            <div class="error">{{ 'REGISTER.SECTIONS.PERSONAL_INFO.FIRST_NAME_ERROR' | translate }}</div>
                         }
                     </div>
 
                     <div class="form-group">
-                        <label>Prezime *</label>
-                        <input type="text" formControlName="lastName" placeholder="Unesite prezime">
+                        <label>{{ 'REGISTER.SECTIONS.PERSONAL_INFO.LAST_NAME' | translate }}</label>
+                        <input type="text" formControlName="lastName" [placeholder]="'REGISTER.SECTIONS.PERSONAL_INFO.LAST_NAME_PLACEHOLDER' | translate">
                         @if (getControl('lastName')?.touched && getControl('lastName')?.invalid) {
-                            <div class="error">Obavezno polje</div>
+                            <div class="error">{{ 'REGISTER.SECTIONS.PERSONAL_INFO.LAST_NAME_ERROR' | translate }}</div>
                         }
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Email *</label>
-                    <input type="email" formControlName="email" placeholder="primer@email.com">
+                    <label>{{ 'REGISTER.SECTIONS.PERSONAL_INFO.EMAIL' | translate }}</label>
+                    <input type="email" formControlName="email" [placeholder]="'REGISTER.SECTIONS.PERSONAL_INFO.EMAIL_PLACEHOLDER' | translate">
                     @if (getControl('email')?.touched && getControl('email')?.invalid) {
-                        <div class="error">Neispravan email format</div>
+                        <div class="error">{{ 'REGISTER.SECTIONS.PERSONAL_INFO.EMAIL_ERROR' | translate }}</div>
                     }
                 </div>
 
                 <div class="form-group">
-                    <label>Lozinka *</label>
+                    <label>{{ 'REGISTER.SECTIONS.PERSONAL_INFO.PASSWORD' | translate }}</label>
                     <div class="password-input-wrapper">
                         <input [type]="showPassword() ? 'text' : 'password'" formControlName="password"
-                            placeholder="Unesite lozinku">
+                            [placeholder]="'REGISTER.SECTIONS.PERSONAL_INFO.PASSWORD_PLACEHOLDER' | translate">
                         <button type="button" class="password-toggle" (click)="togglePasswordVisibility()"
-                            aria-label="Toggle password visibility">
+                            [attr.aria-label]="'COMMON.TOGGLE_PASSWORD' | translate">
                             @if (!showPassword()) {
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -118,25 +118,25 @@
                         </button>
                     </div>
                     @if (getControl('password')?.touched && getControl('password')?.errors?.['required']) {
-                        <div class="error">Obavezno polje</div>
+                        <div class="error">{{ 'REGISTER.SECTIONS.PERSONAL_INFO.PASSWORD_ERROR_REQUIRED' | translate }}</div>
                     }
                     @if (getControl('password')?.touched && getControl('password')?.errors?.['pattern']) {
-                        <div class="error">Min 8 karaktera, 1 veliko, 1 malo slovo, 1 broj, 1 spec. znak</div>
+                        <div class="error">{{ 'REGISTER.SECTIONS.PERSONAL_INFO.PASSWORD_ERROR_PATTERN' | translate }}</div>
                     }
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Telefon</label>
-                        <input type="tel" inputmode="numeric"  pattern="[0-9+ ]*" formControlName="phone" placeholder="06...">
+                        <label>{{ 'REGISTER.SECTIONS.PERSONAL_INFO.PHONE' | translate }}</label>
+                        <input type="tel" inputmode="numeric"  pattern="[0-9+ ]*" formControlName="phone" [placeholder]="'REGISTER.SECTIONS.PERSONAL_INFO.PHONE_PLACEHOLDER' | translate">
                         @if (getControl('phone')?.touched && getControl('phone')?.errors?.['pattern']) {
-                            <div class="error">Telefon mora imati 10-15 cifara</div>
+                            <div class="error">{{ 'REGISTER.SECTIONS.PERSONAL_INFO.PHONE_ERROR' | translate }}</div>
                         }
                     </div>
 
                     <div class="form-group autocomplete-wrapper">
-                        <label>Grad *</label>
-                        <input type="text" formControlName="city" placeholder="Beograd"
+                        <label>{{ 'REGISTER.SECTIONS.PERSONAL_INFO.CITY' | translate }}</label>
+                        <input type="text" formControlName="city" [placeholder]="'REGISTER.SECTIONS.PERSONAL_INFO.CITY_PLACEHOLDER' | translate"
                             (input)="onCityInput($event, 'user')" (focus)="showCityDropdown.set(true)"
                             (blur)="closeDropdown('user')" autocomplete="off">
 
@@ -151,23 +151,23 @@
                         }
 
                         @if (getControl('city')?.touched && getControl('city')?.invalid) {
-                            <div class="error">Obavezno polje</div>
+                            <div class="error">{{ 'REGISTER.SECTIONS.PERSONAL_INFO.CITY_ERROR' | translate }}</div>
                         }
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Adresa *</label>
-                    <input type="text" formControlName="address" placeholder="Ulica i broj">
+                    <label>{{ 'REGISTER.SECTIONS.PERSONAL_INFO.ADDRESS' | translate }}</label>
+                    <input type="text" formControlName="address" [placeholder]="'REGISTER.SECTIONS.PERSONAL_INFO.ADDRESS_PLACEHOLDER' | translate">
                     @if (getControl('address')?.touched && getControl('address')?.invalid) {
-                        <div class="error">Obavezno polje</div>
+                        <div class="error">{{ 'REGISTER.SECTIONS.PERSONAL_INFO.ADDRESS_ERROR' | translate }}</div>
                     }
                 </div>
 
                 <!-- Owner-specific user fields -->
                 @if (isOwner()) {
                     <div class="form-group file-upload">
-                        <label>Profilna slika</label>
+                        <label>{{ 'REGISTER.SECTIONS.PERSONAL_INFO.PROFILE_PICTURE' | translate }}</label>
                         <div class="file-input-wrapper">
                             <input type="file" id="profilePicture" accept="image/*"
                                 (change)="onProfilePictureSelect($event)" #profileInput>
@@ -179,7 +179,7 @@
                                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
                                     <polyline points="21 15 16 10 5 21"></polyline>
                                 </svg>
-                                {{ profilePictureFile() ? profilePictureFile()!.name : 'Izaberite sliku' }}
+                                {{ profilePictureFile() ? profilePictureFile()!.name : ('REGISTER.SECTIONS.PERSONAL_INFO.PROFILE_PICTURE_PLACEHOLDER' | translate) }}
                             </label>
                         </div>
                         @if (profilePicturePreview()) {
@@ -201,39 +201,39 @@
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                             <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
-                        Podaci o firmi
+                        {{ 'REGISTER.SECTIONS.BUSINESS_INFO.TITLE' | translate }}
                     </h3>
 
                     <div class="form-group">
-                        <label>Naziv firme *</label>
-                        <input type="text" formControlName="businessName" placeholder="Naziv preduzeća">
+                        <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.BUSINESS_NAME' | translate }}</label>
+                        <input type="text" formControlName="businessName" [placeholder]="'REGISTER.SECTIONS.BUSINESS_INFO.BUSINESS_NAME_PLACEHOLDER' | translate">
                         @if (getControl('businessName')?.touched && getControl('businessName')?.invalid) {
-                            <div class="error">Obavezno polje</div>
+                            <div class="error">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.BUSINESS_NAME_ERROR' | translate }}</div>
                         }
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>PIB *</label>
-                            <input type="text" formControlName="PIB" placeholder="123456789">
+                            <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.PIB' | translate }}</label>
+                            <input type="text" formControlName="PIB" [placeholder]="'REGISTER.SECTIONS.BUSINESS_INFO.PIB_PLACEHOLDER' | translate">
                             @if (getControl('PIB')?.touched && getControl('PIB')?.invalid) {
-                                <div class="error">Obavezno polje maksimalno 9 brojeva</div>
+                                <div class="error">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.PIB_ERROR' | translate }}</div>
                             }
                         </div>
 
                         <div class="form-group">
-                            <label>Matični broj (MB)</label>
-                            <input type="text" formControlName="MB" placeholder="12345678">
+                            <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.MB' | translate }}</label>
+                            <input type="text" formControlName="MB" [placeholder]="'REGISTER.SECTIONS.BUSINESS_INFO.MB_PLACEHOLDER' | translate">
                             @if (getControl('MB')?.touched && getControl('MB')?.invalid) {
-                                <div class="error">Matični broj mora imati 8 karaktera</div>
+                                <div class="error">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.MB_ERROR' | translate }}</div>
                             }
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Šifra delatnosti *</label>
+                        <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.ACTIVITY_CODE' | translate }}</label>
                         <select formControlName="activityCodeId">
-                            <option value="">Izaberite šifru delatnosti</option>
+                            <option value="">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.ACTIVITY_CODE_PLACEHOLDER' | translate }}</option>
                             @for (code of activityCodes(); track code.id) {
                                 <option [value]="code.id">
                                     {{ code.code }} - {{ code.description }}
@@ -241,14 +241,14 @@
                             }
                         </select>
                         @if (getControl('activityCodeId')?.touched && getControl('activityCodeId')?.invalid) {
-                            <div class="error">Obavezno polje</div>
+                            <div class="error">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.ACTIVITY_CODE_ERROR' | translate }}</div>
                         }
                     </div>
 
                     <div class="form-row">
                         <div class="form-group autocomplete-wrapper">
-                            <label>Grad *</label>
-                            <input type="text" formControlName="businessCity" placeholder="Beograd"
+                            <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.CITY' | translate }}</label>
+                            <input type="text" formControlName="businessCity" [placeholder]="'REGISTER.SECTIONS.BUSINESS_INFO.CITY_PLACEHOLDER' | translate"
                                 (input)="onCityInput($event, 'business')" (focus)="showBusinessCityDropdown.set(true)"
                                 (blur)="closeDropdown('business')" autocomplete="off">
 
@@ -263,44 +263,47 @@
                             }
 
                             @if (getControl('businessCity')?.touched && getControl('businessCity')?.invalid) {
-                                <div class="error">Obavezno polje</div>
+                                <div class="error">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.CITY_ERROR' | translate }}</div>
                             }
                         </div>
 
                         <div class="form-group">
-                            <label>Adresa *</label>
-                            <input type="text" formControlName="businessAddress" placeholder="Ulica i broj">
+                            <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.ADDRESS' | translate }}</label>
+                            <input type="text" formControlName="businessAddress" [placeholder]="'REGISTER.SECTIONS.BUSINESS_INFO.ADDRESS_PLACEHOLDER' | translate">
                             @if (getControl('businessAddress')?.touched && getControl('businessAddress')?.invalid) {
-                                <div class="error">Obavezno polje</div>
+                                <div class="error">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.ADDRESS_ERROR' | translate }}</div>
                             }
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Email firme *</label>
-                            <input type="email" formControlName="businessEmail" placeholder="firma@email.com">
+                            <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.EMAIL' | translate }}</label>
+                            <input type="email" formControlName="businessEmail" [placeholder]="'REGISTER.SECTIONS.BUSINESS_INFO.EMAIL_PLACEHOLDER' | translate">
                             @if (getControl('businessEmail')?.touched && getControl('businessEmail')?.invalid) {
-                                <div class="error">Neispravan email</div>
+                                <div class="error">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.EMAIL_ERROR' | translate }}</div>
                             }
                         </div>
 
                         <div class="form-group">
-                            <label>Telefon firme</label>
-                            <input type="tel" inputmode="numeric" pattern="[0-9+ ]*" formControlName="businessPhone" placeholder="06...">
+                            <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.PHONE' | translate }}</label>
+                            <input type="tel" inputmode="numeric" pattern="[0-9+ ]*" formControlName="businessPhone" [placeholder]="'REGISTER.SECTIONS.BUSINESS_INFO.PHONE_PLACEHOLDER' | translate">
                             @if (getControl('businessPhone')?.touched && getControl('businessPhone')?.errors?.['pattern']) {
-                                <div class="error">Telefon firme mora imati 10-15 cifara</div>
+                                <div class="error">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.PHONE_ERROR' | translate }}</div>
                             }
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Website</label>
-                        <input type="url" formControlName="website" placeholder="https://www.primer.com">
+                        <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.WEBSITE' | translate }}</label>
+                        <input type="url" formControlName="website" [placeholder]="'REGISTER.SECTIONS.BUSINESS_INFO.WEBSITE_PLACEHOLDER' | translate">
+                        @if (getControl('website')?.touched && getControl('website')?.invalid) {
+                            <div class="error">{{ 'REGISTER.SECTIONS.BUSINESS_INFO.WEBSITE_ERROR' | translate }}</div>
+                        }
                     </div>
 
                     <div class="form-group file-upload">
-                        <label>Logo kompanije</label>
+                        <label>{{ 'REGISTER.SECTIONS.BUSINESS_INFO.COMPANY_LOGO' | translate }}</label>
                         <div class="file-input-wrapper">
                             <input type="file" id="companyLogo" accept="image/*" (change)="onCompanyLogoSelect($event)"
                                 #logoInput>
@@ -312,7 +315,7 @@
                                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
                                     <polyline points="21 15 16 10 5 21"></polyline>
                                 </svg>
-                                {{ companyLogoFile() ? companyLogoFile()!.name : 'Izaberite logo' }}
+                                {{ companyLogoFile() ? companyLogoFile()!.name : ('REGISTER.SECTIONS.BUSINESS_INFO.COMPANY_LOGO_PLACEHOLDER' | translate) }}
                             </label>
                         </div>
                         @if (companyLogoPreview()) {
@@ -328,12 +331,12 @@
                 @if (isLoading()) {
                     <span class="spinner"></span>
                 }
-                <span>{{ isLoading() ? 'Učitavanje...' : 'Registruj se' }}</span>
+                <span>{{ isLoading() ? ('REGISTER.BUTTON.REGISTERING' | translate) : ('REGISTER.BUTTON.REGISTER' | translate) }}</span>
             </button>
         </form>
 
         <p class="auth-footer">
-            Već imaš nalog? <a routerLink="/login">Prijavi se</a>
+            {{ 'REGISTER.FOOTER.TEXT' | translate }} <a routerLink="/login">{{ 'REGISTER.FOOTER.LINK' | translate }}</a>
         </p>
     </div>
 </div>

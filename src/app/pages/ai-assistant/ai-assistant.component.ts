@@ -1,6 +1,7 @@
-import { Component, inject, OnInit, AfterViewChecked, ElementRef, ViewChild } from '@angular/core';
+import { Component, inject, AfterViewChecked, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AiAssistantService } from '../../services/ai-assistant.service';
 import { ChatHistoryItem, UserChatMessage } from '../../models/user-chat-message';
 
@@ -13,7 +14,7 @@ interface ChatMessage {
 @Component({
   selector: 'app-ai-assistant',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './ai-assistant.component.html',
   styleUrl: './ai-assistant.component.css',
 })
@@ -21,12 +22,12 @@ export class AiAssistantComponent implements AfterViewChecked {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
   private aiService = inject(AiAssistantService);
+  private translate = inject(TranslateService);
 
   messages: ChatMessage[] = [
     {
       role: 'assistant',
-      content:
-        'Zdravo! Ja sam tvoj Pausalio asistent. 👋\n\nTu sam da ti pomognem sa svim pitanjima vezanim za tvoje poslovanje — fakture, troškove, poreze, paušalni limit i slično.\n\nŠta te zanima?',
+      content: this.translate.instant('AI_ASSISTANT.WELCOME_MESSAGE'),
       timestamp: new Date(),
     },
   ];
@@ -62,7 +63,7 @@ export class AiAssistantComponent implements AfterViewChecked {
       next: (response) => {
         this.messages.push({
           role: 'assistant',
-          content: response.message ?? 'Nema odgovora.',
+          content: response.message ?? this.translate.instant('AI_ASSISTANT.NO_RESPONSE'),
           timestamp: new Date(),
         });
         this.isLoading = false;
@@ -71,7 +72,7 @@ export class AiAssistantComponent implements AfterViewChecked {
       error: () => {
         this.messages.push({
           role: 'assistant',
-          content: '⚠️ Došlo je do greške. Pokušaj ponovo.',
+          content: this.translate.instant('AI_ASSISTANT.ERROR_MESSAGE'),
           timestamp: new Date(),
         });
         this.isLoading = false;
@@ -99,7 +100,10 @@ export class AiAssistantComponent implements AfterViewChecked {
   }
 
   formatTime(date: Date): string {
-    return date.toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(this.translate.currentLang === 'sr-Cyrl' ? 'sr-Cyrl-RS' : 'sr-Latn-RS', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
   }
 
   formatContent(content: string): string {

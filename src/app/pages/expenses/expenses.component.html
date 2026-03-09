@@ -1,8 +1,8 @@
 <div class="expenses-page">
     <div class="page-header">
         <div class="header-content">
-            <h1>Troškovi</h1>
-            <p class="subtitle">Upravljanje poslovnim troškovima</p>
+            <h1>{{ 'EXPENSES.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'EXPENSES.SUBTITLE' | translate }}</p>
         </div>
         <button class="btn-primary" (click)="openAddModal()">
             <span class="btn-icon">
@@ -12,30 +12,31 @@
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </span>
-            Dodaj trošak
+            {{ 'EXPENSES.ADD_BTN' | translate }}
         </button>
     </div>
 
     <div class="filter-tabs">
         <button class="filter-tab" [class.active]="activeStatusFilter() === null" (click)="setStatusFilter(null)">
-            Svi
+            {{ 'EXPENSES.FILTER_ALL' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === ExpenseStatus.pending"
             (click)="setStatusFilter(ExpenseStatus.pending)">
-            <span class="tab-dot dot-pending"></span>Na čekanju
+            <span class="tab-dot dot-pending"></span>{{ 'EXPENSES.FILTER_PENDING' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === ExpenseStatus.paid"
             (click)="setStatusFilter(ExpenseStatus.paid)">
-            <span class="tab-dot dot-paid"></span>Plaćeno
+            <span class="tab-dot dot-paid"></span>{{ 'EXPENSES.FILTER_PAID' | translate }}
         </button>
         <button class="filter-tab" [class.active]="activeStatusFilter() === ExpenseStatus.archived"
             (click)="setStatusFilter(ExpenseStatus.archived)">
-            <span class="tab-dot dot-archived"></span>Arhivirano
+            <span class="tab-dot dot-archived"></span>{{ 'EXPENSES.FILTER_ARCHIVED' | translate }}
         </button>
     </div>
 
-    <app-data-table [data]="expenses()" [columns]="columns" [actions]="actions" searchPlaceholder="Pretraži troškove..."
-        emptyMessage="Nema troškova za prikaz. Dodajte prvi trošak!" (onEdit)="openEditModal($event)"
+    <app-data-table [data]="expenses()" [columns]="columns" [actions]="actions"
+        [searchPlaceholder]="'EXPENSES.SEARCH_PLACEHOLDER' | translate"
+        [emptyMessage]="'EXPENSES.EMPTY_MESSAGE' | translate" (onEdit)="openEditModal($event)"
         (onDelete)="openDeleteConfirm($event)" (onCustomAction)="handleCustomAction($event)">
     </app-data-table>
 
@@ -44,30 +45,30 @@
         <div class="modal-overlay" (click)="closeModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>{{ editingExpense() ? 'Izmeni trošak' : 'Dodaj novi trošak' }}</h2>
+                    <h2>{{ editingExpense() ? ('EXPENSES.MODAL_EDIT_TITLE' | translate) : ('EXPENSES.MODAL_ADD_TITLE' | translate) }}</h2>
                     <button class="close-btn" (click)="closeModal()">✕</button>
                 </div>
 
                 <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Naziv *</label>
-                            <input type="text" formControlName="name" placeholder="Naziv troška">
+                            <label>{{ 'EXPENSES.FIELD_NAME' | translate }}</label>
+                            <input type="text" formControlName="name" [placeholder]="'EXPENSES.FIELD_NAME_PLACEHOLDER' | translate">
                             @if (expenseForm.get('name')?.touched && expenseForm.get('name')?.invalid) {
-                                <div class="error">Naziv je obavezan</div>
+                                <div class="error">{{ 'EXPENSES.FIELD_NAME_ERROR' | translate }}</div>
                             }
                         </div>
 
                         <div class="form-group">
-                            <label>Iznos (RSD) *</label>
-                            <input type="number" formControlName="amount" placeholder="0.00" step="0.01" min="0">
+                            <label>{{ 'EXPENSES.FIELD_AMOUNT' | translate }}</label>
+                            <input type="number" formControlName="amount" [placeholder]="'EXPENSES.FIELD_AMOUNT_PLACEHOLDER' | translate" step="0.01" min="0">
                             @if (expenseForm.get('amount')?.touched && expenseForm.get('amount')?.invalid) {
                                 <div class="error">
                                     @if (expenseForm.get('amount')?.hasError('required')) {
-                                        <span>Iznos je obavezan</span>
+                                        <span>{{ 'EXPENSES.FIELD_AMOUNT_ERROR_REQUIRED' | translate }}</span>
                                     }
                                     @if (expenseForm.get('amount')?.hasError('min')) {
-                                        <span>Iznos mora biti veći od 0</span>
+                                        <span>{{ 'EXPENSES.FIELD_AMOUNT_ERROR_MIN' | translate }}</span>
                                     }
                                 </div>
                             }
@@ -75,9 +76,9 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'EXPENSES.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="expenseForm.invalid">
-                            {{ editingExpense() ? 'Sačuvaj izmene' : 'Dodaj trošak' }}
+                            {{ editingExpense() ? ('EXPENSES.BTN_SAVE' | translate) : ('EXPENSES.BTN_ADD' | translate) }}
                         </button>
                     </div>
                 </form>
@@ -90,7 +91,7 @@
         <div class="modal-overlay" (click)="closePaymentModal()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Plati trošak</h2>
+                    <h2>{{ 'EXPENSES.MODAL_PAYMENT_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closePaymentModal()">✕</button>
                 </div>
 
@@ -98,14 +99,14 @@
                     <div class="modal-body">
 
                         <div class="payment-info">
-                            <span>Iznos za plaćanje:</span>
+                            <span>{{ 'EXPENSES.PAYMENT_INFO' | translate }}</span>
                             <strong>{{ formatCurrency(payingExpense()?.amount || 0) }}</strong>
                         </div>
 
                         <div class="form-group">
-                            <label>Bankovni račun *</label>
+                            <label>{{ 'EXPENSES.FIELD_BANK_ACCOUNT' | translate }}</label>
                             <select formControlName="bankAccountId">
-                                <option value="">Izaberite račun</option>
+                                <option value="">{{ 'EXPENSES.FIELD_BANK_ACCOUNT_PLACEHOLDER' | translate }}</option>
                                 @for (account of bankAccounts(); track $index) {
                                     <option [value]="account.id">
                                         {{ account.bankName }} - {{ account.accountNumber }} (RSD)
@@ -114,27 +115,27 @@
                             </select>
 
                             <small class="form-hint">
-                                Troškovi se plaćaju isključivo preko domaćih bankovnih računa
+                                {{ 'EXPENSES.FIELD_BANK_ACCOUNT_HINT' | translate }}
                             </small>
 
                             @if (bankAccounts().length === 0) {
                                 <small class="form-hint">
-                                    Nema aktivnih domaćih bankovnih računa
+                                    {{ 'EXPENSES.NO_BANK_ACCOUNTS_HINT' | translate }}
                                 </small>
                             }
 
                             @if (paymentForm.get('bankAccountId')?.touched && paymentForm.get('bankAccountId')?.invalid) {
-                                <div class="error">Bankovni račun je obavezan</div>
+                                <div class="error">{{ 'EXPENSES.FIELD_BANK_ACCOUNT_ERROR' | translate }}</div>
                             }
                         </div>
 
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closePaymentModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closePaymentModal()">{{ 'EXPENSES.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary"
                             [disabled]="paymentForm.invalid || bankAccounts().length === 0">
-                            Potvrdi plaćanje
+                            {{ 'EXPENSES.BTN_PAY' | translate }}
                         </button>
                     </div>
                 </form>
@@ -147,20 +148,20 @@
         <div class="modal-overlay" (click)="closeDeleteConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda brisanja</h2>
+                    <h2>{{ 'EXPENSES.MODAL_DELETE_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
                 </div>
 
                 <div class="modal-body">
                     <p class="confirm-message">
-                        Da li ste sigurni da želite da obrišete trošak
+                        {{ 'EXPENSES.DELETE_CONFIRM_MSG' | translate }}
                         <strong>{{ deletingExpense()?.name }}</strong>?
                     </p>
-                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+                    <p class="confirm-warning">{{ 'EXPENSES.DELETE_CONFIRM_WARNING' | translate }}</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'EXPENSES.BTN_CANCEL' | translate }}</button>
                     <button type="button" class="btn-danger" (click)="confirmDelete()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -170,7 +171,7 @@
                             <path d="M14 11v6"></path>
                             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
                         </svg>
-                        Obriši
+                        {{ 'EXPENSES.BTN_DELETE' | translate }}
                     </button>
                 </div>
             </div>

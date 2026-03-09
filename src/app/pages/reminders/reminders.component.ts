@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventClickArg } from '@fullcalendar/core';
 import { DateClickArg } from '@fullcalendar/interaction';
@@ -12,17 +13,18 @@ import { ReminderService } from '../../services/reminder.service';
 import { ReminderToReturnDto, AddReminderDto, UpdateReminderDto } from '../../models/reminder';
 import { ReminderType } from '../../enums/reminder-type';
 
-
 @Component({
     selector: 'app-reminders',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FullCalendarModule],
+    imports: [CommonModule, ReactiveFormsModule, FullCalendarModule, TranslateModule],
     templateUrl: './reminders.component.html',
     styleUrl: './reminders.component.css'
 })
 export class RemindersComponent implements OnInit {
     reminderService = inject(ReminderService);
     fb = inject(FormBuilder);
+    toastr = inject(ToastrService);
+    translate = inject(TranslateService);
 
     reminders = signal<ReminderToReturnDto[]>([]);
     isLoading = signal(false);
@@ -32,11 +34,9 @@ export class RemindersComponent implements OnInit {
     editingReminder = signal<ReminderToReturnDto | null>(null);
     selectedReminder = signal<ReminderToReturnDto | null>(null);
     deletingReminder = signal<ReminderToReturnDto | null>(null);
-    toastr = inject(ToastrService);
 
     ReminderType = ReminderType;
 
-    // Track double-click logic
     private lastClickedDate: string | null = null;
     private lastClickTime: number = 0;
 
@@ -56,10 +56,10 @@ export class RemindersComponent implements OnInit {
             right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         buttonText: {
-            today: 'Danas',
-            month: 'Mesec',
-            week: 'Nedelja',
-            day: 'Dan'
+            today: this.translate.instant('REMINDERS.CAL_TODAY'),
+            month: this.translate.instant('REMINDERS.CAL_MONTH'),
+            week: this.translate.instant('REMINDERS.CAL_WEEK'),
+            day: this.translate.instant('REMINDERS.CAL_DAY')
         },
         editable: false,
         selectable: true,
@@ -73,6 +73,19 @@ export class RemindersComponent implements OnInit {
     };
 
     ngOnInit() {
+        // Ažuriraj dugmad kalendara kad se jezik promeni
+        this.translate.onLangChange.subscribe(() => {
+            this.calendarOptions = {
+                ...this.calendarOptions,
+                buttonText: {
+                    today: this.translate.instant('REMINDERS.CAL_TODAY'),
+                    month: this.translate.instant('REMINDERS.CAL_MONTH'),
+                    week: this.translate.instant('REMINDERS.CAL_WEEK'),
+                    day: this.translate.instant('REMINDERS.CAL_DAY')
+                }
+            };
+        });
+
         this.loadReminders();
     }
 
@@ -86,7 +99,10 @@ export class RemindersComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading reminders:', err);
-                this.toastr.error(err.error?.message || 'Greška pri učitavanju podsetnika', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('REMINDERS.TOAST_LOAD_ERROR'),
+                    this.translate.instant('REMINDERS.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -99,20 +115,14 @@ export class RemindersComponent implements OnInit {
             start: new Date(reminder.dueDate),
             backgroundColor: this.getEventColor(reminder),
             borderColor: this.getEventColor(reminder),
-            extendedProps: {
-                reminder: reminder
-            }
+            extendedProps: { reminder }
         }));
 
-        this.calendarOptions = {
-            ...this.calendarOptions,
-            events: events
-        };
+        this.calendarOptions = { ...this.calendarOptions, events };
     }
 
     getEventColor(reminder: ReminderToReturnDto): string {
         if (reminder.isCompleted) return '#68d391';
-
         switch (reminder.reminderType) {
             case ReminderType.Tax:     return '#f56565';
             case ReminderType.Expense: return '#ed8936';
@@ -138,12 +148,10 @@ export class RemindersComponent implements OnInit {
 
         if (!isDoubleClick) return;
 
-        // Pre-fill date: use clicked date at current time, or 09:00 as default
         const clickedDate = new Date(arg.date);
         const now2 = new Date();
-
-        // If clicked date is today, use current time rounded up to next 5min; otherwise 09:00
         const isToday = clickedDate.toDateString() === now2.toDateString();
+
         if (isToday) {
             clickedDate.setHours(now2.getHours(), Math.ceil(now2.getMinutes() / 5) * 5, 0, 0);
         } else {
@@ -155,31 +163,19 @@ export class RemindersComponent implements OnInit {
             .slice(0, 16);
 
         this.editingReminder.set(null);
-        this.reminderForm.reset({
-            title: '',
-            description: '',
-            reminderType: ReminderType.Other,
-            dueDate: formatted
-        });
+        this.reminderForm.reset({ title: '', description: '', reminderType: ReminderType.Other, dueDate: formatted });
         this.showModal.set(true);
     }
 
     openAddModal() {
         this.editingReminder.set(null);
-        this.reminderForm.reset({
-            title: '',
-            description: '',
-            reminderType: ReminderType.Other,
-            dueDate: ''
-        });
+        this.reminderForm.reset({ title: '', description: '', reminderType: ReminderType.Other, dueDate: '' });
         this.showModal.set(true);
     }
 
     openEditModal(reminder: ReminderToReturnDto) {
         this.editingReminder.set(reminder);
-        const dueDate = new Date(reminder.dueDate);
-        const formattedDate = dueDate.toISOString().slice(0, 16);
-
+        const formattedDate = new Date(reminder.dueDate).toISOString().slice(0, 16);
         this.reminderForm.patchValue({
             title: reminder.title,
             description: reminder.description || '',
@@ -217,16 +213,20 @@ export class RemindersComponent implements OnInit {
                 reminderType: formValue.reminderType!,
                 dueDate: new Date(formValue.dueDate!)
             };
-
             this.reminderService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.toastr.success('Podsetnik uspešno ažuriran', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('REMINDERS.TOAST_UPDATE_SUCCESS'),
+                        this.translate.instant('REMINDERS.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadReminders();
                     this.closeModal();
                 },
                 error: (err) => {
-                    console.error('Error updating reminder:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju podsetnika', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('REMINDERS.TOAST_UPDATE_ERROR'),
+                        this.translate.instant('REMINDERS.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         } else {
@@ -236,16 +236,20 @@ export class RemindersComponent implements OnInit {
                 reminderType: formValue.reminderType!,
                 dueDate: formValue.dueDate!
             };
-
             this.reminderService.create(dto).subscribe({
                 next: () => {
-                    this.toastr.success('Podsetnik uspešno dodat', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('REMINDERS.TOAST_CREATE_SUCCESS'),
+                        this.translate.instant('REMINDERS.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadReminders();
                     this.closeModal();
                 },
                 error: (err) => {
-                    console.error('Error creating reminder:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri dodavanju podsetnika', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('REMINDERS.TOAST_CREATE_ERROR'),
+                        this.translate.instant('REMINDERS.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         }
@@ -254,13 +258,18 @@ export class RemindersComponent implements OnInit {
     markAsCompleted(reminder: ReminderToReturnDto) {
         this.reminderService.markCompleted(reminder.id).subscribe({
             next: () => {
-                this.toastr.success('Podsetnik označen kao završen', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('REMINDERS.TOAST_COMPLETE_SUCCESS'),
+                    this.translate.instant('REMINDERS.TOAST_SUCCESS_TITLE')
+                );
                 this.loadReminders();
                 this.closeDetailsModal();
             },
             error: (err) => {
-                console.error('Error marking reminder as completed:', err);
-                this.toastr.error(err.error?.message || 'Greška pri označavanju podsetnika', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('REMINDERS.TOAST_COMPLETE_ERROR'),
+                    this.translate.instant('REMINDERS.TOAST_ERROR_TITLE')
+                );
             }
         });
     }
@@ -282,13 +291,18 @@ export class RemindersComponent implements OnInit {
 
         this.reminderService.delete(reminder.id).subscribe({
             next: () => {
-                this.toastr.success('Podsetnik uspešno obrisan', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('REMINDERS.TOAST_DELETE_SUCCESS'),
+                    this.translate.instant('REMINDERS.TOAST_SUCCESS_TITLE')
+                );
                 this.loadReminders();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
-                console.error('Error deleting reminder:', err);
-                this.toastr.error(err.error?.message || 'Greška pri brisanju podsetnika', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('REMINDERS.TOAST_DELETE_ERROR'),
+                    this.translate.instant('REMINDERS.TOAST_ERROR_TITLE')
+                );
                 this.closeDeleteConfirm();
             }
         });
@@ -296,16 +310,18 @@ export class RemindersComponent implements OnInit {
 
     getReminderTypeName(type: ReminderType): string {
         switch (type) {
-            case ReminderType.Tax:     return 'Porez';
-            case ReminderType.Expense: return 'Trošak';
-            case ReminderType.Meeting: return 'Sastanak';
-            case ReminderType.Other:   return 'Ostalo';
-            default:                   return 'Nepoznato';
+            case ReminderType.Tax:     return this.translate.instant('REMINDERS.TYPE_TAX');
+            case ReminderType.Expense: return this.translate.instant('REMINDERS.TYPE_EXPENSE');
+            case ReminderType.Meeting: return this.translate.instant('REMINDERS.TYPE_MEETING');
+            case ReminderType.Other:   return this.translate.instant('REMINDERS.TYPE_OTHER');
+            default:                   return this.translate.instant('REMINDERS.TYPE_UNKNOWN');
         }
     }
 
     formatDate(date: Date): string {
-        return new Date(date).toLocaleString('sr-Latn-RS', {
+        const lang = this.translate.currentLang;
+        const locale = lang === 'sr-Cyrl' ? 'sr-Cyrl-RS' : 'sr-Latn-RS';
+        return new Date(date).toLocaleString(locale, {
             year: 'numeric',
             month: 'long',
             day: 'numeric',

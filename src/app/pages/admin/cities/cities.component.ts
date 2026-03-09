@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CityService } from '../../../services/city.service';
 import { CityToReturnDto, AddCityDto, UpdateCityDto } from '../../../models/city';
 import { DataTableComponent, TableColumn, TableAction } from '../../../components/shared/data-table/data-table.component';
@@ -9,7 +10,7 @@ import { DataTableComponent, TableColumn, TableAction } from '../../../component
 @Component({
     selector: 'app-cities',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+    imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule],
     templateUrl: './cities.component.html',
     styleUrl: './cities.component.css'
 })
@@ -17,6 +18,7 @@ export class CitiesComponent implements OnInit {
     cityService = inject(CityService);
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
+    translate = inject(TranslateService);
 
     cities = signal<CityToReturnDto[]>([]);
     isLoading = signal(false);
@@ -32,13 +34,13 @@ export class CitiesComponent implements OnInit {
     });
 
     columns: TableColumn[] = [
-        { key: 'name', label: 'Naziv', sortable: true },
-        { key: 'postalCode', label: 'Poštanski broj', sortable: true }
+        { key: 'name', label: 'CITIES.COLUMN_NAME', sortable: true },
+        { key: 'postalCode', label: 'CITIES.COLUMN_POSTAL_CODE', sortable: true }
     ];
 
     actions: TableAction[] = [
-        { label: 'Izmeni', icon: '✏️', type: 'edit' },
-        { label: 'Obriši', icon: '🗑️', type: 'delete' }
+        { label: this.translate.instant('CITIES.ACTION_EDIT'), icon: '✏️', type: 'edit' },
+        { label: this.translate.instant('CITIES.ACTION_DELETE'), icon: '🗑️', type: 'delete' }
     ];
 
     ngOnInit() {
@@ -54,7 +56,10 @@ export class CitiesComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading cities:', err);
-                this.toastr.error(err.error?.message || 'Greška pri učitavanju gradova', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('CITIES.TOAST_LOAD_ERROR'),
+                    this.translate.instant('CITIES.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -92,13 +97,19 @@ export class CitiesComponent implements OnInit {
             const dto: UpdateCityDto = { name: formValue.name!, postalCode: formValue.postalCode! };
             this.cityService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.toastr.success('Grad uspešno ažuriran', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('CITIES.TOAST_UPDATE_SUCCESS'),
+                        this.translate.instant('CITIES.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadCities();
                     this.closeModal();
                     this.isSubmitting.set(false);
                 },
                 error: (err) => {
-                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju grada', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('CITIES.TOAST_UPDATE_ERROR'),
+                        this.translate.instant('CITIES.TOAST_ERROR_TITLE')
+                    );
                     this.isSubmitting.set(false);
                 }
             });
@@ -106,13 +117,19 @@ export class CitiesComponent implements OnInit {
             const dto: AddCityDto = { name: formValue.name!, postalCode: formValue.postalCode! };
             this.cityService.create(dto).subscribe({
                 next: () => {
-                    this.toastr.success('Grad uspešno dodat', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('CITIES.TOAST_CREATE_SUCCESS'),
+                        this.translate.instant('CITIES.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadCities();
                     this.closeModal();
                     this.isSubmitting.set(false);
                 },
                 error: (err) => {
-                    this.toastr.error(err.error?.message || 'Greška pri dodavanju grada', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('CITIES.TOAST_CREATE_ERROR'),
+                        this.translate.instant('CITIES.TOAST_ERROR_TITLE')
+                    );
                     this.isSubmitting.set(false);
                 }
             });
@@ -136,13 +153,19 @@ export class CitiesComponent implements OnInit {
         this.isSubmitting.set(true);
         this.cityService.delete(city.id).subscribe({
             next: () => {
-                this.toastr.success('Grad uspešno obrisan', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('CITIES.TOAST_DELETE_SUCCESS'),
+                    this.translate.instant('CITIES.TOAST_SUCCESS_TITLE')
+                );
                 this.loadCities();
                 this.closeDeleteConfirm();
                 this.isSubmitting.set(false);
             },
             error: (err) => {
-                this.toastr.error(err.error?.message || 'Greška pri brisanju grada', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('CITIES.TOAST_DELETE_ERROR'),
+                    this.translate.instant('CITIES.TOAST_ERROR_TITLE')
+                );
                 this.closeDeleteConfirm();
                 this.isSubmitting.set(false);
             }

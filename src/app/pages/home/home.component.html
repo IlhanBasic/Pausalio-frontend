@@ -2,8 +2,8 @@
 
     <!-- Header -->
     <div class="header-section">
-        <h1>Dashboard</h1>
-        <p class="subtitle">Dobrodošli nazad! Evo pregleda vašeg poslovanja.</p>
+        <h1>{{ 'HOME.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'HOME.SUBTITLE' | translate }}</p>
     </div>
 
     <!-- Summary Cards -->
@@ -19,7 +19,7 @@
                 </svg>
             </div>
             <div class="card-content">
-                <h3>Ukupan Prihod</h3>
+                <h3>{{ 'HOME.TOTAL_REVENUE' | translate }}</h3>
                 <div class="value">{{ displayedRevenue() | number:'1.0-0' }} RSD</div>
                 <div class="trend up">
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
@@ -27,7 +27,7 @@
                         <line x1="12" y1="19" x2="12" y2="5"></line>
                         <polyline points="5 12 12 5 19 12"></polyline>
                     </svg>
-                    Ažurirano
+                    {{ 'HOME.UPDATED' | translate }}
                 </div>
             </div>
         </div>
@@ -45,9 +45,9 @@
                 </svg>
             </div>
             <div class="card-content">
-                <h3>Ukupno Faktura</h3>
+                <h3>{{ 'HOME.TOTAL_INVOICES' | translate }}</h3>
                 <div class="value">{{ displayedCount() }}</div>
-                <div class="sub-value">Prosečna: {{ displayedAvg() | number:'1.0-0' }} RSD</div>
+                <div class="sub-value">{{ 'HOME.AVERAGE' | translate }}: {{ displayedAvg() | number:'1.0-0' }} RSD</div>
             </div>
         </div>
 
@@ -61,22 +61,20 @@
                 </svg>
             </div>
             <div class="card-content">
-
-                <h3>Najprodavaniji</h3>
+                <h3>{{ 'HOME.BEST_SELLING' | translate }}</h3>
 
                 @if (bestSellingItems().length > 0) {
                     <div class="value highlight-text">
                         {{ bestSellingItems()[0].name }}
                     </div>
                     <div class="sub-value">
-                        {{ bestSellingItems()[0].quantity }} komada
+                        {{ bestSellingItems()[0].quantity }} {{ 'HOME.PIECES' | translate }}
                     </div>
                 }
 
                 @if (bestSellingItems().length === 0) {
                     <div class="value highlight-text">-</div>
                 }
-
             </div>
         </div>
 
@@ -88,7 +86,7 @@
         <!-- Top Clients -->
         <div class="card list-card">
             <div class="card-header">
-                <h2>Top 4 Klijenta</h2>
+                <h2>{{ 'HOME.TOP_CLIENTS' | translate }}</h2>
                 <button class="icon-btn" title="Opcije">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -100,7 +98,6 @@
             </div>
 
             <div class="card-body">
-
                 @if (topClients().length > 0) {
                     <div class="client-list">
                         @for (client of topClients(); track $index; let i = $index) {
@@ -108,7 +105,7 @@
                                 <span [class]="'rank-badge rank-' + (i + 1)">{{ i + 1 }}</span>
                                 <div class="client-info">
                                     <div class="client-name">{{ client.name }}</div>
-                                    <div class="client-count">{{ client.invoiceCount }} faktura</div>
+                                    <div class="client-count">{{ client.invoiceCount }} {{ 'HOME.INVOICES_COUNT' | translate }}</div>
                                 </div>
                                 <div class="client-stats">
                                     <div class="stat-amount">{{ client.totalAmount | number:'1.0-0' }} RSD</div>
@@ -130,17 +127,16 @@
                             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
-                        <p>Nema podataka o klijentima.</p>
+                        <p>{{ 'HOME.NO_CLIENTS' | translate }}</p>
                     </div>
                 }
-
             </div>
         </div>
 
         <!-- Best Selling Services -->
         <div class="card list-card">
             <div class="card-header">
-                <h2>Najprodavanije Usluge</h2>
+                <h2>{{ 'HOME.BEST_SELLING_SERVICES' | translate }}</h2>
                 <button class="icon-btn" title="Grafikon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -152,7 +148,6 @@
             </div>
 
             <div class="card-body">
-
                 @if (bestSellingItems().length > 0) {
                     <div class="service-list">
                         @for (item of bestSellingItems(); track $index; let i = $index) {
@@ -167,7 +162,7 @@
                                 </div>
                                 <div class="service-info">
                                     <div class="service-name">{{ item.name }}</div>
-                                    <div class="service-revenue">Prihod: {{ item.revenue | number:'1.0-0' }} RSD</div>
+                                    <div class="service-revenue">{{ 'HOME.REVENUE_LABEL' | translate }}: {{ item.revenue | number:'1.0-0' }} RSD</div>
                                 </div>
                                 <span class="qty-badge">{{ item.quantity }}x</span>
                             </div>
@@ -183,10 +178,9 @@
                             <line x1="8" y1="21" x2="16" y2="21"></line>
                             <line x1="12" y1="17" x2="12" y2="21"></line>
                         </svg>
-                        <p>Nema podataka o uslugama.</p>
+                        <p>{{ 'HOME.NO_SERVICES' | translate }}</p>
                     </div>
                 }
-
             </div>
         </div>
 

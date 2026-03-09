@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ClientService } from '../../services/client.service';
 import { ClientToReturnDto, AddClientDto, UpdateClientDto } from '../../models/client';
 import { ClientType } from '../../enums/client-type';
@@ -12,7 +13,7 @@ import { CountryToReturnDto } from '../../models/country';
 @Component({
     selector: 'app-clients',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, DataTableComponent],
+    imports: [CommonModule, ReactiveFormsModule, DataTableComponent, TranslateModule],
     templateUrl: './clients.component.html',
     styleUrl: './clients.component.css'
 })
@@ -21,6 +22,7 @@ export class ClientsComponent implements OnInit {
     countryService = inject(CountryService);
     fb = inject(FormBuilder);
     toastr = inject(ToastrService);
+    translate = inject(TranslateService);
 
     clients = signal<ClientToReturnDto[]>([]);
     countries = signal<CountryToReturnDto[]>([]);
@@ -61,17 +63,17 @@ export class ClientsComponent implements OnInit {
     });
 
     columns: TableColumn[] = [
-        { key: 'name', label: 'Naziv', sortable: true },
-        { key: 'clientTypeBadge', label: 'Tip', type: 'badge', sortable: false },
-        { key: 'pib', label: 'Pib', sortable: false },
-        { key: 'city', label: 'Grad', sortable: true },
-        { key: 'email', label: 'Email', sortable: false },
-        { key: 'phone', label: 'Telefon', sortable: false }
+        { key: 'name', label: 'CLIENTS.COLUMN_NAME', sortable: true },
+        { key: 'clientTypeBadge', label: 'CLIENTS.COLUMN_TYPE', type: 'badge', sortable: false },
+        { key: 'pib', label: 'CLIENTS.COLUMN_PIB', sortable: false },
+        { key: 'city', label: 'CLIENTS.COLUMN_CITY', sortable: true },
+        { key: 'email', label: 'CLIENTS.COLUMN_EMAIL', sortable: false },
+        { key: 'phone', label: 'CLIENTS.COLUMN_PHONE', sortable: false }
     ];
 
     actions: TableAction[] = [
-        { label: 'Izmeni', icon: '✏️', type: 'edit' },
-        { label: 'Obriši', icon: '🗑️', type: 'delete' }
+        { label: this.translate.instant('CLIENTS.ACTION_EDIT'), icon: '✏️', type: 'edit' },
+        { label: this.translate.instant('CLIENTS.ACTION_DELETE'), icon: '🗑️', type: 'delete' }
     ];
 
     ngOnInit() {
@@ -125,7 +127,10 @@ export class ClientsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading clients:', err);
-                this.toastr.error(err.error?.message || 'Greška pri učitavanju klijenata', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('CLIENTS.TOAST_LOAD_CLIENTS_ERROR'),
+                    this.translate.instant('CLIENTS.TOAST_ERROR_TITLE')
+                );
                 this.isLoading.set(false);
             }
         });
@@ -143,7 +148,10 @@ export class ClientsComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Error loading countries:', err);
-                this.toastr.error(err.error?.message || 'Greška pri učitavanju država', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('CLIENTS.TOAST_LOAD_COUNTRIES_ERROR'),
+                    this.translate.instant('CLIENTS.TOAST_ERROR_TITLE')
+                );
             }
         });
     }
@@ -217,9 +225,6 @@ export class ClientsComponent implements OnInit {
             this.clientForm.patchValue({ countryId: country.id });
         } else {
             console.warn('Country not found:', countryName, 'Available countries:', this.countries().length);
-            // Log first few countries for debugging
-            if (this.countries().length > 0) {
-            }
         }
     }
 
@@ -257,13 +262,19 @@ export class ClientsComponent implements OnInit {
 
             this.clientService.update(editing.id, dto).subscribe({
                 next: () => {
-                    this.toastr.success('Klijent uspešno ažuriran', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('CLIENTS.TOAST_UPDATE_SUCCESS'),
+                        this.translate.instant('CLIENTS.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadClients();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error updating client:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri ažuriranju klijenta', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('CLIENTS.TOAST_UPDATE_ERROR'),
+                        this.translate.instant('CLIENTS.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         } else {
@@ -283,13 +294,19 @@ export class ClientsComponent implements OnInit {
 
             this.clientService.create(dto).subscribe({
                 next: () => {
-                    this.toastr.success('Klijent uspešno dodat', 'Uspeh');
+                    this.toastr.success(
+                        this.translate.instant('CLIENTS.TOAST_CREATE_SUCCESS'),
+                        this.translate.instant('CLIENTS.TOAST_SUCCESS_TITLE')
+                    );
                     this.loadClients();
                     this.closeModal();
                 },
                 error: (err) => {
                     console.error('Error creating client:', err);
-                    this.toastr.error(err.error?.message || 'Greška pri dodavanju klijenta', 'Greška');
+                    this.toastr.error(
+                        err.error?.message || this.translate.instant('CLIENTS.TOAST_CREATE_ERROR'),
+                        this.translate.instant('CLIENTS.TOAST_ERROR_TITLE')
+                    );
                 }
             });
         }
@@ -311,13 +328,19 @@ export class ClientsComponent implements OnInit {
 
         this.clientService.delete(client.id).subscribe({
             next: () => {
-                this.toastr.success('Klijent uspešno obrisan', 'Uspeh');
+                this.toastr.success(
+                    this.translate.instant('CLIENTS.TOAST_DELETE_SUCCESS'),
+                    this.translate.instant('CLIENTS.TOAST_SUCCESS_TITLE')
+                );
                 this.loadClients();
                 this.closeDeleteConfirm();
             },
             error: (err) => {
                 console.error('Error deleting client:', err);
-                this.toastr.error(err.error?.message || 'Greška pri brisanju klijenta', 'Greška');
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('CLIENTS.TOAST_DELETE_ERROR'),
+                    this.translate.instant('CLIENTS.TOAST_ERROR_TITLE')
+                );
                 this.closeDeleteConfirm();
             }
         });
@@ -326,26 +349,26 @@ export class ClientsComponent implements OnInit {
     getClientTypeName(type: ClientType): string {
         switch (type) {
             case ClientType.individual:
-                return 'Domaće fizičko lice';
+                return this.translate.instant('CLIENTS.TYPE_INDIVIDUAL');
             case ClientType.domestic:
-                return 'Domaće pravno lice';
+                return this.translate.instant('CLIENTS.TYPE_DOMESTIC');
             case ClientType.foreign:
-                return 'Strano pravno lice';
+                return this.translate.instant('CLIENTS.TYPE_FOREIGN');
             default:
-                return 'Nepoznato';
+                return this.translate.instant('CLIENTS.TYPE_UNKNOWN');
         }
     }
 
     getClientTypeBadge(type: ClientType): string {
         switch (type) {
             case ClientType.individual:
-                return '<span class="badge badge-individual">Domaće fizičko lice</span>';
+                return `<span class="badge badge-individual">${this.translate.instant('CLIENTS.TYPE_INDIVIDUAL')}</span>`;
             case ClientType.domestic:
-                return '<span class="badge badge-domestic">Domaće pravno lice</span>';
+                return `<span class="badge badge-domestic">${this.translate.instant('CLIENTS.TYPE_DOMESTIC')}</span>`;
             case ClientType.foreign:
-                return '<span class="badge badge-foreign">Strano pravno lice</span>';
+                return `<span class="badge badge-foreign">${this.translate.instant('CLIENTS.TYPE_FOREIGN')}</span>`;
             default:
-                return '<span class="badge badge-unknown">Nepoznato</span>';
+                return `<span class="badge badge-unknown">${this.translate.instant('CLIENTS.TYPE_UNKNOWN')}</span>`;
         }
     }
 
@@ -371,5 +394,4 @@ export class ClientsComponent implements OnInit {
     isForeignClient(): boolean {
         return this.clientForm.get('clientType')?.value === 3;
     }
-
 }

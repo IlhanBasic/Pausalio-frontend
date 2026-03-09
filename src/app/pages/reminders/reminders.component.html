@@ -2,12 +2,12 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="header-content">
-            <h1>Podsetnici</h1>
-            <p class="subtitle">Upravljajte podsetnicima i pregledajte ih u kalendaru</p>
+            <h1>{{ 'REMINDERS.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'REMINDERS.SUBTITLE' | translate }}</p>
         </div>
         <button class="btn-primary" (click)="openAddModal()">
             <span class="btn-icon">➕</span>
-            Dodaj podsetnik
+            {{ 'REMINDERS.ADD_BTN' | translate }}
         </button>
     </div>
 
@@ -21,50 +21,50 @@
         <div class="modal-overlay" (click)="closeModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>{{ editingReminder() ? 'Izmeni podsetnik' : 'Dodaj novi podsetnik' }}</h2>
+                    <h2>{{ (editingReminder() ? 'REMINDERS.MODAL_EDIT_TITLE' : 'REMINDERS.MODAL_ADD_TITLE') | translate }}</h2>
                     <button class="close-btn" (click)="closeModal()">✕</button>
                 </div>
 
                 <form [formGroup]="reminderForm" (ngSubmit)="onSubmit()">
                     <div class="modal-body">
                         <div class="form-group">
-                            <label>Naslov *</label>
-                            <input type="text" formControlName="title" placeholder="Naslov podsetnika">
+                            <label>{{ 'REMINDERS.FIELD_TITLE' | translate }}</label>
+                            <input type="text" formControlName="title" [placeholder]="'REMINDERS.FIELD_TITLE_PLACEHOLDER' | translate">
                             @if (reminderForm.get('title')?.touched && reminderForm.get('title')?.invalid) {
-                                <div class="error">Naslov je obavezan</div>
+                                <div class="error">{{ 'REMINDERS.FIELD_TITLE_ERROR' | translate }}</div>
                             }
                         </div>
 
                         <div class="form-group">
-                            <label>Opis</label>
-                            <textarea formControlName="description" rows="3" placeholder="Dodatne napomene..."></textarea>
+                            <label>{{ 'REMINDERS.FIELD_DESC' | translate }}</label>
+                            <textarea formControlName="description" rows="3" [placeholder]="'REMINDERS.FIELD_DESC_PLACEHOLDER' | translate"></textarea>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Tip *</label>
+                                <label>{{ 'REMINDERS.FIELD_TYPE' | translate }}</label>
                                 <select formControlName="reminderType">
-                                    <option [ngValue]="ReminderType.Tax">Porez</option>
-                                    <option [ngValue]="ReminderType.Expense">Trošak</option>
-                                    <option [ngValue]="ReminderType.Meeting">Sastanak</option>
-                                    <option [ngValue]="ReminderType.Other">Ostalo</option>
+                                    <option [ngValue]="ReminderType.Tax">{{ 'REMINDERS.TYPE_TAX' | translate }}</option>
+                                    <option [ngValue]="ReminderType.Expense">{{ 'REMINDERS.TYPE_EXPENSE' | translate }}</option>
+                                    <option [ngValue]="ReminderType.Meeting">{{ 'REMINDERS.TYPE_MEETING' | translate }}</option>
+                                    <option [ngValue]="ReminderType.Other">{{ 'REMINDERS.TYPE_OTHER' | translate }}</option>
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label>Datum i vreme *</label>
+                                <label>{{ 'REMINDERS.FIELD_DATE' | translate }}</label>
                                 <input type="datetime-local" formControlName="dueDate" [min]="minDateTime">
                                 @if (reminderForm.get('dueDate')?.touched && reminderForm.get('dueDate')?.invalid) {
-                                    <div class="error">Datum je obavezan</div>
+                                    <div class="error">{{ 'REMINDERS.FIELD_DATE_ERROR' | translate }}</div>
                                 }
                             </div>
                         </div>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn-secondary" (click)="closeModal()">Otkaži</button>
+                        <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'REMINDERS.BTN_CANCEL' | translate }}</button>
                         <button type="submit" class="btn-primary" [disabled]="reminderForm.invalid">
-                            {{ editingReminder() ? 'Sačuvaj izmene' : 'Dodaj podsetnik' }}
+                            {{ (editingReminder() ? 'REMINDERS.BTN_SAVE' : 'REMINDERS.BTN_ADD') | translate }}
                         </button>
                     </div>
                 </form>
@@ -77,46 +77,46 @@
         <div class="modal-overlay" (click)="closeDetailsModal()">
             <div class="modal-content modal-details" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Detalji podsetnika</h2>
+                    <h2>{{ 'REMINDERS.MODAL_DETAILS_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeDetailsModal()">✕</button>
                 </div>
 
                 @if (selectedReminder()) {
                     <div class="modal-body">
                         <div class="detail-item">
-                            <label>Naslov:</label>
+                            <label>{{ 'REMINDERS.DETAIL_TITLE' | translate }}</label>
                             <p>{{ selectedReminder()!.title }}</p>
                         </div>
 
                         @if (selectedReminder()!.description) {
                             <div class="detail-item">
-                                <label>Opis:</label>
+                                <label>{{ 'REMINDERS.DETAIL_DESC' | translate }}</label>
                                 <p>{{ selectedReminder()!.description }}</p>
                             </div>
                         }
 
                         <div class="detail-row">
                             <div class="detail-item">
-                                <label>Tip:</label>
+                                <label>{{ 'REMINDERS.DETAIL_TYPE' | translate }}</label>
                                 <p>{{ getReminderTypeName(selectedReminder()!.reminderType) }}</p>
                             </div>
 
                             <div class="detail-item">
-                                <label>Status:</label>
+                                <label>{{ 'REMINDERS.DETAIL_STATUS' | translate }}</label>
                                 <p class="status-badge" [class.completed]="selectedReminder()!.isCompleted">
-                                    {{ selectedReminder()!.isCompleted ? 'Završeno' : 'Aktivno' }}
+                                    {{ (selectedReminder()!.isCompleted ? 'REMINDERS.STATUS_COMPLETED' : 'REMINDERS.STATUS_ACTIVE') | translate }}
                                 </p>
                             </div>
                         </div>
 
                         <div class="detail-item">
-                            <label>Datum i vreme:</label>
+                            <label>{{ 'REMINDERS.DETAIL_DATE' | translate }}</label>
                             <p>{{ formatDate(selectedReminder()!.dueDate) }}</p>
                         </div>
 
                         @if (selectedReminder()!.isCompleted && selectedReminder()!.completedAt) {
                             <div class="detail-item">
-                                <label>Završeno:</label>
+                                <label>{{ 'REMINDERS.DETAIL_COMPLETED_AT' | translate }}</label>
                                 <p>{{ formatDate(selectedReminder()!.completedAt!) }}</p>
                             </div>
                         }
@@ -124,17 +124,16 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn-danger" (click)="openDeleteConfirm(selectedReminder()!)">
-                            Obriši
+                            {{ 'REMINDERS.BTN_DELETE' | translate }}
                         </button>
                         <div class="button-group">
                             @if (!selectedReminder()!.isCompleted) {
-                                <button type="button" class="btn-success"
-                                    (click)="markAsCompleted(selectedReminder()!)">
-                                    Označi kao završeno
+                                <button type="button" class="btn-success" (click)="markAsCompleted(selectedReminder()!)">
+                                    {{ 'REMINDERS.BTN_MARK_COMPLETED' | translate }}
                                 </button>
                             }
                             <button type="button" class="btn-primary" (click)="openEditModal(selectedReminder()!)">
-                                Izmeni
+                                {{ 'REMINDERS.BTN_EDIT' | translate }}
                             </button>
                         </div>
                     </div>
@@ -148,21 +147,21 @@
         <div class="modal-overlay" (click)="closeDeleteConfirm()">
             <div class="modal-content modal-small" (click)="$event.stopPropagation()">
                 <div class="modal-header">
-                    <h2>Potvrda brisanja</h2>
+                    <h2>{{ 'REMINDERS.MODAL_DELETE_TITLE' | translate }}</h2>
                     <button class="close-btn" (click)="closeDeleteConfirm()">✕</button>
                 </div>
 
                 <div class="modal-body">
                     <p class="confirm-message">
-                        Da li ste sigurni da želite da obrišete podsetnik
+                        {{ 'REMINDERS.DELETE_CONFIRM_MSG' | translate }}
                         <strong>{{ deletingReminder()?.title }}</strong>?
                     </p>
-                    <p class="confirm-warning">Ova akcija se ne može poništiti.</p>
+                    <p class="confirm-warning">{{ 'REMINDERS.DELETE_CONFIRM_WARNING' | translate }}</p>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Otkaži</button>
-                    <button type="button" class="btn-danger" (click)="confirmDelete()">Obriši</button>
+                    <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">{{ 'REMINDERS.BTN_CANCEL' | translate }}</button>
+                    <button type="button" class="btn-danger" (click)="confirmDelete()">{{ 'REMINDERS.BTN_CONFIRM_DELETE' | translate }}</button>
                 </div>
             </div>
         </div>
