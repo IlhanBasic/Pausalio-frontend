@@ -42,7 +42,6 @@ export class VerifyEmailComponent implements OnInit {
                 }, 3000);
             },
             error: (err) => {
-                console.log(err);
 
                 try {
                     const parsed = typeof err.error === 'string' ? JSON.parse(err.error) : err.error;

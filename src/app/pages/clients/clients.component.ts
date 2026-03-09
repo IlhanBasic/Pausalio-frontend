@@ -215,12 +215,10 @@ export class ClientsComponent implements OnInit {
         const country = this.countries().find(c => c.name.toLowerCase() === countryName.toLowerCase());
         if (country) {
             this.clientForm.patchValue({ countryId: country.id });
-            console.log('Country found and set:', country.name, country.id);
         } else {
             console.warn('Country not found:', countryName, 'Available countries:', this.countries().length);
             // Log first few countries for debugging
             if (this.countries().length > 0) {
-                console.log('Sample countries:', this.countries().slice(0, 5).map(c => c.name));
             }
         }
     }

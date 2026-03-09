@@ -151,7 +151,6 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
 
   async sendMessage(): Promise<void> {
     const text = this.inputText.trim();
-    console.log('🖊️ sendMessage pozvan, text:', text, 'selectedMember:', this.selectedMember);
     if (!text || !this.selectedMember) return;
 
     if (!this.isConnected) {
@@ -160,7 +159,6 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
     }
 
     const businessId = this.authStore.currentBusinessId()!;
-    console.log('📤 šaljem poruku, businessId:', businessId);
     this.inputText = '';
 
     await this.signalrService.sendMessage(this.selectedMember.userId, businessId, text);
@@ -211,7 +209,7 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewChecked 
   getStatusIcon(status: MessageStatus): string {
     switch (status) {
       case MessageStatus.Read:
-        return '✓✓';
+        return '✔✔';
       case MessageStatus.Delivered:
         return '✓✓';
       case MessageStatus.Sent:

@@ -100,4 +100,11 @@ export class AuthService {
       { responseType: 'text' }
     );
   }
+  googleLogin(idToken: string): Observable<LoginResponse> {
+  return this.http.post<LoginResponse>(
+    `${this.baseUrl}/google-login`,
+    { idToken },
+    { withCredentials: true }
+  );
+}
 }

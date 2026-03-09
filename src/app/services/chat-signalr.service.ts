@@ -30,7 +30,6 @@ export class ChatSignalrService implements OnDestroy {
     try {
       await this.hubConnection.start();
       this.isConnected$.next(true);
-      console.log('✅ SignalR connected, state:', this.hubConnection.state);
     } catch (err) {
       console.error('❌ SignalR connection error:', err);
       this.isConnected$.next(false);
@@ -45,10 +44,8 @@ export class ChatSignalrService implements OnDestroy {
   }
 
   async joinChat(otherUserId: string, businessId: string): Promise<void> {
-    console.log('🔗 joinChat, state:', this.hubConnection?.state, '| otherUserId:', otherUserId, '| businessId:', businessId);
     try {
       await this.hubConnection?.invoke('JoinChat', otherUserId, businessId);
-      console.log('✅ joinChat uspešno');
     } catch (err) {
       console.error('❌ joinChat error:', err);
     }
@@ -83,13 +80,11 @@ export class ChatSignalrService implements OnDestroy {
   }
 
   async sendMessage(receiverId: string, businessId: string, content: string): Promise<void> {
-    console.log('📨 sendMessage, state:', this.hubConnection?.state, '| receiverId:', receiverId, '| businessId:', businessId, '| content:', content);
 
     try {
       await this.startConnection();
       await this.waitForConnected();
       await this.hubConnection?.invoke('SendMessage', receiverId, businessId, content);
-      console.log('✅ sendMessage uspešno');
     } catch (err) {
       console.error('❌ sendMessage error:', err);
     }
@@ -109,27 +104,22 @@ export class ChatSignalrService implements OnDestroy {
     if (!this.hubConnection) return;
 
     this.hubConnection.on('ReceiveMessage', (message: ChatMessageDto) => {
-      console.log('📩 ReceiveMessage:', message);
       this.messageReceived$.next(message);
     });
 
     this.hubConnection.on('NewMessageNotification', (message: ChatMessageDto) => {
-      console.log('🔔 NewMessageNotification:', message);
       this.newMessageNotification$.next(message);
     });
 
     this.hubConnection.on('MessagesRead', (data: { readBy: string; businessId: string }) => {
-      console.log('👁️ MessagesRead:', data);
       this.messagesRead$.next(data);
     });
 
     this.hubConnection.onreconnected(() => {
-      console.log('🔄 SignalR reconnected');
       this.isConnected$.next(true);
     });
 
     this.hubConnection.onreconnecting(() => {
-      console.log('⏳ SignalR reconnecting...');
       this.isConnected$.next(false);
     });
   }
