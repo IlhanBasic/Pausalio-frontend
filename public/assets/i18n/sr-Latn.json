@@ -365,6 +365,12 @@
     "CLEAR_BTN": "Obriši razgovor",
     "INPUT_PLACEHOLDER": "Postavi pitanje o svom poslovanju...",
     "INPUT_HINT": "Enter za slanje  ·  Shift+Enter za novi red",
+    "CONFIGURATION_TITLE": "AI Chat je zaključan",
+    "CONFIGURATION_MESSAGE": "Da biste koristili AI čet, morate prvo uneti OpenRouter API ključ i model u svom profilu.",
+    "CONFIGURATION_ACTION": "Otvorite AI podešavanja",
+    "CONFIGURATION_PLACEHOLDER": "Konfigurišite OpenRouter API ključ i model u profilu",
+    "CONFIGURATION_HINT": "AI chat se aktivira tek kada u profilu unesete OpenRouter API ključ i model.",
+    "CONFIGURATION_MODAL_TITLE": "Unesite OpenRouter kredencijale",
     "WELCOME_MESSAGE": "Zdravo! Ja sam tvoj Pausalio asistent. 👋\n\nTu sam da ti pomognem sa svim pitanjima vezanim za tvoje poslovanje — fakture, troškove, poreze, paušalni limit i slično.\n\nŠta te zanima?",
     "ERROR_MESSAGE": "⚠️ Došlo je do greške. Pokušaj ponovo.",
     "NO_RESPONSE": "Nema odgovora.",
@@ -600,6 +606,11 @@
         "DESCRIPTION": "Ažurirajte svoje lične informacije i profilnu sliku",
         "BUTTON": "Izmeni Profil"
       },
+      "AI_SETTINGS": {
+        "TITLE": "AI Podešavanja",
+        "DESCRIPTION": "Povežite svoj OpenRouter API ključ i model za AI čet",
+        "BUTTON": "Izmeni AI Podešavanja"
+      },
       "SECURITY": {
         "TITLE": "Bezbednost",
         "DESCRIPTION": "Promenite lozinku za bolju zaštitu naloga",
@@ -653,6 +664,20 @@
         "CITY_PLACEHOLDER": "Unesite grad",
         "ADDRESS": "Adresa",
         "ADDRESS_PLACEHOLDER": "Unesite adresu",
+        "OPENROUTER_API_KEY": "OpenRouter API Ključ",
+        "OPENROUTER_API_KEY_PLACEHOLDER": "Unesite OpenRouter API ključ",
+        "OPENROUTER_MODEL_NAME": "OpenRouter Model",
+        "OPENROUTER_MODEL_NAME_PLACEHOLDER": "npr. openai/gpt-4o-mini",
+        "BTN_CANCEL": "Otkaži",
+        "BTN_SAVE": "Sačuvaj",
+        "BTN_SAVING": "Čuvanje..."
+      },
+      "AI_SETTINGS": {
+        "TITLE": "AI Podešavanja",
+        "API_KEY": "OpenRouter API Ključ *",
+        "API_KEY_PLACEHOLDER": "Unesite OpenRouter API ključ",
+        "MODEL_NAME": "OpenRouter Model *",
+        "MODEL_NAME_PLACEHOLDER": "npr. openai/gpt-4o-mini",
         "BTN_CANCEL": "Otkaži",
         "BTN_SAVE": "Sačuvaj",
         "BTN_SAVING": "Čuvanje..."
@@ -715,6 +740,8 @@
       "PASSWORD_CHANGE_ERROR": "Došlo je do greške prilikom promene lozinke.",
       "PROFILE_UPDATE_SUCCESS": "Profil uspešno ažuriran",
       "PROFILE_UPDATE_ERROR": "Greška pri ažuriranju profila",
+      "AI_SETTINGS_SAVE_SUCCESS": "AI podešavanja uspešno sačuvana",
+      "AI_SETTINGS_SAVE_ERROR": "Greška pri čuvanju AI podešavanja",
       "BUSINESS_UPDATE_SUCCESS": "Profil firme uspešno ažuriran",
       "BUSINESS_UPDATE_ERROR": "Greška pri ažuriranju profila firme",
       "INVITE_SEND_SUCCESS": "Pozivnica uspešno poslata na {{email}}",

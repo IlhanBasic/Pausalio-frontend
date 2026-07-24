@@ -26,6 +26,8 @@ export interface AddUserProfileDto {
   phone?: string | null;
   city?: string;
   address?: string | null;
+  openRouterApiKey?: string | null;
+  openRouterModelName?: string | null;
 }
 
 export interface LoginDto {
@@ -54,6 +56,8 @@ export interface UpdateUserProfileDto {
   phone?: string | null;
   city?: string;
   address?: string | null;
+  openRouterApiKey?: string | null;
+  openRouterModelName?: string | null;
 }
 
 export interface UserProfileToReturnDto {
@@ -65,6 +69,10 @@ export interface UserProfileToReturnDto {
   phone?: string | null;
   city?: string;
   address?: string | null;
+  isOpenRouterAPIKeySet?: boolean | null;
+  isOpenRouterModelSet?: boolean | null;
+  isOpenRouterAPISet?: boolean | null;
+  IsOpenRouterModelSet?: boolean | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt?: Date | null;

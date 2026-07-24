@@ -1,4 +1,22 @@
 <div class="ai-page">
+  @if (!canUseAiAssistant) {
+    <div class="ai-lock-overlay">
+      <div class="ai-lock-card">
+        <div class="ai-lock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h2>{{ 'AI_ASSISTANT.CONFIGURATION_TITLE' | translate }}</h2>
+        <p>{{ 'AI_ASSISTANT.CONFIGURATION_MESSAGE' | translate }}</p>
+        <button class="ai-lock-button" (click)="openAiConfigModal()">
+          {{ 'AI_ASSISTANT.CONFIGURATION_ACTION' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
   <div class="ai-header">
     <div class="ai-header__left">
       <div class="ai-avatar">
@@ -73,15 +91,15 @@
       <textarea
         [(ngModel)]="inputText"
         (keydown)="onKeyDown($event)"
-        [placeholder]="'AI_ASSISTANT.INPUT_PLACEHOLDER' | translate"
+        [placeholder]="canUseAiAssistant ? ('AI_ASSISTANT.INPUT_PLACEHOLDER' | translate) : ('AI_ASSISTANT.CONFIGURATION_PLACEHOLDER' | translate)"
         rows="1"
-        [disabled]="isLoading"
+        [disabled]="isLoading || !canUseAiAssistant"
         class="ai-input__field"
       ></textarea>
       <button
         class="ai-input__send"
         (click)="sendMessage()"
-        [disabled]="!inputText.trim() || isLoading"
+        [disabled]="!inputText.trim() || isLoading || !canUseAiAssistant"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="22" y1="2" x2="11" y2="13"/>
@@ -89,6 +107,48 @@
         </svg>
       </button>
     </div>
-    <p class="ai-input__hint">{{ 'AI_ASSISTANT.INPUT_HINT' | translate }}</p>
+    <p class="ai-input__hint">{{ canUseAiAssistant ? ('AI_ASSISTANT.INPUT_HINT' | translate) : ('AI_ASSISTANT.CONFIGURATION_HINT' | translate) }}</p>
   </div>
 </div>
+
+@if (showAiConfigModal) {
+  <div class="modal-overlay" (click)="closeAiConfigModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ 'AI_ASSISTANT.CONFIGURATION_MODAL_TITLE' | translate }}</h2>
+        <button class="modal-close" type="button" (click)="closeAiConfigModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="aiConfigForm" (ngSubmit)="saveAiConfiguration()">
+          <div class="form-group">
+            <label>{{ 'PROFILE.MODALS.USER_EDIT.OPENROUTER_API_KEY' | translate }}</label>
+            <input type="password" formControlName="openRouterApiKey" [placeholder]="'PROFILE.MODALS.USER_EDIT.OPENROUTER_API_KEY_PLACEHOLDER' | translate">
+            @if (aiConfigForm.get('openRouterApiKey')?.touched && aiConfigForm.get('openRouterApiKey')?.invalid) {
+              <div class="error">{{ 'PROFILE.MODALS.USER_EDIT.OPENROUTER_API_KEY' | translate }}</div>
+            }
+          </div>
+          <div class="form-group">
+            <label>{{ 'PROFILE.MODALS.USER_EDIT.OPENROUTER_MODEL_NAME' | translate }}</label>
+            <input type="text" formControlName="openRouterModelName" [placeholder]="'PROFILE.MODALS.USER_EDIT.OPENROUTER_MODEL_NAME_PLACEHOLDER' | translate">
+            @if (aiConfigForm.get('openRouterModelName')?.touched && aiConfigForm.get('openRouterModelName')?.invalid) {
+              <div class="error">{{ 'PROFILE.MODALS.USER_EDIT.OPENROUTER_MODEL_NAME' | translate }}</div>
+            }
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="closeAiConfigModal()">{{ 'PROFILE.MODALS.USER_EDIT.BTN_CANCEL' | translate }}</button>
+            <button type="submit" class="btn-primary" [disabled]="aiConfigForm.invalid || isLoading">
+              @if (isLoading) { <span class="spinner"></span> }
+              <span>{{ isLoading ? ('PROFILE.MODALS.USER_EDIT.BTN_SAVING' | translate) : ('PROFILE.MODALS.USER_EDIT.BTN_SAVE' | translate) }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}

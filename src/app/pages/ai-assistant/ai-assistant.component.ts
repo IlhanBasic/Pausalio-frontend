@@ -1,9 +1,11 @@
 import { Component, inject, AfterViewChecked, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AiAssistantService } from '../../services/ai-assistant.service';
 import { ChatHistoryItem, UserChatMessage } from '../../models/user-chat-message';
+import { UserProfileStore } from '../../stores/user-profile.store';
+import { UserProfileService } from '../../services/user-profile.service';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -14,7 +16,7 @@ interface ChatMessage {
 @Component({
   selector: 'app-ai-assistant',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './ai-assistant.component.html',
   styleUrl: './ai-assistant.component.css',
 })
@@ -23,6 +25,9 @@ export class AiAssistantComponent implements AfterViewChecked {
 
   private aiService = inject(AiAssistantService);
   private translate = inject(TranslateService);
+  private userProfileStore = inject(UserProfileStore);
+  private userProfileService = inject(UserProfileService);
+  private fb = inject(FormBuilder);
 
   messages: ChatMessage[] = [
     {
@@ -34,7 +39,20 @@ export class AiAssistantComponent implements AfterViewChecked {
 
   inputText = '';
   isLoading = false;
+  showAiConfigModal = false;
   private shouldScroll = false;
+
+  aiConfigForm = this.fb.group({
+    openRouterApiKey: ['', Validators.required],
+    openRouterModelName: ['', Validators.required],
+  });
+
+  get canUseAiAssistant(): boolean {
+    const user = this.userProfileStore.Profile()?.userProfile;
+    const apiKeyConfigured = Boolean(user?.isOpenRouterAPIKeySet ?? user?.isOpenRouterAPISet);
+    const modelConfigured = Boolean(user?.isOpenRouterModelSet ?? user?.IsOpenRouterModelSet);
+    return apiKeyConfigured && modelConfigured;
+  }
 
   ngAfterViewChecked() {
     if (this.shouldScroll) {
@@ -43,9 +61,65 @@ export class AiAssistantComponent implements AfterViewChecked {
     }
   }
 
+  openAiConfigModal() {
+    this.aiConfigForm.patchValue({
+      openRouterApiKey: '',
+      openRouterModelName: '',
+    });
+    this.showAiConfigModal = true;
+  }
+
+  closeAiConfigModal() {
+    this.showAiConfigModal = false;
+    this.aiConfigForm.reset();
+  }
+
+  saveAiConfiguration() {
+    if (this.aiConfigForm.invalid) {
+      this.aiConfigForm.markAllAsTouched();
+      return;
+    }
+
+    const user = this.userProfileStore.Profile()?.userProfile;
+    if (!user) return;
+
+    this.isLoading = true;
+
+    const payload = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profilePicture: user.profilePicture ?? null,
+      phone: user.phone ?? null,
+      city: user.city ?? '',
+      address: user.address ?? null,
+      openRouterApiKey: this.aiConfigForm.value.openRouterApiKey?.trim() || null,
+      openRouterModelName: this.aiConfigForm.value.openRouterModelName?.trim() || null,
+    };
+
+    this.userProfileService.updateProfile(user.id, payload).subscribe({
+      next: () => {
+        this.userProfileStore.loadProfile().subscribe({
+          next: () => {
+            this.closeAiConfigModal();
+            this.isLoading = false;
+            this.shouldScroll = true;
+          },
+          error: () => {
+            this.closeAiConfigModal();
+            this.isLoading = false;
+            this.shouldScroll = true;
+          },
+        });
+      },
+      error: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
   sendMessage() {
     const text = this.inputText.trim();
-    if (!text || this.isLoading) return;
+    if (!text || this.isLoading || !this.canUseAiAssistant) return;
 
     this.messages.push({ role: 'user', content: text, timestamp: new Date() });
     this.inputText = '';

@@ -51,6 +51,7 @@ export class ProfileComponent implements OnInit {
     showPasswordModal = signal(false);
     showInviteModal = signal(false);
     showAcceptInviteModal = signal(false);
+    showAiSettingsModal = signal(false);
 
     showOldPassword = signal(false);
     showNewPassword = signal(false);
@@ -73,6 +74,11 @@ export class ProfileComponent implements OnInit {
         phone: ['', Validators.pattern(/^[0-9+ ]*$/)],
         city: [''],
         address: [''],
+    });
+
+    aiSettingsForm = this.fb.group({
+        openRouterApiKey: ['', Validators.required],
+        openRouterModelName: ['', Validators.required],
     });
 
     businessProfileForm = this.fb.group({
@@ -145,6 +151,61 @@ export class ProfileComponent implements OnInit {
         if (field === 'old') this.showOldPassword.set(!this.showOldPassword());
         if (field === 'new') this.showNewPassword.set(!this.showNewPassword());
         if (field === 'confirm') this.showConfirmPassword.set(!this.showConfirmPassword());
+    }
+
+    openAiSettingsModal() {
+        this.aiSettingsForm.patchValue({
+            openRouterApiKey: '',
+            openRouterModelName: ''
+        });
+        this.showAiSettingsModal.set(true);
+    }
+
+    closeAiSettingsModal() {
+        this.showAiSettingsModal.set(false);
+        this.aiSettingsForm.reset();
+    }
+
+    onSubmitAiSettings() {
+        if (this.aiSettingsForm.invalid) {
+            this.aiSettingsForm.markAllAsTouched();
+            return;
+        }
+
+        const user = this.userProfile();
+        if (!user) return;
+
+        this.isLoading.set(true);
+
+        const dto: UpdateUserProfileDto = {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            profilePicture: user.profilePicture ?? null,
+            phone: user.phone ?? null,
+            city: user.city ?? '',
+            address: user.address ?? null,
+            openRouterApiKey: this.aiSettingsForm.value.openRouterApiKey?.trim() || null,
+            openRouterModelName: this.aiSettingsForm.value.openRouterModelName?.trim() || null,
+        };
+
+        this.userProfileService.updateProfile(user.id, dto).subscribe({
+            next: () => {
+                this.toastr.success(
+                    this.translate.instant('PROFILE.TOAST.AI_SETTINGS_SAVE_SUCCESS'),
+                    this.translate.instant('PROFILE.TOAST.SUCCESS_TITLE')
+                );
+                this.closeAiSettingsModal();
+                this.loadProfileData();
+                this.isLoading.set(false);
+            },
+            error: (err) => {
+                this.toastr.error(
+                    err.error?.message || this.translate.instant('PROFILE.TOAST.AI_SETTINGS_SAVE_ERROR'),
+                    this.translate.instant('PROFILE.TOAST.ERROR_TITLE')
+                );
+                this.isLoading.set(false);
+            }
+        });
     }
 
     openPasswordModal() {
