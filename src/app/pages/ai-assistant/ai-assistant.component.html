@@ -7,7 +7,7 @@
         <h2>{{ 'AI_ASSISTANT.CONVERSATIONS_TITLE' | translate }}</h2>
         <p class="ai-sidebar__subtitle">{{ 'AI_ASSISTANT.CONVERSATIONS_SUBTITLE' | translate }}</p>
       </div>
-      <button class="btn-primary ai-new-chat-button" type="button" (click)="startNewChat()" [disabled]="isLoading || isLoadingConversations || isLoadingMessages">
+      <button class="btn-primary ai-new-chat-button" type="button" (click)="startNewChat()" [disabled]="isLoading || isStreaming || isLoadingConversations || isLoadingMessages">
         {{ 'AI_ASSISTANT.NEW_CHAT' | translate }}
       </button>
     </div>
@@ -85,7 +85,7 @@
         </div>
       </div>
       
-      <button class="btn-clear" (click)="startNewChat()" [title]="'AI_ASSISTANT.CLEAR_BTN' | translate" [disabled]="isLoading || isLoadingMessages || isLoadingConversations">
+      <button class="btn-clear" (click)="startNewChat()" [title]="'AI_ASSISTANT.CLEAR_BTN' | translate" [disabled]="isLoading || isStreaming || isLoadingMessages || isLoadingConversations">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -102,7 +102,7 @@
       }
 
       @for (msg of messages; track $index) {
-        <div class="message" [class.message--user]="msg.role === 'user'" [class.message--assistant]="msg.role === 'assistant'">
+        <div class="message" [class.message--user]="msg.role === 'user'" [class.message--assistant]="msg.role === 'assistant'" [class.message--streaming]="msg.isStreaming">
           @if (msg.role === 'assistant') {
             <div class="message__avatar">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -113,7 +113,11 @@
             </div>
           }
           <div class="message__body">
-            <p class="message__text" [innerHTML]="formatContent(msg.content)"></p>
+            @if (msg.isStreaming) {
+              <p class="message__text" [innerHTML]="formatContent(msg.content)"><span class="streaming-cursor"></span></p>
+            } @else {
+              <p class="message__text" [innerHTML]="formatContent(msg.content)"></p>
+            }
             <span class="message__time">{{ formatTime(msg.timestamp) }}</span>
           </div>
           @if (msg.role === 'user') {
@@ -127,7 +131,7 @@
         </div>
       }
 
-      @if (isLoading) {
+      @if (isLoading && isStreaming) {
         <div class="message message--assistant">
           <div class="message__avatar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -165,13 +169,13 @@
           (keydown)="onKeyDown($event)"
           [placeholder]="canUseAiAssistant ? ('AI_ASSISTANT.INPUT_PLACEHOLDER' | translate) : ('AI_ASSISTANT.CONFIGURATION_PLACEHOLDER' | translate)"
           rows="1"
-          [disabled]="isLoading || !canUseAiAssistant"
+          [disabled]="isLoading || isStreaming || !canUseAiAssistant"
           class="ai-input__field"
         ></textarea>
         <button
           class="ai-input__send"
           (click)="sendMessage()"
-          [disabled]="!inputText.trim() || isLoading || !canUseAiAssistant"
+          [disabled]="!inputText.trim() || isLoading || isStreaming || !canUseAiAssistant"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="22" y1="2" x2="11" y2="13"/>

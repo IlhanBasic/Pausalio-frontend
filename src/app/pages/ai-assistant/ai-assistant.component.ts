@@ -1,17 +1,20 @@
-import { Component, inject, AfterViewChecked, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, inject, AfterViewChecked, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AiAssistantService } from '../../services/ai-assistant.service';
-import { AIResponseDto, ChatHistoryItem, UserChatMessage } from '../../models/user-chat-message';
+import { AIResponseDto, ChatHistoryItem, UserChatMessage, AiStreamChunkDto } from '../../models/user-chat-message';
 import { ToastrService } from 'ngx-toastr';
 import { UserProfileStore } from '../../stores/user-profile.store';
 import { UserProfileService } from '../../services/user-profile.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  isStreaming?: boolean;
 }
 
 interface ChatConversation {
@@ -28,7 +31,7 @@ interface ChatConversation {
   templateUrl: './ai-assistant.component.html',
   styleUrl: './ai-assistant.component.css',
 })
-export class AiAssistantComponent implements AfterViewChecked, OnInit {
+export class AiAssistantComponent implements AfterViewChecked, OnInit, OnDestroy {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
   private aiService = inject(AiAssistantService);
@@ -37,6 +40,7 @@ export class AiAssistantComponent implements AfterViewChecked, OnInit {
   private userProfileService = inject(UserProfileService);
   private fb = inject(FormBuilder);
   private toastr = inject(ToastrService);
+  private destroy$ = new Subject<void>();
 
   messages: ChatMessage[] = [
     {
@@ -51,6 +55,7 @@ export class AiAssistantComponent implements AfterViewChecked, OnInit {
   isLoadingMessages = false;
   isLoadingConversations = false;
   showAiConfigModal = false;
+  isStreaming = false;
   private shouldScroll = false;
   activeConversationId: string | null = null;
   conversations: ChatConversation[] = [];
@@ -76,6 +81,19 @@ export class AiAssistantComponent implements AfterViewChecked, OnInit {
 
   ngOnInit() {
     this.loadConversations();
+    // Subscribe to stream chunks globally
+    this.aiService
+      .getStreamChunks()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (chunk) => this.handleStreamChunk(chunk),
+        error: (err) => this.handleStreamError(err),
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   toggleSidebar() {
@@ -239,7 +257,17 @@ export class AiAssistantComponent implements AfterViewChecked, OnInit {
     this.messages.push({ role: 'user', content: text, timestamp: new Date() });
     this.inputText = '';
     this.isLoading = true;
+    this.isStreaming = true;
     this.shouldScroll = true;
+
+    // Add placeholder for assistant message that will be filled via streaming
+    const assistantMessageIndex = this.messages.length;
+    this.messages.push({
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      isStreaming: true,
+    });
 
     const history: ChatHistoryItem[] = this.getChatHistory();
 
@@ -248,35 +276,89 @@ export class AiAssistantComponent implements AfterViewChecked, OnInit {
       payload.conversationId = this.activeConversationId;
     }
 
-    this.aiService.sendMessage(payload).subscribe({
-      next: (response: AIResponseDto) => {
-        if (response.conversationId) {
-          const isNew = this.activeConversationId !== response.conversationId;
-          this.activeConversationId = response.conversationId;
-          if (isNew) {
-            this.loadConversations();
-          }
-        }
-        this.messages.push({
-          role: 'assistant',
-          content: response.message ?? this.translate.instant('AI_ASSISTANT.NO_RESPONSE'),
-          timestamp: new Date(),
-        });
-        this.isLoading = false;
-        this.shouldScroll = true;
-      },
-      error: (err) => {
-        this.messages.push({
-          role: 'assistant',
-          content: this.translate.instant('AI_ASSISTANT.ERROR_MESSAGE'),
-          timestamp: new Date(),
-        });
-        this.isLoading = false;
-        this.shouldScroll = true;
-        const msg = err?.error?.message || err?.message || this.translate.instant('AI_ASSISTANT.ERROR_MESSAGE');
-        this.toastr.error(msg, this.translate.instant('COMMON.ERROR'));
-      },
+    this.aiService.sendMessageStream(payload).catch((err) => {
+      console.error('❌ Failed to send message via SignalR:', err);
+      this.isLoading = false;
+      this.isStreaming = false;
+      this.messages[assistantMessageIndex].content = this.translate.instant('AI_ASSISTANT.ERROR_MESSAGE');
+      this.messages[assistantMessageIndex].isStreaming = false;
+      this.shouldScroll = true;
+      this.toastr.error(err?.message || this.translate.instant('AI_ASSISTANT.ERROR_MESSAGE'), this.translate.instant('COMMON.ERROR'));
     });
+  }
+
+  /**
+   * Handle incoming stream chunks from SignalR
+   */
+  private handleStreamChunk(chunk: AiStreamChunkDto) {
+    // Find or create the active assistant message
+    let assistantMessage = this.messages[this.messages.length - 1];
+
+    if (assistantMessage?.role !== 'assistant' || !assistantMessage.isStreaming) {
+      // Create new assistant message if the last one isn't streaming
+      assistantMessage = {
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        isStreaming: true,
+      };
+      this.messages.push(assistantMessage);
+    }
+
+    // Handle different chunk types
+    if (chunk.type === 'error') {
+      assistantMessage.content = chunk.content || this.translate.instant('AI_ASSISTANT.ERROR_MESSAGE');
+      assistantMessage.isStreaming = false;
+      this.isStreaming = false;
+      this.isLoading = false;
+      this.toastr.error(chunk.content || this.translate.instant('AI_ASSISTANT.ERROR_MESSAGE'), this.translate.instant('COMMON.ERROR'));
+    } else if (chunk.type === 'content' && chunk.content) {
+      // Append chunk content to the assistant message
+      assistantMessage.content += chunk.content;
+      this.shouldScroll = true;
+    }
+
+    // Check if this is the final chunk
+    if (chunk.isFinal) {
+      assistantMessage.isStreaming = false;
+      this.isStreaming = false;
+      this.isLoading = false;
+
+      // Update conversation ID if provided
+      if (chunk.conversationId && !this.activeConversationId) {
+        const isNew = this.activeConversationId !== chunk.conversationId;
+        this.activeConversationId = chunk.conversationId;
+        if (isNew) {
+          this.loadConversations();
+        }
+      }
+
+      // Log usage stats if provided
+      if (chunk.usage) {
+        console.log('📊 AI Usage Stats:', chunk.usage);
+      }
+    }
+  }
+
+  /**
+   * Handle stream errors
+   */
+  private handleStreamError(err: any) {
+    console.error('❌ Stream error:', err);
+    this.isLoading = false;
+    this.isStreaming = false;
+
+    const errorMessage = err?.message || this.translate.instant('AI_ASSISTANT.ERROR_MESSAGE');
+    this.toastr.error(errorMessage, this.translate.instant('COMMON.ERROR'));
+
+    // Update last message with error state
+    if (this.messages.length > 0) {
+      const lastMessage = this.messages[this.messages.length - 1];
+      if (lastMessage.role === 'assistant' && lastMessage.isStreaming) {
+        lastMessage.content = errorMessage;
+        lastMessage.isStreaming = false;
+      }
+    }
   }
 
   private getChatHistory(): ChatHistoryItem[] {
@@ -312,9 +394,9 @@ export class AiAssistantComponent implements AfterViewChecked, OnInit {
   }
 
   formatTime(date: Date): string {
-    return date.toLocaleTimeString(this.translate.currentLang === 'sr-Cyrl' ? 'sr-Cyrl-RS' : 'sr-Latn-RS', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString(this.translate.currentLang === 'sr-Cyrl' ? 'sr-Cyrl-RS' : 'sr-Latn-RS', {
+      hour: '2-digit',
+      minute: '2-digit',
     });
   }
 

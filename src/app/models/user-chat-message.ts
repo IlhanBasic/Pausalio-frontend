@@ -18,6 +18,22 @@ export class AIResponseDto
     public usage?: any;
 }
 
+export class AiStreamChunkDto
+{
+    public conversationId: string | null = null;
+    public type: string | null = null;  // e.g., "content", "error"
+    public content: string | null = null;
+    public isFinal: boolean = false;
+    public usage?: AIUsageDto;
+}
+
+export class AIUsageDto
+{
+    public promptTokens?: number;
+    public completionTokens?: number;
+    public totalTokens?: number;
+}
+
 export class AiConversationDto {
     public id: string | null = null;
     public title: string | null = null;
