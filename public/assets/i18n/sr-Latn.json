@@ -374,6 +374,18 @@
     "WELCOME_MESSAGE": "Zdravo! Ja sam tvoj Pausalio asistent. 👋\n\nTu sam da ti pomognem sa svim pitanjima vezanim za tvoje poslovanje — fakture, troškove, poreze, paušalni limit i slično.\n\nŠta te zanima?",
     "ERROR_MESSAGE": "⚠️ Došlo je do greške. Pokušaj ponovo.",
     "NO_RESPONSE": "Nema odgovora.",
+    "NEW_CHAT": "Nova konverzacija",
+    "DELETE": "Obriši",
+    "CONVERSATIONS_TITLE": "Razgovori",
+    "CONVERSATIONS_SUBTITLE": "Istorija AI razgovora",
+    "LOADING_CONVERSATIONS": "Učitavanje razgovora...",
+    "EMPTY_CONVERSATIONS": "Nemate prethodnih razgovora.",
+    "DELETE_CONVERSATION_CONFIRM": "Da li ste sigurni da želite da obrišete ovaj razgovor?",
+    "LOADING_MESSAGES": "Učitavanje poruka...",
+    "SAMPLE_PROMPTS_TITLE": "Probaj neke od ovih pitanja",
+    "SAMPLE_PROMPT_1": "Kako mogu da optimizujem svoje troškove?",
+    "SAMPLE_PROMPT_2": "Koji je najbolji način za vođenje faktura u paušalu?",
+    "SAMPLE_PROMPT_3": "Kako da se pripremim za poresku prijavu?",
     "TYPING_INDICATOR": "AI asistent kuca..."
   },
     "INVOICE_DETAIL": {

@@ -1,50 +1,134 @@
-<div class="ai-page">
-  @if (!canUseAiAssistant) {
-    <div class="ai-lock-overlay">
-      <div class="ai-lock-card">
-        <div class="ai-lock-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+<div class="ai-page" [class.sidebar-collapsed]="sidebarCollapsed" [class.sidebar-open]="sidebarOpen">
+  
+  <!-- Sidebar (Istorija razgovora) -->
+  <aside class="ai-sidebar">
+    <div class="ai-sidebar__header">
+      <div>
+        <h2>{{ 'AI_ASSISTANT.CONVERSATIONS_TITLE' | translate }}</h2>
+        <p class="ai-sidebar__subtitle">{{ 'AI_ASSISTANT.CONVERSATIONS_SUBTITLE' | translate }}</p>
+      </div>
+      <button class="btn-primary ai-new-chat-button" type="button" (click)="startNewChat()" [disabled]="isLoading || isLoadingConversations || isLoadingMessages">
+        {{ 'AI_ASSISTANT.NEW_CHAT' | translate }}
+      </button>
+    </div>
+
+    <div class="ai-conversations">
+      @if (isLoadingConversations) {
+        <div class="ai-sidebar__empty">{{ 'AI_ASSISTANT.LOADING_CONVERSATIONS' | translate }}</div>
+      }
+
+      @if (!isLoadingConversations && conversations.length === 0) {
+        <div class="ai-sidebar__empty">{{ 'AI_ASSISTANT.EMPTY_CONVERSATIONS' | translate }}</div>
+      }
+
+      @for (conversation of conversations; track conversation.id) {
+        <div class="conversation-item" [class.active]="conversation.id === activeConversationId" (click)="selectConversation(conversation)">
+          <div class="conversation-item__content">
+            <div class="conversation-item__title">{{ conversation.title }}</div>
+            <div class="conversation-item__meta">{{ formatConversationDate(conversation.updatedAt) }}</div>
+          </div>
+          <button class="conversation-delete" type="button" (click)="deleteConversation(conversation, $event)">
+            {{ 'AI_ASSISTANT.DELETE' | translate }}
+          </button>
+        </div>
+      }
+    </div>
+  </aside>
+
+  <!-- Main Chat Section -->
+  <section class="ai-main">
+    @if (!canUseAiAssistant) {
+      <div class="ai-lock-overlay">
+        <div class="ai-lock-card">
+          <div class="ai-lock-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h2>{{ 'AI_ASSISTANT.CONFIGURATION_TITLE' | translate }}</h2>
+          <p>{{ 'AI_ASSISTANT.CONFIGURATION_MESSAGE' | translate }}</p>
+          <button class="ai-lock-button" (click)="openAiConfigModal()">
+            {{ 'AI_ASSISTANT.CONFIGURATION_ACTION' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Header -->
+    <div class="ai-header">
+      <div class="ai-header__left">
+        <button class="ai-toggle" type="button" (click)="toggleSidebar()" [attr.aria-pressed]="!sidebarCollapsed" [attr.title]="(sidebarCollapsed && !sidebarOpen) ? 'Prikaži istoriju' : 'Sakrij istoriju'" [attr.aria-label]="(sidebarCollapsed && !sidebarOpen) ? 'Prikaži istoriju' : 'Sakrij istoriju'">
+          <ng-container *ngIf="(sidebarCollapsed && !sidebarOpen); else closeIcon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </ng-container>
+          <ng-template #closeIcon>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </ng-template>
+        </button>
+        <div class="ai-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z"/>
+            <circle cx="9" cy="13" r="1" fill="currentColor"/>
+            <circle cx="15" cy="13" r="1" fill="currentColor"/>
           </svg>
         </div>
-        <h2>{{ 'AI_ASSISTANT.CONFIGURATION_TITLE' | translate }}</h2>
-        <p>{{ 'AI_ASSISTANT.CONFIGURATION_MESSAGE' | translate }}</p>
-        <button class="ai-lock-button" (click)="openAiConfigModal()">
-          {{ 'AI_ASSISTANT.CONFIGURATION_ACTION' | translate }}
-        </button>
+        <div class="ai-header__text">
+          <h1 class="ai-header__title">{{ 'AI_ASSISTANT.TITLE' | translate }}</h1>
+          <span class="ai-header__subtitle">{{ activeConversationTitle }}</span>
+        </div>
       </div>
-    </div>
-  }
-
-  <div class="ai-header">
-    <div class="ai-header__left">
-      <div class="ai-avatar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z"/>
-          <circle cx="9" cy="13" r="1" fill="currentColor"/>
-          <circle cx="15" cy="13" r="1" fill="currentColor"/>
+      
+      <button class="btn-clear" (click)="startNewChat()" [title]="'AI_ASSISTANT.CLEAR_BTN' | translate" [disabled]="isLoading || isLoadingMessages || isLoadingConversations">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6M14 11v6"/>
         </svg>
-      </div>
-      <div>
-        <h1 class="ai-header__title">{{ 'AI_ASSISTANT.TITLE' | translate }}</h1>
-        <span class="ai-header__subtitle">{{ 'AI_ASSISTANT.SUBTITLE' | translate }}</span>
-      </div>
+        <span>{{ 'AI_ASSISTANT.CLEAR_BTN' | translate }}</span>
+      </button>
     </div>
-    <button class="btn-clear" (click)="clearChat()" [title]="'AI_ASSISTANT.CLEAR_BTN' | translate">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="3 6 5 6 21 6"/>
-        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-        <path d="M10 11v6M14 11v6"/>
-      </svg>
-      {{ 'AI_ASSISTANT.CLEAR_BTN' | translate }}
-    </button>
-  </div>
 
-  <div class="ai-messages" #messagesContainer>
-    @for (msg of messages; track $index) {
-      <div class="message" [class.message--user]="msg.role === 'user'" [class.message--assistant]="msg.role === 'assistant'">
-        @if (msg.role === 'assistant') {
+    <!-- Messages Container -->
+    <div class="ai-messages" #messagesContainer>
+      @if (isLoadingMessages) {
+        <div class="chat-loading">{{ 'AI_ASSISTANT.LOADING_MESSAGES' | translate }}</div>
+      }
+
+      @for (msg of messages; track $index) {
+        <div class="message" [class.message--user]="msg.role === 'user'" [class.message--assistant]="msg.role === 'assistant'">
+          @if (msg.role === 'assistant') {
+            <div class="message__avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z"/>
+                <circle cx="9" cy="13" r="1" fill="currentColor"/>
+                <circle cx="15" cy="13" r="1" fill="currentColor"/>
+              </svg>
+            </div>
+          }
+          <div class="message__body">
+            <p class="message__text" [innerHTML]="formatContent(msg.content)"></p>
+            <span class="message__time">{{ formatTime(msg.timestamp) }}</span>
+          </div>
+          @if (msg.role === 'user') {
+            <div class="message__avatar message__avatar--user">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+              </svg>
+            </div>
+          }
+        </div>
+      }
+
+      @if (isLoading) {
+        <div class="message message--assistant">
           <div class="message__avatar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z"/>
@@ -52,65 +136,58 @@
               <circle cx="15" cy="13" r="1" fill="currentColor"/>
             </svg>
           </div>
-        }
-        <div class="message__body">
-          <p class="message__text" [innerHTML]="formatContent(msg.content)"></p>
-          <span class="message__time">{{ formatTime(msg.timestamp) }}</span>
-        </div>
-        @if (msg.role === 'user') {
-          <div class="message__avatar message__avatar--user">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="8" r="4"/>
-              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-            </svg>
-          </div>
-        }
-      </div>
-    }
-
-    @if (isLoading) {
-      <div class="message message--assistant">
-        <div class="message__avatar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4z"/>
-            <circle cx="9" cy="13" r="1" fill="currentColor"/>
-            <circle cx="15" cy="13" r="1" fill="currentColor"/>
-          </svg>
-        </div>
-        <div class="message__body">
-          <div class="typing-indicator">
-            <span></span><span></span><span></span>
+          <div class="message__body">
+            <div class="typing-indicator">
+              <span></span><span></span><span></span>
+            </div>
           </div>
         </div>
-      </div>
-    }
-  </div>
-
-  <div class="ai-input">
-    <div class="ai-input__wrapper">
-      <textarea
-        [(ngModel)]="inputText"
-        (keydown)="onKeyDown($event)"
-        [placeholder]="canUseAiAssistant ? ('AI_ASSISTANT.INPUT_PLACEHOLDER' | translate) : ('AI_ASSISTANT.CONFIGURATION_PLACEHOLDER' | translate)"
-        rows="1"
-        [disabled]="isLoading || !canUseAiAssistant"
-        class="ai-input__field"
-      ></textarea>
-      <button
-        class="ai-input__send"
-        (click)="sendMessage()"
-        [disabled]="!inputText.trim() || isLoading || !canUseAiAssistant"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="22" y1="2" x2="11" y2="13"/>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-      </button>
+      }
     </div>
-    <p class="ai-input__hint">{{ canUseAiAssistant ? ('AI_ASSISTANT.INPUT_HINT' | translate) : ('AI_ASSISTANT.CONFIGURATION_HINT' | translate) }}</p>
-  </div>
+
+    <!-- Sample Prompts -->
+    @if (!activeConversationId && messages.length <= 1) {
+      <div class="sample-prompts">
+        <h3>{{ 'AI_ASSISTANT.SAMPLE_PROMPTS_TITLE' | translate }}</h3>
+        <ul>
+          <li (click)="inputText = 'Kako mogu da optimizujem svoje troškove?'">{{ 'AI_ASSISTANT.SAMPLE_PROMPT_1' | translate }}</li>
+          <li (click)="inputText = 'Koji je najbolji način za vođenje faktura u paušalu?'">{{ 'AI_ASSISTANT.SAMPLE_PROMPT_2' | translate }}</li>
+          <li (click)="inputText = 'Kako da se pripremim za poresku prijavu?'">{{ 'AI_ASSISTANT.SAMPLE_PROMPT_3' | translate }}</li>
+        </ul>
+      </div>
+    }
+
+    <!-- Input Bar -->
+    <div class="ai-input">
+      <div class="ai-input__wrapper">
+        <textarea
+          [(ngModel)]="inputText"
+          (keydown)="onKeyDown($event)"
+          [placeholder]="canUseAiAssistant ? ('AI_ASSISTANT.INPUT_PLACEHOLDER' | translate) : ('AI_ASSISTANT.CONFIGURATION_PLACEHOLDER' | translate)"
+          rows="1"
+          [disabled]="isLoading || !canUseAiAssistant"
+          class="ai-input__field"
+        ></textarea>
+        <button
+          class="ai-input__send"
+          (click)="sendMessage()"
+          [disabled]="!inputText.trim() || isLoading || !canUseAiAssistant"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <p class="ai-input__hint">{{ canUseAiAssistant ? ('AI_ASSISTANT.INPUT_HINT' | translate) : ('AI_ASSISTANT.CONFIGURATION_HINT' | translate) }}</p>
+    </div>
+  </section>
 </div>
 
+<!-- Mobile BackDrop Overlay -->
+<div class="ai-overlay" *ngIf="sidebarOpen" (click)="toggleSidebar()"></div>
+
+<!-- Configuration Modal -->
 @if (showAiConfigModal) {
   <div class="modal-overlay" (click)="closeAiConfigModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
