@@ -8,6 +8,7 @@ import { BusinessProfileToReturnDto } from '../../../models/business-profile';
 import { UserProfileStore } from '../../../stores/user-profile.store';
 import { SidebarService } from '../../../shared/sidebar.service';
 import { LanguageService } from '../../../services/language.service';
+import { ThemeService } from '../../../services/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -24,6 +25,7 @@ export class NavbarComponent implements OnInit {
   router = inject(Router);
   sidebarService = inject(SidebarService);
   langService = inject(LanguageService);
+  themeService = inject(ThemeService);
 
   currentBusiness = signal<BusinessProfileToReturnDto | null | undefined>(null);
   availableBusinesses = signal<BusinessProfileToReturnDto[]>([]);
@@ -131,5 +133,13 @@ export class NavbarComponent implements OnInit {
 
   getUserProfilePicture(): string | null {
     return this.userProfileStore.Profile()?.userProfile.profilePicture ?? null;
+  }
+
+  isDarkMode(): boolean {
+    return this.themeService.isDark();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggle();
   }
 }
