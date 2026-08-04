@@ -131,6 +131,46 @@
 
     </div>
 
+    <div class="card exchange-rate-card">
+        <div class="card-header exchange-header">
+            <h2>Kursna lista NBS</h2>
+            <span class="exchange-chip">Live</span>
+        </div>
+
+        <div class="card-body exchange-body">
+            @if (isRatesLoading) {
+                <div class="exchange-loading" aria-label="Loading exchange rates">
+                    <div class="exchange-spinner"></div>
+                    <span>Učitavanje kursne liste...</span>
+                </div>
+            }
+
+            @if (!isRatesLoading && ratesError) {
+                <div class="exchange-empty">
+                    <p>{{ ratesError }}</p>
+                </div>
+            }
+
+            @if (!isRatesLoading && !ratesError && rates.length > 0) {
+                <div class="exchange-rate-grid">
+                    @for (rate of rates; track rate.currency) {
+                        <div class="exchange-rate-item">
+                            <div class="exchange-rate-code">{{ rate.currency }}</div>
+                            <div class="exchange-rate-value">{{ rate.rate | number:'1.2-2' }} RSD</div>
+                            <div class="exchange-rate-description">{{ rate.description }}</div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (!isRatesLoading && !ratesError && rates.length === 0) {
+                <div class="exchange-empty">
+                    <p>Trenutno nema dostupnih kurseva.</p>
+                </div>
+            }
+        </div>
+    </div>
+
     <!-- Main Content Grid -->
     <div class="main-grid">
 

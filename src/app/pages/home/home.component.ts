@@ -3,6 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { InvoiceService } from '../../services/invoice.service';
+import { ExchangeRateService } from '../../services/exchange-rate.service';
 import { InvoiceToReturnDto } from '../../models/invoice';
 import { Currency } from '../../enums/currency';
 import { PaymentStatus } from '../../enums/payment-status';
@@ -22,6 +23,12 @@ interface BestSellingItem {
     revenue: number;
 }
 
+interface ExchangeRateItem {
+    currency: string;
+    rate: number;
+    description: string;
+}
+
 @Component({
     selector: 'app-home',
     standalone: true,
@@ -34,10 +41,14 @@ export class HomeComponent implements OnInit {
     private readonly VAT_REGISTRATION_LIMIT = 8_000_000;
 
     invoiceService = inject(InvoiceService);
+    exchangeRateService = inject(ExchangeRateService);
     toastr = inject(ToastrService);
     translate = inject(TranslateService);
 
     isLoading = signal(true);
+    rates: ExchangeRateItem[] = [];
+    isRatesLoading = false;
+    ratesError = '';
     totalRevenue = signal(0);
     totalInvoicesCount = signal(0);
     averageInvoiceValue = signal(0);
@@ -54,6 +65,7 @@ export class HomeComponent implements OnInit {
 
     ngOnInit() {
         this.loadDashboardData();
+        this.loadExchangeRates();
     }
 
     loadDashboardData() {
@@ -72,6 +84,23 @@ export class HomeComponent implements OnInit {
                     this.translate.instant('HOME.TOAST_ERROR_TITLE')
                 );
                 this.isLoading.set(false);
+            }
+        });
+    }
+
+    loadExchangeRates() {
+        this.isRatesLoading = true;
+        this.ratesError = '';
+
+        this.exchangeRateService.getAllRates().subscribe({
+            next: (response) => {
+                this.rates = (response.data || []).filter((rate) => rate.currency !== 'RSD');
+                this.isRatesLoading = false;
+            },
+            error: (err) => {
+                console.error('Error loading exchange rates', err);
+                this.ratesError = 'Kursnu listu trenutno nije moguće učitati.';
+                this.isRatesLoading = false;
             }
         });
     }
