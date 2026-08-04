@@ -30,6 +30,9 @@ interface BestSellingItem {
     styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
+    private readonly FLAT_RATE_LIMIT = 6_000_000;
+    private readonly VAT_REGISTRATION_LIMIT = 8_000_000;
+
     invoiceService = inject(InvoiceService);
     toastr = inject(ToastrService);
     translate = inject(TranslateService);
@@ -43,6 +46,11 @@ export class HomeComponent implements OnInit {
     displayedRevenue = signal(0);
     displayedCount = signal(0);
     displayedAvg = signal(0);
+    totalPaidRSD = signal(0);
+    flatRateRemaining = signal(0);
+    vatRegistrationRemaining = signal(0);
+    flatRateProgress = signal(0);
+    vatRegistrationProgress = signal(0);
 
     ngOnInit() {
         this.loadDashboardData();
@@ -73,13 +81,19 @@ export class HomeComponent implements OnInit {
             inv.paymentStatus === PaymentStatus.paid || inv.invoiceStatus === InvoiceStatus.finished;
 
         const paidInvoices = invoices.filter(inv => isPaid(inv));
-        const totalRev = paidInvoices.reduce((sum, inv) => sum + (inv.totalAmountRSD || 0), 0);
+        const totalPaidRSD = paidInvoices.reduce((sum, inv) => sum + (inv.totalAmountRSD || 0), 0);
+        const totalRev = totalPaidRSD;
         const count = invoices.length;
         const avg = count > 0 ? totalRev / count : 0;
 
         this.totalRevenue.set(totalRev);
         this.totalInvoicesCount.set(count);
         this.averageInvoiceValue.set(avg);
+        this.totalPaidRSD.set(totalPaidRSD);
+        this.flatRateRemaining.set(Math.max(0, this.FLAT_RATE_LIMIT - totalPaidRSD));
+        this.vatRegistrationRemaining.set(Math.max(0, this.VAT_REGISTRATION_LIMIT - totalPaidRSD));
+        this.flatRateProgress.set(this.getProgressPercentage(totalPaidRSD, this.FLAT_RATE_LIMIT));
+        this.vatRegistrationProgress.set(this.getProgressPercentage(totalPaidRSD, this.VAT_REGISTRATION_LIMIT));
 
         this.animateValue(this.displayedRevenue, totalRev, 1500);
         this.animateValue(this.displayedCount, count, 1000);
@@ -132,6 +146,28 @@ export class HomeComponent implements OnInit {
             .sort((a, b) => b.quantity - a.quantity)
             .slice(0, 5);
         this.bestSellingItems.set(sortedItems);
+    }
+
+    getProgressPercentage(current: number, max: number): number {
+        if (max <= 0) {
+            return 0;
+        }
+
+        return Math.min((current / max) * 100, 100);
+    }
+
+    getLimitStateClass(current: number, max: number): 'safe' | 'warning' | 'critical' {
+        const percentage = this.getProgressPercentage(current, max);
+
+        if (percentage >= 100) {
+            return 'critical';
+        }
+
+        if (percentage >= 80) {
+            return 'warning';
+        }
+
+        return 'safe';
     }
 
     animateValue(signalSetter: any, target: number, duration: number) {

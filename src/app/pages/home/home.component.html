@@ -78,6 +78,57 @@
             </div>
         </div>
 
+        <!-- Flat-Rate Income Limits Card -->
+        <div class="card summary-card limit-card">
+            <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+            </div>
+            <div class="card-content limit-content">
+                <h3>{{ 'HOME.FLAT_RATE_LIMITS' | translate }}</h3>
+
+                <div class="limit-progress-group">
+                    <div class="limit-progress-item">
+                        <div class="limit-progress-header">
+                            <span>{{ 'HOME.SIX_M_LIMIT' | translate }}</span>
+                            <span [class]="'limit-status ' + getLimitStateClass(totalPaidRSD(), 6000000)">{{ 'HOME.REMAINING' | translate }}: {{ flatRateRemaining() | number:'1.0-0' }} RSD</span>
+                        </div>
+                        <div class="limit-progress-meta">
+                            <span>{{ flatRateProgress() | number:'1.0-0' }}%</span>
+                        </div>
+                        <div class="progress-bar-container limit-progress-container">
+                            <div class="progress-bar limit-progress-fill"
+                                 [style.width.%]="flatRateProgress()"
+                                 [class.limit-progress-warning]="getLimitStateClass(totalPaidRSD(), 6000000) === 'warning'"
+                                 [class.limit-progress-critical]="getLimitStateClass(totalPaidRSD(), 6000000) === 'critical'">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="limit-progress-item">
+                        <div class="limit-progress-header">
+                            <span>{{ 'HOME.VAT_LIMIT' | translate }}</span>
+                            <span [class]="'limit-status ' + getLimitStateClass(totalPaidRSD(), 8000000)">{{ 'HOME.REMAINING' | translate }}: {{ vatRegistrationRemaining() | number:'1.0-0' }} RSD</span>
+                        </div>
+                        <div class="limit-progress-meta">
+                            <span>{{ vatRegistrationProgress() | number:'1.0-0' }}%</span>
+                        </div>
+                        <div class="progress-bar-container limit-progress-container">
+                            <div class="progress-bar limit-progress-fill"
+                                 [style.width.%]="vatRegistrationProgress()"
+                                 [class.limit-progress-warning]="getLimitStateClass(totalPaidRSD(), 8000000) === 'warning'"
+                                 [class.limit-progress-critical]="getLimitStateClass(totalPaidRSD(), 8000000) === 'critical'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Main Content Grid -->
