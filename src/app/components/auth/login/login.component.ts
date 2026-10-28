@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -16,7 +17,7 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   fb = inject(FormBuilder);
   authService = inject(AuthService);
   authStore = inject(AuthStore);
@@ -32,50 +33,97 @@ export class LoginComponent {
   isLoading = signal(false);
   showPassword = signal(false);
 
-  togglePasswordVisibility() {
-    this.showPassword.set(!this.showPassword());
+  ngOnInit(): void {
+    this.initializeGoogleLogin();
   }
 
-  googleLogin() {
-    (window as any).google.accounts.id.initialize({
+  private initializeGoogleLogin(): void {
+    const google = (window as any).google;
+
+    if (!google?.accounts?.id) {
+      console.error(
+        'Google Identity Services nije učitan. Proveri gsi/client skriptu.'
+      );
+      return;
+    }
+
+    google.accounts.id.initialize({
       client_id: environment.googleClientId,
       callback: (response: any) => {
-        const idToken = response.credential;
-        this.isLoading.set(true);
-        this.authService.googleLogin(idToken).subscribe({
-          next: (res) => {
-            if (res.token) {
-              this.authStore.login(res.token);
-              this.toastr.success(
-                this.translate.instant('LOGIN.TOAST_SUCCESS_MSG'),
-                this.translate.instant('LOGIN.TOAST_SUCCESS_TITLE')
-              );
-              this.router.navigate(['/home']);
-            }
-            this.isLoading.set(false);
-          },
-          error: (err) => {
-            this.toastr.error(
-              err.error?.message || this.translate.instant('LOGIN.TOAST_GOOGLE_ERROR'),
-              this.translate.instant('LOGIN.TOAST_ERROR_TITLE')
-            );
-            this.isLoading.set(false);
-          },
-        });
+        if (response?.credential) {
+          this.handleGoogleLogin(response.credential);
+        } else {
+          console.error('Google nije vratio ID token.');
+        }
       },
     });
 
-    (window as any).google.accounts.id.prompt();
+    const buttonContainer = document.getElementById('google-signin-button');
+
+    if (!buttonContainer) {
+      console.error('Nije pronađen #google-signin-button element.');
+      return;
+    }
+
+    google.accounts.id.renderButton(buttonContainer, {
+      theme: 'outline',
+      size: 'large',
+      text: 'signin_with',
+      shape: 'rectangular',
+      width: 300,
+    });
   }
 
-  onSubmit() {
+  private handleGoogleLogin(idToken: string): void {
+    this.isLoading.set(true);
+
+    this.authService.googleLogin(idToken).subscribe({
+      next: (res) => {
+        if (res.token) {
+          this.authStore.login(res.token);
+          this.toastr.success(
+            this.translate.instant('LOGIN.TOAST_SUCCESS_MSG'),
+            this.translate.instant('LOGIN.TOAST_SUCCESS_TITLE')
+          );
+          this.router.navigate(['/home']);
+        } else {
+          this.toastr.error(
+            this.translate.instant('LOGIN.TOAST_ERROR_NO_TOKEN'),
+            this.translate.instant('LOGIN.TOAST_ERROR_TITLE')
+          );
+        }
+
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Google login error:', err);
+
+        this.toastr.error(
+          err.error?.message ||
+            this.translate.instant('LOGIN.TOAST_GOOGLE_ERROR'),
+          this.translate.instant('LOGIN.TOAST_ERROR_TITLE')
+        );
+
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword.set(!this.showPassword());
+  }
+
+  onSubmit(): void {
     if (this.loginForm.invalid) return;
 
     this.isLoading.set(true);
 
     const { email, password } = this.loginForm.value;
 
-    this.authService.login({ email: email!, password: password! }).subscribe({
+    this.authService.login({
+      email: email!,
+      password: password!,
+    }).subscribe({
       next: (response) => {
         if (response.token) {
           this.authStore.login(response.token);
@@ -90,14 +138,18 @@ export class LoginComponent {
             this.translate.instant('LOGIN.TOAST_ERROR_TITLE')
           );
         }
+
         this.isLoading.set(false);
       },
       error: (err) => {
         console.error(err);
+
         this.toastr.error(
-          err.error?.message || this.translate.instant('LOGIN.TOAST_ERROR_GENERIC'),
+          err.error?.message ||
+            this.translate.instant('LOGIN.TOAST_ERROR_GENERIC'),
           this.translate.instant('LOGIN.TOAST_ERROR_TITLE')
         );
+
         this.isLoading.set(false);
       },
     });

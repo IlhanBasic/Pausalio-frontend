@@ -460,6 +460,11 @@ input::placeholder { color: #cbd5e1; }
   color: #667eea;
   font-size: 14px;
 }
+#google-signin-button {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
 /* Circular logo stil */
 .logo-circle {
   width: 180px;

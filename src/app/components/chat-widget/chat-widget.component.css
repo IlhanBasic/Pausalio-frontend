@@ -415,3 +415,34 @@
     right: 16px;
   }
 }
+/* Close Button */
+.panel-header__close {
+  width: 32px;
+  height: 32px;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+
+  transition: all 0.2s ease;
+}
+
+.panel-header__close:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.panel-header__close:active {
+  transform: scale(0.94);
+}
