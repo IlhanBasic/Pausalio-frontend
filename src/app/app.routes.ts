@@ -89,6 +89,12 @@ export const routes: Routes = [
         canActivate: [nonAdminGuard],
       },
       {
+        path: 'kpo',
+        loadComponent: () =>
+          import('./pages/kpo/kpo.component').then((m) => m.KpoComponent),
+        canActivate: [nonAdminGuard],
+      },
+      {
         path: 'bank-accounts',
         loadComponent: () =>
           import('./pages/bank-accounts/bank-accounts.component').then(

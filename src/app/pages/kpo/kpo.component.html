@@ -1,0 +1,81 @@
+<div class="kpo-page">
+  <div class="page-header">
+    <div>
+      <h1>{{ 'KPO.TITLE' | translate }}</h1>
+      <p class="subtitle">{{ 'KPO.SUBTITLE' | translate }}</p>
+    </div>
+
+    <div class="header-actions">
+      <label class="year-picker">
+        <span>{{ 'KPO.YEAR' | translate }}</span>
+        <input
+          type="number"
+          [value]="selectedYear()"
+          (input)="onYearChange(+($any($event.target).value || selectedYear()))"
+          min="2020"
+          max="2100"
+        />
+      </label>
+
+      <button class="btn-secondary" type="button" (click)="backfill()">{{ 'KPO.BACKFILL' | translate }}</button>
+      <button class="btn-primary" type="button" (click)="exportPdf()">{{ 'KPO.EXPORT_PDF' | translate }}</button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">{{ 'KPO.LOADING' | translate }}</div>
+  } @else {
+    @if (summary(); as summaryData) {
+      <div class="stats-grid">
+        <div class="stat-card primary">
+          <span class="label">{{ 'KPO.TOTAL_REVENUE' | translate }}</span>
+          <strong>{{ summaryData.grandTotal | currency: 'RSD' : 'symbol' : '1.0-0' }}</strong>
+        </div>
+        <div class="stat-card">
+          <span class="label">{{ 'KPO.PRODUCTS' | translate }}</span>
+          <strong>{{ summaryData.totalProductIncome | currency: 'RSD' : 'symbol' : '1.0-0' }}</strong>
+        </div>
+        <div class="stat-card">
+          <span class="label">{{ 'KPO.SERVICES' | translate }}</span>
+          <strong>{{ summaryData.totalServiceIncome | currency: 'RSD' : 'symbol' : '1.0-0' }}</strong>
+        </div>
+        <div class="stat-card warning">
+          <span class="label">{{ 'KPO.REMAINING_6M' | translate }}</span>
+          <strong>{{ summaryData.remainingTo6MLimit | currency: 'RSD' : 'symbol' : '1.0-0' }}</strong>
+        </div>
+        <div class="stat-card warning">
+          <span class="label">{{ 'KPO.REMAINING_8M' | translate }}</span>
+          <strong>{{ summaryData.remainingTo8MLimit | currency: 'RSD' : 'symbol' : '1.0-0' }}</strong>
+        </div>
+        <div class="stat-card neutral">
+          <span class="label">{{ 'KPO.ENTRY_COUNT' | translate }}</span>
+          <strong>{{ summaryData.entryCount }}</strong>
+        </div>
+      </div>
+
+      @if (summaryData.alerts.length) {
+        <div class="alerts-box">
+          <h3>{{ 'KPO.THRESHOLDS' | translate }}</h3>
+          <ul>
+            @for (alert of summaryData.alerts; track alert.thresholdName) {
+              <li [class.exceeded]="alert.isExceeded">
+                <span>{{ alert.thresholdName }}</span>
+                <strong>{{ alert.currentTotal | currency: 'RSD' : 'symbol' : '1.0-0' }}</strong>
+                <small>/ {{ alert.thresholdAmount | currency: 'RSD' : 'symbol' : '1.0-0' }}</small>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    }
+
+    <div class="table-card">
+      <app-data-table
+        [columns]="columns"
+        [data]="entries()"
+        [searchPlaceholder]="'KPO.SEARCH_PLACEHOLDER' | translate"
+        [emptyMessage]="'KPO.EMPTY_MESSAGE' | translate"
+      ></app-data-table>
+    </div>
+  }
+</div>
